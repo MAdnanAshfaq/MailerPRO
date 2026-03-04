@@ -1,5 +1,5 @@
 # Stage 1: Build the frontend (Vite/React)
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 
 # Copy frontend package files and install dependencies
@@ -11,7 +11,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: Build the backend (Go)
-FROM golang:1.23-alpine AS backend-builder
+FROM golang:1.25-alpine AS backend-builder
 WORKDIR /app
 
 # Install build dependencies if needed (e.g. for CGO sqlite)
