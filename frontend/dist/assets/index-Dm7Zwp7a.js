@@ -1,10 +1,27 @@
-(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const r of document.querySelectorAll('link[rel="modulepreload"]'))n(r);new MutationObserver(r=>{for(const a of r)if(a.type==="childList")for(const s of a.addedNodes)s.tagName==="LINK"&&s.rel==="modulepreload"&&n(s)}).observe(document,{childList:!0,subtree:!0});function i(r){const a={};return r.integrity&&(a.integrity=r.integrity),r.referrerPolicy&&(a.referrerPolicy=r.referrerPolicy),r.crossOrigin==="use-credentials"?a.credentials="include":r.crossOrigin==="anonymous"?a.credentials="omit":a.credentials="same-origin",a}function n(r){if(r.ep)return;r.ep=!0;const a=i(r);fetch(r.href,a)}})();class N{constructor(e,i){this.routes=e,this.onRouteMatch=i,this.init()}init(){window.addEventListener("popstate",()=>this.handleRoute()),document.body.addEventListener("click",e=>{const i=e.target.closest("a[data-link]");i&&(e.preventDefault(),this.navigate(i.getAttribute("href")))}),this.handleRoute()}navigate(e){window.history.pushState({},"",e),this.handleRoute()}handleRoute(){const e=window.location.pathname,i=this.routes[e]||this.routes["/"];this.onRouteMatch(e,i)}}function B(t){const e=[{path:"/",title:"Overview",icon:"▦"},{path:"/campaigns",title:"Campaign",icon:"✉"},{path:"/contacts",title:"Contacts",icon:"👥"},{path:"/automation",title:"Automation",icon:"⚙"},{path:"/analytics",title:"Analytics",icon:"📊"},{path:"/schedule",title:"Schedule",icon:"🕒",hasChevron:!0},{path:"/templates",title:"Templates",icon:"📄",hasChevron:!0},{path:"/integration",title:"Integration",icon:"📦"}],i=[{path:"/help",title:"Help Center",icon:"?"},{path:"/settings",title:"Setting",icon:"⚙"}],n=JSON.parse(localStorage.getItem("camp_user")||'{"name": "Sarah M", "email": "sarah@sendable.com"}');return`
-        <div class="sidebar">
+(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const r of document.querySelectorAll('link[rel="modulepreload"]'))n(r);new MutationObserver(r=>{for(const a of r)if(a.type==="childList")for(const i of a.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&n(i)}).observe(document,{childList:!0,subtree:!0});function s(r){const a={};return r.integrity&&(a.integrity=r.integrity),r.referrerPolicy&&(a.referrerPolicy=r.referrerPolicy),r.crossOrigin==="use-credentials"?a.credentials="include":r.crossOrigin==="anonymous"?a.credentials="omit":a.credentials="same-origin",a}function n(r){if(r.ep)return;r.ep=!0;const a=s(r);fetch(r.href,a)}})();class N{constructor(e,s){this.routes=e,this.onRouteMatch=s,this.init()}init(){window.addEventListener("popstate",()=>this.handleRoute()),document.body.addEventListener("click",e=>{const s=e.target.closest("a[data-link]");s&&(e.preventDefault(),this.navigate(s.getAttribute("href")))}),this.handleRoute()}navigate(e){window.history.pushState({},"",e),this.handleRoute()}handleRoute(){const e=window.location.pathname,s=this.routes[e]||this.routes["/"];this.onRouteMatch(e,s)}}function M(t){const e=[{path:"/",title:"Overview",icon:"▦"},{path:"/campaigns",title:"Campaign",icon:"✉"},{path:"/contacts",title:"Contacts",icon:"👥"},{path:"/automation",title:"Automation",icon:"⚙"},{path:"/analytics",title:"Analytics",icon:"📊"},{path:"/schedule",title:"Schedule",icon:"🕒",hasChevron:!0},{path:"/templates",title:"Templates",icon:"📄",hasChevron:!0},{path:"/integration",title:"Integration",icon:"📦"}],s=[{path:"/help",title:"Help Center",icon:"?"},{path:"/settings",title:"Setting",icon:"⚙"}],n=JSON.parse(localStorage.getItem("camp_user")||'{"name": "User", "email": "user@sendable.com"}');return`
+        <!-- Mobile Topbar -->
+        <div class="mobile-topbar">
             <div class="logo">
-                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">✦</div>
-                <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                    <span style="font-size: 1.25rem; font-weight: 800; color: #1a1a1a;">Sendable</span>
-                    <span style="font-size: 0.625rem; font-weight: 500; color: var(--text-muted);">www.sendable.com</span>
+                <div style="width: 28px; height: 28px; background: var(--primary); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem;">✦</div>
+                <span>MailerPRO</span>
+            </div>
+            <button class="hamburger" id="hamburger-btn" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay (mobile) -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar Drawer -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; flex-shrink: 0;">✦</div>
+                <div style="display: flex; flex-direction: column; line-height: 1.2; overflow: hidden;">
+                    <span style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">MailerPRO</span>
+                    <span style="font-size: 0.6rem; font-weight: 500; color: var(--text-muted);">Your Deliverability Engine</span>
                 </div>
             </div>
             
@@ -13,55 +30,52 @@
                 ${e.map(r=>`
                     <li>
                         <a href="${r.path}" class="nav-link ${t===r.path?"active":""} ${r.hasChevron?"nav-link-with-chevron":""}" data-link>
-                            <div style="display: flex; align-items: center; gap: 0.875rem;">
-                                <span style="font-size: 1.1rem;">${r.icon}</span>
-                                <span style="font-weight: 500;">${r.title}</span>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span style="font-size: 1rem; width: 20px; text-align: center;">${r.icon}</span>
+                                <span>${r.title}</span>
                             </div>
-                            ${r.hasChevron?'<span style="font-size: 0.75rem;">⌵</span>':""}
+                            ${r.hasChevron?'<span style="font-size: 0.7rem; opacity: 0.6;">⌵</span>':""}
                         </a>
                     </li>
                 `).join("")}
             </ul>
 
             <div style="margin-top: auto;">
-                <div class="flex justify-between items-center mb-6" style="padding: 0 1rem;">
-                    <div class="flex items-center gap-2" style="font-size: 0.9375rem; font-weight: 500; color: var(--text-muted);">
+                <div class="flex justify-between items-center mb-6" style="padding: 0 0.25rem;">
+                    <div class="flex items-center gap-2" style="font-size: 0.875rem; font-weight: 500; color: var(--text-muted);">
                         <span>☾</span>
                         <span>Dark Mode</span>
                     </div>
-                    <div id="dark-mode-toggle" style="width: 40px; height: 20px; background: var(--border); border-radius: 20px; position: relative; cursor: pointer;">
-                        <div id="dark-mode-circle" style="width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: all 0.2s;"></div>
+                    <div id="dark-mode-toggle" style="width: 40px; height: 22px; background: var(--border); border-radius: 22px; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0;">
+                        <div id="dark-mode-circle" style="width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
                     </div>
                 </div>
 
+                <div class="nav-label" style="margin-top: 0;">Support</div>
                 <ul class="nav-links mb-6">
-                    ${i.map(r=>`
+                    ${s.map(r=>`
                         <li>
                             <a href="${r.path}" class="nav-link ${t===r.path?"active":""}" data-link>
-                                <span style="font-size: 1.1rem;">${r.icon}</span>
+                                <span style="font-size: 1rem; width: 20px; text-align: center;">${r.icon}</span>
                                 <span>${r.title}</span>
                             </a>
                         </li>
                     `).join("")}
                 </ul>
 
-                <div style="padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem;">
-                        ${n.name.charAt(0)}
+                <div style="padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;">
+                        ${n.name.charAt(0).toUpperCase()}
                     </div>
-                    <div style="overflow: hidden; flex: 1;">
-                        <p style="font-size: 0.875rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${n.name}
-                        </p>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${n.email}
-                        </p>
+                    <div style="overflow: hidden; flex: 1; min-width: 0;">
+                        <p class="truncate" style="font-size: 0.875rem; font-weight: 600;">${n.name}</p>
+                        <p class="truncate" style="font-size: 0.75rem; color: var(--text-muted);">${n.email}</p>
                     </div>
-                    <a href="/logout" id="logout-btn" style="text-decoration: none; font-size: 1rem;" title="Logout">🚪</a>
+                    <a href="/logout" id="logout-btn" style="text-decoration: none; font-size: 1rem; flex-shrink: 0; opacity: 0.7; transition: opacity 0.2s;" title="Logout" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">🚪</a>
                 </div>
             </div>
         </div>
-    `}const f="/api",p={async get(t){const e=await fetch(`${f}${t}`);if(!e.ok)throw new Error(`API Error: ${e.statusText}`);return e.json()},async post(t,e){const i=await fetch(`${f}${t}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!i.ok)throw new Error(`API Error: ${i.statusText}`);return i.json()},async patch(t,e){const i=await fetch(`${f}${t}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!i.ok)throw new Error(`API Error: ${i.statusText}`);return i.json()},async put(t,e){const i=await fetch(`${f}${t}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!i.ok)throw new Error(`API Error: ${i.statusText}`);return i.status===204?null:i.json()}},h={list:async()=>await p.get("/contacts")||[],create:t=>p.post("/contacts",t),update:(t,e)=>p.put(`/contacts/${t}`,e),addTag:t=>p.post("/contacts/tag",t),removeTag:(t,e)=>p.patch(`/contacts/${t}/tag`,e)},g={list:async()=>await p.get("/campaigns")||[],get:t=>p.get(`/campaigns/${t}`),create:t=>p.post("/campaigns",t),update:(t,e)=>p.put(`/campaigns/${t}`,e)},z={getOverview:()=>p.get("/stats/overview")},S={signup:t=>p.post("/signup",t),saveSMTP:t=>p.post("/settings/smtp",t),getWarming:t=>p.get(`/stats/warming?account_id=${t}`)},F={getHealth:t=>p.get(`/domain/health?domain=${t}`)};async function L(){let t={total_contacts:0,total_sent:0,open_rate:0,ctr:0,revenue:0,audience_growth:[]},e=[],i=null,n=null;try{const s=JSON.parse(localStorage.getItem("camp_user")||"{}"),l=[z.getOverview(),g.list()];s.id&&l.push(S.getWarming(s.id)),s.domain&&l.push(F.getHealth(s.domain));const o=await Promise.all(l);t=o[0],e=o[1],s.id&&(i=o[2]),s.domain&&(n=o[3]),e=(e||[]).slice(0,4)}catch(s){console.error("Failed to fetch dashboard data",s)}const r=JSON.parse(localStorage.getItem("camp_user")||'{ "name": "Test User" }'),a=r.name;return`
+    `}const x="/api",v={async get(t){const e=await fetch(`${x}${t}`);if(!e.ok)throw new Error(`API Error: ${e.statusText}`);return e.json()},async post(t,e){const s=await fetch(`${x}${t}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async patch(t,e){const s=await fetch(`${x}${t}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async put(t,e){const s=await fetch(`${x}${t}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.status===204?null:s.json()}},$={list:async()=>await v.get("/contacts")||[],create:t=>v.post("/contacts",t),update:(t,e)=>v.put(`/contacts/${t}`,e),addTag:t=>v.post("/contacts/tag",t),removeTag:(t,e)=>v.patch(`/contacts/${t}/tag`,e)},f={list:async()=>await v.get("/campaigns")||[],get:t=>v.get(`/campaigns/${t}`),create:t=>v.post("/campaigns",t),update:(t,e)=>v.put(`/campaigns/${t}`,e)},L={getOverview:()=>v.get("/stats/overview")},E={signup:t=>v.post("/signup",t),saveSMTP:t=>v.post("/settings/smtp",t),getWarming:t=>v.get(`/stats/warming?account_id=${t}`)},R={getHealth:t=>v.get(`/domain/health?domain=${t}`)};async function j(){let t={total_contacts:0,total_sent:0,open_rate:0,ctr:0,revenue:0,audience_growth:[]},e=[],s=null,n=null;try{const i=JSON.parse(localStorage.getItem("camp_user")||"{}"),l=[L.getOverview(),f.list()];i.id&&l.push(E.getWarming(i.id)),i.domain&&l.push(R.getHealth(i.domain));const o=await Promise.all(l);t=o[0],e=o[1],i.id&&(s=o[2]),i.domain&&(n=o[3]),e=(e||[]).slice(0,4)}catch(i){console.error("Failed to fetch dashboard data",i)}const r=JSON.parse(localStorage.getItem("camp_user")||'{ "name": "Test User" }'),a=r.name;return`
         <div class="main-content">
             <!-- Header -->
             <header class="flex justify-between items-center mb-8">
@@ -178,13 +192,13 @@
                                 <span style="cursor: pointer;">⚙</span>
                             </div>
                             <div class="flex flex-col gap-4">
-                                ${e.filter(s=>s.status==="scheduled").length>0?e.filter(s=>s.status==="scheduled").map(s=>`
+                                ${e.filter(i=>i.status==="scheduled").length>0?e.filter(i=>i.status==="scheduled").map(i=>`
                                         <div class="card" style="padding: 1rem; border: 1px solid var(--border); box-shadow: none;">
                                             <div class="flex justify-between items-center">
                                                 <div class="flex items-center gap-3">
                                                     <div style="font-size: 1.25rem;">✉</div>
                                                     <div>
-                                                        <p style="font-size: 0.875rem; font-weight: 700;">${s.name}</p>
+                                                        <p style="font-size: 0.875rem; font-weight: 700;">${i.name}</p>
                                                         <p style="font-size: 0.75rem; color: var(--text-muted);">Scheduled</p>
                                                     </div>
                                                 </div>
@@ -214,14 +228,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${e.map(s=>`
+                                ${e.map(i=>`
                                     <tr>
-                                        <td style="font-weight: 700;">${s.name}</td>
+                                        <td style="font-weight: 700;">${i.name}</td>
                                         <td>
-                                            <span class="status-badge status-${s.status}">${s.status}</span>
+                                            <span class="status-badge status-${i.status}">${i.status}</span>
                                         </td>
-                                        <td style="font-weight: 700;">${s.open_rate}%</td>
-                                        <td style="font-weight: 700;">${s.ctr}%</td>
+                                        <td style="font-weight: 700;">${i.open_rate}%</td>
+                                        <td style="font-weight: 700;">${i.ctr}%</td>
                                         <td><a href="/campaign" style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">View</a></td>
                                     </tr>
                                 `).join("")}
@@ -280,15 +294,15 @@
                     <div class="card">
                         <div class="flex justify-between items-center mb-6">
                             <h3>Email Warming</h3>
-                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">${i?i.status.toUpperCase():"PENDING"}</span>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">${s?s.status.toUpperCase():"PENDING"}</span>
                         </div>
                         <div class="insight-row">
                             <div class="insight-label">
                                 <span>Daily Progress</span>
-                                <span>${i?i.current_count:0} / ${i?i.daily_limit:10}</span>
+                                <span>${s?s.current_count:0} / ${s?s.daily_limit:10}</span>
                             </div>
                             <div class="progress-container">
-                                <div class="progress-bar" style="width: ${i?i.current_count/i.daily_limit*100:0}%;"></div>
+                                <div class="progress-bar" style="width: ${s?s.current_count/s.daily_limit*100:0}%;"></div>
                             </div>
                         </div>
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">
@@ -301,7 +315,7 @@
                 </div>
             </div>
         </div>
-    `}let x=[],k=null;async function R(){try{x=await h.list()}catch(t){console.error("Failed to fetch contacts",t)}return setTimeout(()=>{const t=document.getElementById("contact-search");t&&(t.oninput=e=>{const i=e.target.value.toLowerCase(),n=x.filter(r=>r.first_name&&r.first_name.toLowerCase().includes(i)||r.last_name&&r.last_name.toLowerCase().includes(i)||r.email.toLowerCase().includes(i)||r.tags&&r.tags.some(a=>a.text.toLowerCase().includes(i)));k(n)})},100),`
+    `}let S=[],_=null;async function F(){try{S=await $.list()}catch(t){console.error("Failed to fetch contacts",t)}return setTimeout(()=>{const t=document.getElementById("contact-search");t&&(t.oninput=e=>{const s=e.target.value.toLowerCase(),n=S.filter(r=>r.first_name&&r.first_name.toLowerCase().includes(s)||r.last_name&&r.last_name.toLowerCase().includes(s)||r.email.toLowerCase().includes(s)||r.tags&&r.tags.some(a=>a.text.toLowerCase().includes(s)));_(n)})},100),`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -345,7 +359,7 @@
                 #import-btn.loading::after { content: "⏳"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: var(--text-main); font-size: 1rem; animation: spin 1s linear infinite; }
             </style>
         </div>
-    `}function O(){const t=document.getElementById("contacts-list-body"),e=document.getElementById("modal-container"),i=document.getElementById("import-btn"),n=document.getElementById("import-file");k=s=>{t&&(t.innerHTML=s.map(l=>`
+    `}function O(){const t=document.getElementById("contacts-list-body"),e=document.getElementById("modal-container"),s=document.getElementById("import-btn"),n=document.getElementById("import-file");_=i=>{t&&(t.innerHTML=i.map(l=>`
             <tr>
                 <td style="font-weight: 700;">
                     ${l.first_name||l.last_name?`${l.first_name||""} ${l.last_name||""}`:`<span class="text-muted" style="font-weight: 400; font-style: italic;">${l.email.split("@")[0]} (No Name)</span>`}
@@ -361,26 +375,26 @@
                     <button class="btn btn-outline edit-contact-btn" data-id="${l.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
                 </td>
             </tr>
-        `).join("")+(s.length===0?'<tr><td colspan="5" style="text-align: center; padding: 3rem;" class="text-muted">No contacts found.</td></tr>':""),document.querySelectorAll(".edit-contact-btn").forEach(l=>{l.onclick=o=>{const d=o.target.dataset.id,c=x.find(v=>v.id==d);c&&r(c)}}))},k(x),i&&n&&(i.onclick=()=>n.click(),n.onchange=async s=>{const l=s.target.files[0];if(!l)return;i.classList.add("loading");const o=new FileReader;o.onload=async d=>{try{const c=new Uint8Array(d.target.result),v=window.XLSX.read(c,{type:"array"}),D=v.SheetNames[0],P=v.Sheets[D],M=window.XLSX.utils.sheet_to_json(P);let C=0;for(const m of M){const _=m.Email||m.email;if(!_)continue;let w=m["First Name"]||m.first_name||m.fname||"",$=m["Last Name"]||m.last_name||m.lname||"";if(!w&&!$&&(m.Name||m.name)){const b=(m.Name||m.name).split(" ");w=b[0],$=b.slice(1).join(" ")}const E=m.Tags||m.tags||"",Q=E?E.split(",").map(b=>b.trim()).filter(Boolean):[];await h.create({first_name:w,last_name:$,email:_,phone:m.Phone||m.phone||""}),C++}alert(`Successfully imported ${C} contacts.`),window.location.reload()}catch(c){i.classList.remove("loading"),alert("Import failed: "+c.message),console.error("Import error:",c)}},o.readAsArrayBuffer(l)});const r=(s=null)=>{const l=!!s;e.innerHTML=`
+        `).join("")+(i.length===0?'<tr><td colspan="5" style="text-align: center; padding: 3rem;" class="text-muted">No contacts found.</td></tr>':""),document.querySelectorAll(".edit-contact-btn").forEach(l=>{l.onclick=o=>{const d=o.target.dataset.id,c=S.find(p=>p.id==d);c&&r(c)}}))},_(S),s&&n&&(s.onclick=()=>n.click(),n.onchange=async i=>{const l=i.target.files[0];if(!l)return;s.classList.add("loading");const o=new FileReader;o.onload=async d=>{try{const c=new Uint8Array(d.target.result),p=window.XLSX.read(c,{type:"array"}),k=p.SheetNames[0],y=p.Sheets[k],u=window.XLSX.utils.sheet_to_json(y);let g=0;for(const m of u){const I=m.Email||m.email;if(!I)continue;let z=m["First Name"]||m.first_name||m.fname||"",C=m["Last Name"]||m.last_name||m.lname||"";if(!z&&!C&&(m.Name||m.name)){const h=(m.Name||m.name).split(" ");z=h[0],C=h.slice(1).join(" ")}const A=m.Tags||m.tags||"",tt=A?A.split(",").map(h=>h.trim()).filter(Boolean):[];await $.create({first_name:z,last_name:C,email:I,phone:m.Phone||m.phone||""}),g++}alert(`Successfully imported ${g} contacts.`),window.location.reload()}catch(c){s.classList.remove("loading"),alert("Import failed: "+c.message),console.error("Import error:",c)}},o.readAsArrayBuffer(l)});const r=(i=null)=>{const l=!!i;e.innerHTML=`
             <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
                 <div class="card" style="width: 100%; max-width: 500px; padding: 2rem;">
                     <h2 class="mb-6">${l?"Edit Contact":"Add New Contact"}</h2>
                     <form id="contact-form">
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">First Name</label>
-                            <input type="text" name="first_name" class="input" required placeholder="John" value="${s?.first_name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <input type="text" name="first_name" class="input" required placeholder="John" value="${i?.first_name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Last Name</label>
-                            <input type="text" name="last_name" class="input" required placeholder="Doe" value="${s?.last_name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <input type="text" name="last_name" class="input" required placeholder="Doe" value="${i?.last_name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Email Address</label>
-                            <input type="email" name="email" class="input" required placeholder="john@example.com" value="${s?.email||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <input type="email" name="email" class="input" required placeholder="john@example.com" value="${i?.email||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
                         <div class="mb-8">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Phone Number</label>
-                            <input type="text" name="phone" class="input" placeholder="+1 (555) 000-0000" value="${s?.phone||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <input type="text" name="phone" class="input" placeholder="+1 (555) 000-0000" value="${i?.phone||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
                         <div class="flex justify-between mt-8" style="gap: 1rem;">
                             <button type="button" class="btn btn-outline" id="close-modal" style="flex: 1;">Cancel</button>
@@ -389,7 +403,7 @@
                     </form>
                 </div>
             </div>
-        `,document.getElementById("close-modal").onclick=()=>e.innerHTML="",document.getElementById("modal-overlay").onclick=o=>{o.target.id==="modal-overlay"&&(e.innerHTML="")},document.getElementById("contact-form").onsubmit=async o=>{o.preventDefault();const d=new FormData(o.target),c=Object.fromEntries(d.entries());try{l?await h.update(s.id,c):await h.create(c),window.location.reload()}catch(v){alert("Action failed: "+v.message)}}},a=document.getElementById("add-contact-btn");a&&a.addEventListener("click",()=>r())}let u=[],y=null;async function H(){try{u=await g.list()}catch(t){console.error("Failed to fetch campaigns",t)}return`
+        `,document.getElementById("close-modal").onclick=()=>e.innerHTML="",document.getElementById("modal-overlay").onclick=o=>{o.target.id==="modal-overlay"&&(e.innerHTML="")},document.getElementById("contact-form").onsubmit=async o=>{o.preventDefault();const d=new FormData(o.target),c=Object.fromEntries(d.entries());try{l?await $.update(i.id,c):await $.create(c),window.location.reload()}catch(p){alert("Action failed: "+p.message)}}},a=document.getElementById("add-contact-btn");a&&a.addEventListener("click",()=>r())}let b=[],w=null;async function H(){try{b=await f.list()}catch(t){console.error("Failed to fetch campaigns",t)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -405,25 +419,25 @@
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Drafts</span>
-                        <span class="stat-value">${u.filter(t=>t.status==="draft").length}</span>
+                        <span class="stat-value">${b.filter(t=>t.status==="draft").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Scheduled</span>
-                        <span class="stat-value">${u.filter(t=>t.status==="scheduled").length}</span>
+                        <span class="stat-value">${b.filter(t=>t.status==="scheduled").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Sent</span>
-                        <span class="stat-value">${u.filter(t=>t.status==="sent").length}</span>
+                        <span class="stat-value">${b.filter(t=>t.status==="sent").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Paused</span>
-                        <span class="stat-value">${u.filter(t=>t.status==="paused").length}</span>
+                        <span class="stat-value">${b.filter(t=>t.status==="paused").length}</span>
                     </div>
                 </div>
             </div>
@@ -455,25 +469,25 @@
 
             <div id="campaign-modal-container"></div>
         </div>
-    `}function U(){const t=document.getElementById("campaigns-list-body"),e=document.getElementById("create-campaign-btn"),i=document.getElementById("campaign-modal-container"),n=document.querySelectorAll(".tab-btn");y=a=>{t&&(t.innerHTML=a.map(s=>`
+    `}function U(){const t=document.getElementById("campaigns-list-body"),e=document.getElementById("create-campaign-btn"),s=document.getElementById("campaign-modal-container"),n=document.querySelectorAll(".tab-btn");w=a=>{t&&(t.innerHTML=a.map(i=>`
             <tr>
-                <td style="font-weight: 700;">${s.name}</td>
+                <td style="font-weight: 700;">${i.name}</td>
                 <td>
-                    <span class="status-badge ${s.status==="sent"?"status-sent":s.status==="paused"?"status-paused":"status-draft"}">
-                        ${s.status.charAt(0).toUpperCase()+s.status.slice(1)}
+                    <span class="status-badge ${i.status==="sent"?"status-sent":i.status==="paused"?"status-paused":"status-draft"}">
+                        ${i.status.charAt(0).toUpperCase()+i.status.slice(1)}
                     </span>
                 </td>
-                <td style="font-weight: 700;">${s.open_rate}%</td>
-                <td style="font-weight: 700;">${s.ctr}%</td>
-                <td style="font-weight: 700;">${s.conversions}%</td>
+                <td style="font-weight: 700;">${i.open_rate}%</td>
+                <td style="font-weight: 700;">${i.ctr}%</td>
+                <td style="font-weight: 700;">${i.conversions}%</td>
                 <td>
-                    <button class="btn btn-outline edit-campaign-btn" data-id="${s.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
+                    <button class="btn btn-outline edit-campaign-btn" data-id="${i.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
                 </td>
             </tr>
-        `).join("")+(a.length===0?'<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No campaigns found for this view.</td></tr>':""),document.querySelectorAll(".edit-campaign-btn").forEach(s=>{s.onclick=l=>{const o=l.target.dataset.id,d=u.find(c=>c.id==o);d&&r(d)}}))},y(u),n.forEach(a=>{a.onclick=s=>{n.forEach(d=>{d.classList.remove("btn-primary"),d.classList.add("btn-outline")});const l=s.currentTarget;l.classList.remove("btn-outline"),l.classList.add("btn-primary");const o=l.dataset.filter;y(o==="all"?u:u.filter(d=>d.status===o))}});const r=(a=null)=>{const s=!!a;i.innerHTML=`
+        `).join("")+(a.length===0?'<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No campaigns found for this view.</td></tr>':""),document.querySelectorAll(".edit-campaign-btn").forEach(i=>{i.onclick=l=>{const o=l.target.dataset.id,d=b.find(c=>c.id==o);d&&r(d)}}))},w(b),n.forEach(a=>{a.onclick=i=>{n.forEach(d=>{d.classList.remove("btn-primary"),d.classList.add("btn-outline")});const l=i.currentTarget;l.classList.remove("btn-outline"),l.classList.add("btn-primary");const o=l.dataset.filter;w(o==="all"?b:b.filter(d=>d.status===o))}});const r=(a=null)=>{const i=!!a;s.innerHTML=`
             <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
                 <div class="card" style="width: 100%; max-width: 600px; padding: 2rem;">
-                    <h2 class="mb-6">${s?"Edit Campaign":"Create New Campaign"}</h2>
+                    <h2 class="mb-6">${i?"Edit Campaign":"Create New Campaign"}</h2>
                     <form id="campaign-form">
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Campaign Name</label>
@@ -504,12 +518,12 @@
                         </div>
                         <div class="flex justify-between mt-8" style="gap: 1rem;">
                             <button type="button" class="btn btn-outline" id="close-modal" style="flex: 1;">Cancel</button>
-                            <button type="submit" class="btn btn-primary" style="flex: 1;">${s?"Update Campaign":"Create Draft"}</button>
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">${i?"Update Campaign":"Create Draft"}</button>
                         </div>
                     </form>
                 </div>
             </div>
-        `,document.getElementById("close-modal").onclick=()=>i.innerHTML="",document.getElementById("modal-overlay").onclick=l=>{l.target.id==="modal-overlay"&&(i.innerHTML="")},document.getElementById("campaign-form").onsubmit=async l=>{l.preventDefault();const o=new FormData(l.target),d=Object.fromEntries(o.entries()),c={...d,open_rate:parseFloat(d.open_rate)||0,ctr:parseFloat(a?.ctr||0),conversions:parseFloat(a?.conversions||0)};try{s?await g.update(a.id,c):await g.create(c),window.location.reload()}catch(v){alert("Action failed: "+v.message)}}};e&&(e.onclick=()=>r())}async function q(){let t={total_contacts:0},e=[];try{[t,e]=await Promise.all([z.getOverview(),g.list()])}catch(n){console.error(n)}return`
+        `,document.getElementById("close-modal").onclick=()=>s.innerHTML="",document.getElementById("modal-overlay").onclick=l=>{l.target.id==="modal-overlay"&&(s.innerHTML="")},document.getElementById("campaign-form").onsubmit=async l=>{l.preventDefault();const o=new FormData(l.target),d=Object.fromEntries(o.entries()),c={...d,open_rate:parseFloat(d.open_rate)||0,ctr:parseFloat(a?.ctr||0),conversions:parseFloat(a?.conversions||0)};try{i?await f.update(a.id,c):await f.create(c),window.location.reload()}catch(p){alert("Action failed: "+p.message)}}};e&&(e.onclick=()=>r())}async function q(){let t={total_contacts:0},e=[];try{[t,e]=await Promise.all([L.getOverview(),f.list()])}catch(n){console.error(n)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -579,7 +593,7 @@
                 ${e.length===0?'<div class="text-muted">No workflows found.</div>':""}
             </div>
         </div>
-    `}async function W(){let t={open_rate:0,ctr:0,audience_growth:[]},e=[];try{const[i,n]=await Promise.all([z.getOverview(),g.list()]);t=i,e=(n||[]).filter(r=>r.status==="sent").sort((r,a)=>(a.open_rate||0)-(r.open_rate||0)).slice(0,3)}catch(i){console.error("Failed to fetch analytics data",i)}return`
+    `}async function W(){let t={open_rate:0,ctr:0,audience_growth:[]},e=[];try{const[s,n]=await Promise.all([L.getOverview(),f.list()]);t=s,e=(n||[]).filter(r=>r.status==="sent").sort((r,a)=>(a.open_rate||0)-(r.open_rate||0)).slice(0,3)}catch(s){console.error("Failed to fetch analytics data",s)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -625,8 +639,8 @@
                 <h3 class="mb-6">Engagement Overview</h3>
                 <div style="height: 300px; width: 100%; background: #fafafa; border: 1px dashed var(--border); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; position: relative;">
                     <div style="width: 100%; height: 100%; padding: 2rem; display: flex; align-items: flex-end; gap: 1rem;">
-                        ${[60,45,80,55,90,70,85,40,65,95].map(i=>`
-                            <div style="flex: 1; background: var(--primary); height: ${i}%; border-radius: 4px 4px 0 0; opacity: 0.8;"></div>
+                        ${[60,45,80,55,90,70,85,40,65,95].map(s=>`
+                            <div style="flex: 1; background: var(--primary); height: ${s}%; border-radius: 4px 4px 0 0; opacity: 0.8;"></div>
                         `).join("")}
                     </div>
                     <p style="position: absolute; color: var(--text-muted); font-size: 0.875rem; background: rgba(255,255,255,0.8); padding: 0.5rem 1rem; border-radius: 20px;">Live Engagement Index</p>
@@ -637,10 +651,10 @@
                 <div class="card">
                     <h3 class="mb-6">Top Performing Campaigns</h3>
                     <div class="flex flex-col gap-4">
-                        ${e.length>0?e.map(i=>`
+                        ${e.length>0?e.map(s=>`
                             <div class="flex justify-between items-center py-3 border-bottom" style="border-bottom: 1px solid var(--border);">
-                                <span style="font-weight: 600;">${i.name}</span>
-                                <span style="color: var(--success); font-weight: 700;">${i.open_rate}% Open</span>
+                                <span style="font-weight: 600;">${s.name}</span>
+                                <span style="color: var(--success); font-weight: 700;">${s.open_rate}% Open</span>
                             </div>
                         `).join(""):'<p class="text-muted">No sent campaigns yet.</p>'}
                     </div>
@@ -660,10 +674,10 @@
                 </div>
             </div>
         </div>
-    `}async function G(){let t=[];try{t=(await g.list()||[]).filter(s=>s.status==="scheduled"||s.status==="draft").sort((s,l)=>new Date(s.created_at)-new Date(l.created_at)).slice(0,5)}catch(a){console.error("Failed to fetch schedule",a)}const e=new Date,i=new Date(e.getFullYear(),e.getMonth()+1,0).getDate(),n=new Date(e.getFullYear(),e.getMonth(),1).getDay();let r="";for(let a=0;a<n;a++)r+='<div style="padding: 1rem; border: 1px solid var(--border); background: var(--bg-main); opacity: 0.5;"></div>';for(let a=1;a<=i;a++){const s=t.some(l=>new Date(l.created_at).getDate()===a&&new Date(l.created_at).getMonth()===e.getMonth());r+=`
+    `}async function G(){let t=[];try{t=(await f.list()||[]).filter(i=>i.status==="scheduled"||i.status==="draft").sort((i,l)=>new Date(i.created_at)-new Date(l.created_at)).slice(0,5)}catch(a){console.error("Failed to fetch schedule",a)}const e=new Date,s=new Date(e.getFullYear(),e.getMonth()+1,0).getDate(),n=new Date(e.getFullYear(),e.getMonth(),1).getDay();let r="";for(let a=0;a<n;a++)r+='<div style="padding: 1rem; border: 1px solid var(--border); background: var(--bg-main); opacity: 0.5;"></div>';for(let a=1;a<=s;a++){const i=t.some(l=>new Date(l.created_at).getDate()===a&&new Date(l.created_at).getMonth()===e.getMonth());r+=`
             <div style="padding: 1rem; border: 1px solid var(--border); min-height: 80px; position: relative; background: var(--bg-card);">
                 <span style="font-weight: ${a===e.getDate()?"800":"500"}; color: ${a===e.getDate()?"var(--primary)":"inherit"};">${a}</span>
-                ${s?'<div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--primary);"></div>':""}
+                ${i?'<div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--primary);"></div>':""}
             </div>
         `}return`
         <div class="main-content">
@@ -715,7 +729,7 @@
                 </div>
             </div>
         </div>
-    `}async function J(){return`
+    `}function J(){const t=document.getElementById("schedule-create-btn");t&&(t.onclick=()=>window.location.hash="#campaign");const e=document.getElementById("view-list-btn"),s=document.getElementById("view-calendar-btn"),n=document.getElementById("schedule-list-view"),r=document.getElementById("schedule-calendar-view");e&&s&&(e.onclick=()=>{n.style.display="flex",r.style.display="none",e.className="btn btn-primary",s.className="btn btn-outline",e.style.padding="0.5rem 1rem",e.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"},s.onclick=()=>{n.style.display="none",r.style.display="block",s.className="btn btn-primary",e.className="btn btn-outline",e.style.padding="0.5rem 1rem",e.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"})}async function V(){return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -794,7 +808,7 @@
                 @keyframes spin { 100% { transform: rotate(360deg); } }
             </style>
         </div>
-    `}function T(){return`
+    `}function P(){return`
         <div class="landing-page" style="width: 100%; display: flex; flex-direction: column; align-items: center; background: white; color: var(--text-main);">
             <header style="width: 100%; padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: white; z-index: 100;">
                 <div class="logo" style="margin-bottom: 0;">
@@ -939,7 +953,7 @@
                 </div>
             </footer>
         </div>
-    `}function A(t="signup"){return t==="signup"?X():V()}function V(){return`
+    `}function T(t="signup"){return t==="signup"?K():X()}function X(){return`
         <div style="width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-main); padding: 2rem;">
             <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem;">
                 <div style="text-align: center; margin-bottom: 2rem;">
@@ -963,7 +977,7 @@
                 </form>
             </div>
         </div>
-    `}function X(){return`
+    `}function K(){return`
         <div style="width: 100%; min-height: 100vh; background: var(--bg-main); display: flex; align-items: center; justify-content: center; padding: 2rem;">
             <div class="card" style="width: 100%; max-width: 550px; padding: 3rem;">
                 <!-- Wizard Header -->
@@ -1042,11 +1056,11 @@
                 </form>
             </div>
         </div>
-    `}function K(){const t=document.getElementById("auth-form");if(!t)return;let e=1;const i=n=>{document.querySelectorAll(".wizard-step").forEach(a=>a.style.display="none"),document.getElementById(`step-${n}`).style.display="block",document.querySelectorAll(".step-dot").forEach(a=>{a.classList.toggle("active",a.dataset.step==n)});const r=document.getElementById("wizard-title");r&&(n===1&&(r.textContent="Create your account"),n===2&&(r.textContent="Tell us about your business"),n===3&&(r.textContent="Guaranteed Inbox: SMTP Config"))};t.addEventListener("click",n=>{if(n.target.classList.contains("next-btn")){if(e===1){const r=t.querySelector('[name="name"]').value,a=t.querySelector('[name="email"]').value,s=t.querySelector('[name="password"]').value;if(!r||!a||!s){alert("Please fill in all account details.");return}}e++,i(e)}n.target.classList.contains("prev-btn")&&(e--,i(e))}),t.onsubmit=async n=>{n.preventDefault();const r=new FormData(t),a=Object.fromEntries(r.entries());try{const s=await S.signup({name:a.name,email:a.email,password:a.password,company_name:a.company_name,domain:a.domain});a.smtp_host&&await S.saveSMTP({account_id:s.id,host:a.smtp_host,port:parseInt(a.smtp_port),username:a.smtp_user,password:a.smtp_pass,security_type:"tls"}),localStorage.setItem("camp_user",JSON.stringify({id:s.id,name:a.name,email:a.email})),window.sessionStorage.setItem("isLoggedIn","true"),alert("Setup complete! Welcome to the premium inbox experience."),window.location.href="/"}catch(s){alert("Setup failed: "+s.message)}}}const I=document.getElementById("app"),j={"/":L,"/contacts":R,"/campaigns":H,"/automation":q,"/analytics":W,"/schedule":G,"/templates":J,"/integration":Y,"/login":()=>A("login"),"/signup":()=>A("signup"),"/landing":T};async function Z(t){const e=window.sessionStorage.getItem("isLoggedIn")==="true";if(t==="/logout"){window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing";return}!e&&!["/login","/signup","/landing"].includes(t)&&(window.history.replaceState({},"","/landing"),t="/landing"),e&&["/login","/signup","/landing"].includes(t)&&(window.history.replaceState({},"","/"),t="/");const i=j[t]||(e?L:T),r=e&&!["/landing","/login","/signup"].includes(t),a=await i();if(r){const d=B(t);I.innerHTML=`
+    `}function Z(){const t=document.getElementById("auth-form");if(!t)return;let e=1;const s=n=>{document.querySelectorAll(".wizard-step").forEach(a=>a.style.display="none"),document.getElementById(`step-${n}`).style.display="block",document.querySelectorAll(".step-dot").forEach(a=>{a.classList.toggle("active",a.dataset.step==n)});const r=document.getElementById("wizard-title");r&&(n===1&&(r.textContent="Create your account"),n===2&&(r.textContent="Tell us about your business"),n===3&&(r.textContent="Guaranteed Inbox: SMTP Config"))};t.addEventListener("click",n=>{if(n.target.classList.contains("next-btn")){if(e===1){const r=t.querySelector('[name="name"]').value,a=t.querySelector('[name="email"]').value,i=t.querySelector('[name="password"]').value;if(!r||!a||!i){alert("Please fill in all account details.");return}}e++,s(e)}n.target.classList.contains("prev-btn")&&(e--,s(e))}),t.onsubmit=async n=>{n.preventDefault();const r=new FormData(t),a=Object.fromEntries(r.entries());try{const i=await E.signup({name:a.name,email:a.email,password:a.password,company_name:a.company_name,domain:a.domain});a.smtp_host&&await E.saveSMTP({account_id:i.id,host:a.smtp_host,port:parseInt(a.smtp_port),username:a.smtp_user,password:a.smtp_pass,security_type:"tls"}),localStorage.setItem("camp_user",JSON.stringify({id:i.id,name:a.name,email:a.email})),window.sessionStorage.setItem("isLoggedIn","true"),alert("Setup complete! Welcome to the premium inbox experience."),window.location.href="/"}catch(i){alert("Setup failed: "+i.message)}}}const D=document.getElementById("app"),B={"/":j,"/contacts":F,"/campaigns":H,"/automation":q,"/analytics":W,"/schedule":G,"/templates":V,"/integration":Y,"/login":()=>T("login"),"/signup":()=>T("signup"),"/landing":P};async function Q(t){const e=window.sessionStorage.getItem("isLoggedIn")==="true";if(t==="/logout"){window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing";return}!e&&!["/login","/signup","/landing"].includes(t)&&(window.history.replaceState({},"","/landing"),t="/landing"),e&&["/login","/signup","/landing"].includes(t)&&(window.history.replaceState({},"","/"),t="/");const s=B[t]||(e?j:P),r=e&&!["/landing","/login","/signup"].includes(t),a=await s();if(r){const u=M(t);D.innerHTML=`
+            ${u}
             <div class="layout-container" style="width: 100%;">
-                ${d}
-                <div id="content-area" style="flex: 1;">
+                <div id="content-area" style="flex: 1; min-width: 0;">
                     ${a}
                 </div>
             </div>
-        `}else I.innerHTML=`<div style="width: 100%;">${a}</div>`;t==="/contacts"&&O(),t==="/campaigns"&&U(),["/login","/signup"].includes(t)&&K();const s=document.getElementById("logout-btn");s&&(s.onclick=d=>{d.preventDefault(),window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing"});const l=document.getElementById("dark-mode-circle"),o=document.getElementById("dark-mode-toggle");if(l&&o){const d=document.body.classList.contains("dark-theme");l.style.left=d?"22px":"2px",o.style.background=d?"var(--primary)":"var(--border)",o.onclick=()=>{const c=document.body.classList.toggle("dark-theme");localStorage.setItem("camp_dark_mode",c),l.style.left=c?"22px":"2px",o.style.background=c?"var(--primary)":"var(--border)"}}}localStorage.getItem("camp_dark_mode")==="true"&&document.body.classList.add("dark-theme");new N(j,t=>{Z(t)});
+        `}else D.innerHTML=`<div style="width: 100%;">${a}</div>`;document.querySelectorAll(".card table, .card .campaign-table").forEach(u=>{if(!u.parentElement.classList.contains("table-wrapper")){const g=document.createElement("div");g.className="table-wrapper",u.parentNode.insertBefore(g,u),g.appendChild(u)}}),t==="/contacts"&&O(),t==="/campaigns"&&U(),t==="/schedule"&&J(),["/login","/signup"].includes(t)&&Z();const i=document.getElementById("logout-btn");i&&(i.onclick=u=>{u.preventDefault(),window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing"});const l=document.getElementById("dark-mode-circle"),o=document.getElementById("dark-mode-toggle");if(l&&o){const u=document.body.classList.contains("dark-theme");l.style.left=u?"21px":"3px",o.style.background=u?"var(--primary)":"var(--border)",o.onclick=()=>{const g=document.body.classList.toggle("dark-theme");localStorage.setItem("camp_dark_mode",g),l.style.left=g?"21px":"3px",o.style.background=g?"var(--primary)":"var(--border)"}}const d=document.getElementById("hamburger-btn"),c=document.getElementById("sidebar"),p=document.getElementById("sidebar-overlay");function k(){c&&c.classList.add("open"),p&&p.classList.add("active"),d&&d.classList.add("open"),document.body.style.overflow="hidden"}function y(){c&&c.classList.remove("open"),p&&p.classList.remove("active"),d&&d.classList.remove("open"),document.body.style.overflow=""}d&&(d.onclick=()=>c&&c.classList.contains("open")?y():k()),p&&(p.onclick=y),document.querySelectorAll(".sidebar .nav-link[data-link]").forEach(u=>{u.addEventListener("click",()=>{window.innerWidth<=768&&y()})})}localStorage.getItem("camp_dark_mode")==="true"&&document.body.classList.add("dark-theme");new N(B,t=>{Q(t)});
