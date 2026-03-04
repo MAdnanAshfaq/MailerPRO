@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/codersgyan/camp/internal/database"
+	_ "modernc.org/sqlite"
 )
 
 var testDB *sql.DB
@@ -13,7 +14,9 @@ var testDB *sql.DB
 func TestMain(m *testing.M) {
 	code := m.Run()
 
-	testDB.Close()
+	if testDB != nil {
+		testDB.Close()
+	}
 	os.Exit(code)
 }
 
@@ -163,7 +166,7 @@ func TestContactRepositoryThrowErrorIfTagsNotSent(t *testing.T) {
 }
 
 func setupDB(t *testing.T) *sql.DB {
-	db, err := sql.Open("sqlite3", ":memory:")
+	db, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
 		t.Fatal(err)
 	}

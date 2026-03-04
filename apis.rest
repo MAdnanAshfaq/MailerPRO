@@ -1,7 +1,7 @@
 @base_url = http://localhost:8080
 
 
-### Create a contact
+### 1. Create a contact
 POST {{base_url}}/api/contacts
 Content-Type: application/json
 
@@ -14,3 +14,43 @@ Content-Type: application/json
     {"text": "purchased:devops"}
   ]
 }
+
+### 2. List all contacts
+GET {{base_url}}/api/contacts
+
+### 3. Add tags to a contact (via email)
+POST {{base_url}}/api/contacts/tag
+Content-Type: application/json
+
+{
+  "email": "rakesh@codersgyan.com",
+  "tags": [
+    { "text": "joined:inner-circle" }
+  ]
+}
+
+### 4. Remove a tag from a contact (by contact ID)
+# Replace {id} with an actual contact ID from the list
+PATCH {{base_url}}/api/contacts/1/tag
+Content-Type: application/json
+
+{
+  "text": "purchased:mern"
+}
+
+### 5. Create a campaign draft
+POST {{base_url}}/api/campaigns
+Content-Type: application/json
+
+{
+  "name": "Spring Sale 2026",
+  "subject": "Our biggest sale is here!",
+  "content": "<h1>Spring is here!</h1><p>Check out our new deals.</p>"
+}
+
+### 6. List all campaigns
+GET {{base_url}}/api/campaigns
+
+### 7. Get campaign details
+# Replace {id} with an actual campaign ID
+GET {{base_url}}/api/campaigns/1

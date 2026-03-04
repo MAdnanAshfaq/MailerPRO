@@ -132,7 +132,106 @@ func (r *Repository) GetByEmail(email string) (*Contact, error) {
 	return &result, nil
 }
 
+func (r *Repository) ListAll() ([]Contact, error) {
+	query := `
+		SELECT 
+			id, fname, lname, email, phone, created_at, updated_at
+		FROM contacts
+		ORDER BY created_at DESC
+	`
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list contacts: %w", err)
+	}
+	defer rows.Close()
+
+	contacts := make([]Contact, 0)
+	for rows.Next() {
+		var c Contact
+		err := rows.Scan(
+			&c.ID,
+			&c.FirstName,
+			&c.LastName,
+			&c.Email,
+			&c.Phone,
+			&c.CreatedAt,
+			&c.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan contact: %w", err)
+		}
+
+		// fetch tags for each contact
+		tags, err := r.GetTagsForContact(c.ID)
+		if err != nil {
+			return nil, err
+		}
+		c.Tags = tags
+
+		contacts = append(contacts, c)
+	}
+
+	return contacts, nil
+}
+
+func (r *Repository) Update(c *Contact) error {
+	query := `
+		UPDATE contacts
+		SET fname = ?, lname = ?, email = ?, phone = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`
+	_, err := r.db.Exec(query, c.FirstName, c.LastName, c.Email, c.Phone, c.ID)
+	if err != nil {
+		return fmt.Errorf("failed to update contact: %w", err)
+	}
+	return nil
+}
+
+func (r *Repository) GetTagsForContact(contactID int64) ([]Tag, error) {
+	query := `
+		SELECT t.id, t.text, t.created_at, t.updated_at
+		FROM tags t
+		JOIN contact_tag ct ON t.id = ct.tag_id
+		WHERE ct.contact_id = ?
+	`
+	rows, err := r.db.Query(query, contactID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch tags: %w", err)
+	}
+	defer rows.Close()
+
+	tags := make([]Tag, 0)
+	for rows.Next() {
+		var t Tag
+		if err := rows.Scan(&t.ID, &t.Text, &t.CreatedAt, &t.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("failed to scan tag: %w", err)
+		}
+		tags = append(tags, t)
+	}
+	return tags, nil
+}
+
+func (r *Repository) RemoveTagFromContact(contactID int64, tagText string) error {
+	// find the tag id
+	var tagID int64
+	err := r.db.QueryRow("SELECT id FROM tags WHERE text = ?", tagText).Scan(&tagID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil // Tag doesn't exist, nothing to remove
+		}
+		return fmt.Errorf("failed to find tag: %w", err)
+	}
+
+	_, err = r.db.Exec("DELETE FROM contact_tag WHERE contact_id = ? AND tag_id = ?", contactID, tagID)
+	if err != nil {
+		return fmt.Errorf("failed to remove tag from contact: %w", err)
+	}
+
+	return nil
+}
+
 func insertTagIfNotExist(txn *sql.Tx, tags []Tag) error {
+	// ... existing code ...
 	// todo: implement bulk inserts here
 	for _, tag := range tags {
 		_, err := txn.Exec(`INSERT OR IGNORE INTO tags (text) VALUES (?)`, tag.Text)

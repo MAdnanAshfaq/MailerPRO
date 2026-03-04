@@ -1,6 +1,9 @@
+GO := "C:\Program Files\Go\bin\go.exe"
+CAMP_BIN := ./bin/camp
+
 run: build
-	@./bin/camp
+	@$(CAMP_BIN)
 
 
 build:
-	@go build -o ./bin/camp cmd/camp/main.go
+	@$(GO) build -o $(CAMP_BIN) cmd/camp/main.go
