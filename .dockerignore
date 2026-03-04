@@ -1,0 +1,11 @@
+.git
+.gitignore
+README.md
+camp.exe
+test.db
+test.db-shm
+test.db-wal
+camp_data/
+frontend/node_modules/
+frontend/dist/
+bin/
