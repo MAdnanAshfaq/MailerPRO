@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/codersgyan/camp/internal/account"
 	"github.com/codersgyan/camp/internal/campaign"
@@ -15,7 +17,17 @@ import (
 )
 
 func main() {
-	db, err := database.Connect("./camp_data/camp.db")
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "./camp_data/camp.db"
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	db, err := database.Connect(dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,6 +82,16 @@ func main() {
 	domainHandler := domain.NewHandler()
 	http.HandleFunc("GET /api/domain/health", domainHandler.GetHealth)
 
+	// Health Check Route
+	http.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "ok",
+			"version": "1.0.0",
+		})
+	})
+
 	// Catch-all route to serve index.html for SPA routing
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// If it's an API request that didn't match, return 404
@@ -81,6 +103,6 @@ func main() {
 		http.ServeFile(w, r, "./frontend/dist/index.html")
 	})
 
-	log.Println("Server started at :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("Server started at :%s\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
