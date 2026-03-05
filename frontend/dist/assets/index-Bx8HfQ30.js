@@ -1,4 +1,4 @@
-(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const r of document.querySelectorAll('link[rel="modulepreload"]'))n(r);new MutationObserver(r=>{for(const a of r)if(a.type==="childList")for(const i of a.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&n(i)}).observe(document,{childList:!0,subtree:!0});function s(r){const a={};return r.integrity&&(a.integrity=r.integrity),r.referrerPolicy&&(a.referrerPolicy=r.referrerPolicy),r.crossOrigin==="use-credentials"?a.credentials="include":r.crossOrigin==="anonymous"?a.credentials="omit":a.credentials="same-origin",a}function n(r){if(r.ep)return;r.ep=!0;const a=s(r);fetch(r.href,a)}})();class N{constructor(e,s){this.routes=e,this.onRouteMatch=s,this.init()}init(){window.addEventListener("popstate",()=>this.handleRoute()),document.body.addEventListener("click",e=>{const s=e.target.closest("a[data-link]");s&&(e.preventDefault(),this.navigate(s.getAttribute("href")))}),this.handleRoute()}navigate(e){window.history.pushState({},"",e),this.handleRoute()}handleRoute(){const e=window.location.pathname,s=this.routes[e]||this.routes["/"];this.onRouteMatch(e,s)}}function M(t){const e=[{path:"/",title:"Overview",icon:"▦"},{path:"/campaigns",title:"Campaign",icon:"✉"},{path:"/contacts",title:"Contacts",icon:"👥"},{path:"/automation",title:"Automation",icon:"⚙"},{path:"/analytics",title:"Analytics",icon:"📊"},{path:"/schedule",title:"Schedule",icon:"🕒",hasChevron:!0},{path:"/templates",title:"Templates",icon:"📄",hasChevron:!0},{path:"/integration",title:"Integration",icon:"📦"}],s=[{path:"/help",title:"Help Center",icon:"?"},{path:"/settings",title:"Setting",icon:"⚙"}],n=JSON.parse(localStorage.getItem("camp_user")||'{"name": "User", "email": "user@sendable.com"}');return`
+(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))r(n);new MutationObserver(n=>{for(const a of n)if(a.type==="childList")for(const i of a.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&r(i)}).observe(document,{childList:!0,subtree:!0});function s(n){const a={};return n.integrity&&(a.integrity=n.integrity),n.referrerPolicy&&(a.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?a.credentials="include":n.crossOrigin==="anonymous"?a.credentials="omit":a.credentials="same-origin",a}function r(n){if(n.ep)return;n.ep=!0;const a=s(n);fetch(n.href,a)}})();class M{constructor(t,s){this.routes=t,this.onRouteMatch=s,this.init()}init(){window.addEventListener("popstate",()=>this.handleRoute()),document.body.addEventListener("click",t=>{const s=t.target.closest("a[data-link]");s&&(t.preventDefault(),this.navigate(s.getAttribute("href")))}),this.handleRoute()}navigate(t){window.history.pushState({},"",t),this.handleRoute()}handleRoute(){const t=window.location.pathname,s=this.routes[t]||this.routes["/"];this.onRouteMatch(t,s)}}function R(e){const t=[{path:"/",title:"Overview",icon:"▦"},{path:"/campaigns",title:"Campaign",icon:"✉"},{path:"/contacts",title:"Contacts",icon:"👥"},{path:"/automation",title:"Automation",icon:"⚙"},{path:"/analytics",title:"Analytics",icon:"📊"},{path:"/schedule",title:"Schedule",icon:"🕒",hasChevron:!0},{path:"/templates",title:"Templates",icon:"📄",hasChevron:!0},{path:"/integration",title:"Integration",icon:"📦"}],s=[{path:"/help",title:"Help Center",icon:"?"},{path:"/settings",title:"Setting",icon:"⚙"}],r=JSON.parse(localStorage.getItem("camp_user")||'{"name": "User", "email": "user@sendable.com"}');return`
         <!-- Mobile Topbar -->
         <div class="mobile-topbar">
             <div class="logo">
@@ -27,14 +27,14 @@
             
             <div class="nav-label">Menu</div>
             <ul class="nav-links">
-                ${e.map(r=>`
+                ${t.map(n=>`
                     <li>
-                        <a href="${r.path}" class="nav-link ${t===r.path?"active":""} ${r.hasChevron?"nav-link-with-chevron":""}" data-link>
+                        <a href="${n.path}" class="nav-link ${e===n.path?"active":""} ${n.hasChevron?"nav-link-with-chevron":""}" data-link>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <span style="font-size: 1rem; width: 20px; text-align: center;">${r.icon}</span>
-                                <span>${r.title}</span>
+                                <span style="font-size: 1rem; width: 20px; text-align: center;">${n.icon}</span>
+                                <span>${n.title}</span>
                             </div>
-                            ${r.hasChevron?'<span style="font-size: 0.7rem; opacity: 0.6;">⌵</span>':""}
+                            ${n.hasChevron?'<span style="font-size: 0.7rem; opacity: 0.6;">⌵</span>':""}
                         </a>
                     </li>
                 `).join("")}
@@ -53,11 +53,11 @@
 
                 <div class="nav-label" style="margin-top: 0;">Support</div>
                 <ul class="nav-links mb-6">
-                    ${s.map(r=>`
+                    ${s.map(n=>`
                         <li>
-                            <a href="${r.path}" class="nav-link ${t===r.path?"active":""}" data-link>
-                                <span style="font-size: 1rem; width: 20px; text-align: center;">${r.icon}</span>
-                                <span>${r.title}</span>
+                            <a href="${n.path}" class="nav-link ${e===n.path?"active":""}" data-link>
+                                <span style="font-size: 1rem; width: 20px; text-align: center;">${n.icon}</span>
+                                <span>${n.title}</span>
                             </a>
                         </li>
                     `).join("")}
@@ -65,17 +65,17 @@
 
                 <div style="padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem;">
                     <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;">
-                        ${n.name.charAt(0).toUpperCase()}
+                        ${r.name.charAt(0).toUpperCase()}
                     </div>
                     <div style="overflow: hidden; flex: 1; min-width: 0;">
-                        <p class="truncate" style="font-size: 0.875rem; font-weight: 600;">${n.name}</p>
-                        <p class="truncate" style="font-size: 0.75rem; color: var(--text-muted);">${n.email}</p>
+                        <p class="truncate" style="font-size: 0.875rem; font-weight: 600;">${r.name}</p>
+                        <p class="truncate" style="font-size: 0.75rem; color: var(--text-muted);">${r.email}</p>
                     </div>
                     <a href="/logout" id="logout-btn" style="text-decoration: none; font-size: 1rem; flex-shrink: 0; opacity: 0.7; transition: opacity 0.2s;" title="Logout" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">🚪</a>
                 </div>
             </div>
         </div>
-    `}const x="/api",v={async get(t){const e=await fetch(`${x}${t}`);if(!e.ok)throw new Error(`API Error: ${e.statusText}`);return e.json()},async post(t,e){const s=await fetch(`${x}${t}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async patch(t,e){const s=await fetch(`${x}${t}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async put(t,e){const s=await fetch(`${x}${t}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.status===204?null:s.json()}},$={list:async()=>await v.get("/contacts")||[],create:t=>v.post("/contacts",t),update:(t,e)=>v.put(`/contacts/${t}`,e),addTag:t=>v.post("/contacts/tag",t),removeTag:(t,e)=>v.patch(`/contacts/${t}/tag`,e)},f={list:async()=>await v.get("/campaigns")||[],get:t=>v.get(`/campaigns/${t}`),create:t=>v.post("/campaigns",t),update:(t,e)=>v.put(`/campaigns/${t}`,e)},L={getOverview:()=>v.get("/stats/overview")},E={signup:t=>v.post("/signup",t),saveSMTP:t=>v.post("/settings/smtp",t),getWarming:t=>v.get(`/stats/warming?account_id=${t}`)},R={getHealth:t=>v.get(`/domain/health?domain=${t}`)};async function j(){let t={total_contacts:0,total_sent:0,open_rate:0,ctr:0,revenue:0,audience_growth:[]},e=[],s=null,n=null;try{const i=JSON.parse(localStorage.getItem("camp_user")||"{}"),l=[L.getOverview(),f.list()];i.id&&l.push(E.getWarming(i.id)),i.domain&&l.push(R.getHealth(i.domain));const o=await Promise.all(l);t=o[0],e=o[1],i.id&&(s=o[2]),i.domain&&(n=o[3]),e=(e||[]).slice(0,4)}catch(i){console.error("Failed to fetch dashboard data",i)}const r=JSON.parse(localStorage.getItem("camp_user")||'{ "name": "Test User" }'),a=r.name;return`
+    `}const w="/api",v={async get(e){const t=await fetch(`${w}${e}`);if(!t.ok)throw new Error(`API Error: ${t.statusText}`);return t.json()},async post(e,t){const s=await fetch(`${w}${e}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async patch(e,t){const s=await fetch(`${w}${e}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async put(e,t){const s=await fetch(`${w}${e}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.status===204?null:s.json()}},$={list:async()=>await v.get("/contacts")||[],create:e=>v.post("/contacts",e),update:(e,t)=>v.put(`/contacts/${e}`,t),addTag:e=>v.post("/contacts/tag",e),removeTag:(e,t)=>v.patch(`/contacts/${e}/tag`,t)},f={list:async()=>await v.get("/campaigns")||[],get:e=>v.get(`/campaigns/${e}`),create:e=>v.post("/campaigns",e),update:(e,t)=>v.put(`/campaigns/${e}`,t)},L={getOverview:()=>v.get("/stats/overview")},_={signup:e=>v.post("/signup",e),saveSMTP:e=>v.post("/settings/smtp",e),getWarming:e=>v.get(`/stats/warming?account_id=${e}`)},O={getHealth:e=>v.get(`/domain/health?domain=${e}`)};async function j(){let e={total_contacts:0,total_sent:0,open_rate:0,ctr:0,revenue:0,audience_growth:[]},t=[],s=null,r=null;try{const i=JSON.parse(localStorage.getItem("camp_user")||"{}"),o=[L.getOverview(),f.list()];i.id&&o.push(_.getWarming(i.id)),i.domain&&o.push(O.getHealth(i.domain));const l=await Promise.all(o);e=l[0],t=l[1],i.id&&(s=l[2]),i.domain&&(r=l[3]),t=(t||[]).slice(0,4)}catch(i){console.error("Failed to fetch dashboard data",i)}const n=JSON.parse(localStorage.getItem("camp_user")||'{ "name": "Test User" }'),a=n.name;return`
         <div class="main-content">
             <!-- Header -->
             <header class="flex justify-between items-center mb-8">
@@ -124,7 +124,7 @@
                     <div class="stat-icon" style="background: rgba(138, 154, 91, 0.1); color: var(--primary);">🗂</div>
                     <div class="stat-info">
                         <span class="stat-label">Total Sent</span>
-                        <span class="stat-value">${t.total_sent.toLocaleString()}</span>
+                        <span class="stat-value">${e.total_sent.toLocaleString()}</span>
                         <div class="stat-trend trend-up"><span>↑</span> Live</div>
                     </div>
                 </div>
@@ -132,7 +132,7 @@
                     <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #059669;">✉</div>
                     <div class="stat-info">
                         <span class="stat-label">Open Rate</span>
-                        <span class="stat-value">${t.open_rate.toFixed(1)}%</span>
+                        <span class="stat-value">${e.open_rate.toFixed(1)}%</span>
                         <div class="stat-trend trend-up"><span>↑</span> Average</div>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                     <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">📈</div>
                     <div class="stat-info">
                         <span class="stat-label">CTR</span>
-                        <span class="stat-value">${t.ctr.toFixed(1)}%</span>
+                        <span class="stat-value">${e.ctr.toFixed(1)}%</span>
                         <div class="stat-trend trend-up"><span>↑</span> Average</div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                     <div class="stat-icon" style="background: rgba(138, 154, 91, 0.1); color: var(--primary);">💰</div>
                     <div class="stat-info">
                         <span class="stat-label">Revenue</span>
-                        <span class="stat-value">$${t.revenue.toLocaleString()}</span>
+                        <span class="stat-value">$${e.revenue.toLocaleString()}</span>
                         <div class="stat-trend trend-up"><span>↑</span> Est.</div>
                     </div>
                 </div>
@@ -169,7 +169,7 @@
                                         <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#8a9a5b" stroke-width="3" stroke-dasharray="100 0" stroke-dashoffset="0"></circle>
                                     </svg>
                                     <div class="donut-label">
-                                        <span class="donut-value" style="font-size: 0.9rem;">${t.total_contacts}</span>
+                                        <span class="donut-value" style="font-size: 0.9rem;">${e.total_contacts}</span>
                                     </div>
                                 </div>
                                 <div class="flex flex-col gap-2 ml-8" style="font-size: 0.75rem; font-weight: 600;">
@@ -192,7 +192,7 @@
                                 <span style="cursor: pointer;">⚙</span>
                             </div>
                             <div class="flex flex-col gap-4">
-                                ${e.filter(i=>i.status==="scheduled").length>0?e.filter(i=>i.status==="scheduled").map(i=>`
+                                ${t.filter(i=>i.status==="scheduled").length>0?t.filter(i=>i.status==="scheduled").map(i=>`
                                         <div class="card" style="padding: 1rem; border: 1px solid var(--border); box-shadow: none;">
                                             <div class="flex justify-between items-center">
                                                 <div class="flex items-center gap-3">
@@ -228,7 +228,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${e.map(i=>`
+                                ${t.map(i=>`
                                     <tr>
                                         <td style="font-weight: 700;">${i.name}</td>
                                         <td>
@@ -239,7 +239,7 @@
                                         <td><a href="/campaign" style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">View</a></td>
                                     </tr>
                                 `).join("")}
-                                ${e.length===0?'<tr><td colspan="5" style="text-align: center; padding: 2rem;" class="text-muted">No recent campaigns.</td></tr>':""}
+                                ${t.length===0?'<tr><td colspan="5" style="text-align: center; padding: 2rem;" class="text-muted">No recent campaigns.</td></tr>':""}
                             </tbody>
                         </table>
                     </div>
@@ -254,14 +254,14 @@
                             <div class="insight-row">
                                 <p style="font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem;">Engagement Goal</p>
                                 <div class="progress-container" style="height: 12px;">
-                                    <div class="progress-bar" style="width: ${Math.min(100,t.open_rate*2)}%;"></div>
+                                    <div class="progress-bar" style="width: ${Math.min(100,e.open_rate*2)}%;"></div>
                                 </div>
                                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Target: 50% Open Rate</p>
                             </div>
                             <div class="insight-row">
                                 <p style="font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem;">Conversion Score</p>
                                 <div class="progress-container" style="height: 12px;">
-                                    <div class="progress-bar" style="width: ${Math.min(100,t.ctr*5)}%; background: #c2c9af;"></div>
+                                    <div class="progress-bar" style="width: ${Math.min(100,e.ctr*5)}%; background: #c2c9af;"></div>
                                 </div>
                                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Target: 20% CTR</p>
                             </div>
@@ -269,24 +269,34 @@
                     </div>
 
                     <!-- Deliverability Health -->
-                    <div class="card" style="border: 1px solid var(--primary); background: rgba(138, 154, 91, 0.02);">
+                    <div class="card" id="deliverability-card" style="border: 1px solid var(--border);">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 style="font-size: 1rem;">Deliverability Health</h3>
-                            <span class="status-badge status-${n&&n.spf&&n.dkim&&n.dmarc?"sent":"draft"}" style="font-size: 0.65rem;">${n&&n.spf&&n.dkim&&n.dmarc?"Excellent":"Action Needed"}</span>
+                            <h3 style="font-size: 1rem;">🛡 Deliverability Health</h3>
+                            <span class="status-badge" id="health-badge" style="font-size: 0.65rem; ${r?r.spf&&r.dkim&&r.dmarc?"background:#ecfdf5;color:#059669;":"background:#fff7ed;color:#ea580c;":"background:#f4f4f5;color:#71717a;"}">${r?r.spf&&r.dkim&&r.dmarc?"Excellent":"Action Needed":"Not Checked"}</span>
                         </div>
-                        <div class="flex items-center gap-4 mb-4">
-                            <div style="font-size: 2rem;">${n&&n.spf&&n.dkim&&n.dmarc?"🛡️":"⚠️"}</div>
-                            <div>
-                                <p style="font-size: 0.875rem; font-weight: 700;">Domain: ${r.domain||"Not configured"}</p>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">
-                                    SPF: ${n&&n.spf?"✅":"❌"}, 
-                                    DKIM: ${n&&n.dkim?"✅":"❌"}, 
-                                    DMARC: ${n&&n.dmarc?"✅":"❌"}
-                                </p>
+
+                        <!-- Domain Input Row -->
+                        <div class="flex gap-2 mb-4" style="align-items: stretch;">
+                            <input type="text" id="domain-check-input" class="input" placeholder="yourdomain.com" value="${n.domain||""}" style="flex: 1; padding: 0.6rem 0.875rem; font-size: 0.875rem;">
+                            <button class="btn btn-primary" id="check-health-btn" style="padding: 0.6rem 1rem; font-size: 0.8125rem; white-space: nowrap;">
+                                🔍 Check
+                            </button>
+                        </div>
+
+                        <!-- Result Panel -->
+                        <div id="health-result-panel">
+                            ${r?`
+                            <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                                ${y("SPF",r.spf,r.spf_record)}
+                                ${y("DKIM",r.dkim,r.dkim_selector?`Selector: ${r.dkim_selector}`:null)}
+                                ${y("DMARC",r.dmarc,r.dmarc_record)}
                             </div>
-                        </div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); background: white; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border);">
-                            ${n&&n.spf&&n.dkim&&n.dmarc?'"Your domain reputation is high. Emails are securely authenticated."':'"Some authentication records are missing. Please configure your DNS settings to improve deliverability."'}
+                            <div style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-main); padding: 0.75rem; border-radius: 8px; margin-top: 0.875rem; line-height: 1.5;">
+                                ${r.spf&&r.dkim&&r.dmarc?"✅ All records verified. Your domain is properly authenticated for inbox delivery.":"⚠️ Some records are missing or not yet propagated. DNS changes can take up to 24–48 hours to propagate globally."}
+                            </div>`:`
+                            <div style="font-size: 0.8125rem; color: var(--text-muted); text-align: center; padding: 1rem 0;">
+                                Enter your sending domain above and click Check to see your DNS health.
+                            </div>`}
                         </div>
                     </div>
 
@@ -315,7 +325,22 @@
                 </div>
             </div>
         </div>
-    `}let S=[],_=null;async function F(){try{S=await $.list()}catch(t){console.error("Failed to fetch contacts",t)}return setTimeout(()=>{const t=document.getElementById("contact-search");t&&(t.oninput=e=>{const s=e.target.value.toLowerCase(),n=S.filter(r=>r.first_name&&r.first_name.toLowerCase().includes(s)||r.last_name&&r.last_name.toLowerCase().includes(s)||r.email.toLowerCase().includes(s)||r.tags&&r.tags.some(a=>a.text.toLowerCase().includes(s)));_(n)})},100),`
+    `}function y(e,t,s){const r=t?"#059669":"#ea580c",n=t?"rgba(16,185,129,0.08)":"rgba(239,68,68,0.06)",a=t?"✅":"❌",i=s?`<span style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;font-family:monospace;word-break:break-all;">${s}</span>`:"";return`
+        <div style="display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0.75rem;background:${n};border-radius:8px;">
+            <span style="font-size:0.9rem;flex-shrink:0;margin-top:1px;">${a}</span>
+            <div style="display:flex;flex-direction:column;">
+                <span style="font-size:0.8125rem;font-weight:700;color:${r};">${e}</span>
+                ${i}
+            </div>
+        </div>`}function F(){const e=document.getElementById("dash-create-camp");e&&(e.onclick=()=>{window.history.pushState({},"","/campaigns"),window.dispatchEvent(new PopStateEvent("popstate"))});const t=document.getElementById("check-health-btn"),s=document.getElementById("domain-check-input"),r=document.getElementById("health-badge"),n=document.getElementById("health-result-panel");!t||!s||(t.onclick=async()=>{const a=s.value.trim().replace(/^https?:\/\//,"").replace(/\/.*$/,"");if(!a){s.focus();return}t.disabled=!0,t.innerHTML='<span style="display:inline-block;animation:spin 0.8s linear infinite;">⟳</span> Checking…',n.innerHTML=`<div style="font-size:0.8125rem;color:var(--text-muted);text-align:center;padding:1rem 0;">Looking up DNS records for <strong>${a}</strong>…</div>`;try{const i=await fetch(`/api/domain/health?domain=${encodeURIComponent(a)}`);if(!i.ok)throw new Error(`HTTP ${i.status}`);const o=await i.json(),l=o.spf&&o.dkim&&o.dmarc;r.textContent=l?"Excellent":"Action Needed",r.style.cssText=l?"font-size:0.65rem;background:#ecfdf5;color:#059669;":"font-size:0.65rem;background:#fff7ed;color:#ea580c;";const d=o.dkim_selector?`Selector found: ${o.dkim_selector}`:null;n.innerHTML=`
+                <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                    ${y("SPF",o.spf,o.spf_record||null)}
+                    ${y("DKIM",o.dkim,d)}
+                    ${y("DMARC",o.dmarc,o.dmarc_record||null)}
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-muted);background:var(--bg-main);padding:0.75rem;border-radius:8px;margin-top:0.875rem;line-height:1.5;">
+                    ${l?"✅ All records verified. Your domain is properly authenticated for inbox delivery.":"⚠️ Some records are missing or not yet propagated. DNS changes can take 24–48 hours to be visible globally. If you just added a record, wait and try again."}
+                </div>`;const c=JSON.parse(localStorage.getItem("camp_user")||"{}");localStorage.setItem("camp_user",JSON.stringify({...c,domain:a}))}catch(i){n.innerHTML=`<div style="font-size:0.8125rem;color:var(--danger);padding:0.75rem;background:rgba(239,68,68,0.06);border-radius:8px;">⚠️ Error: ${i.message}. Make sure the backend is running and the domain is valid.</div>`}finally{t.disabled=!1,t.innerHTML="🔍 Check"}})}let S=[],I=null;async function H(){try{S=await $.list()}catch(e){console.error("Failed to fetch contacts",e)}return setTimeout(()=>{const e=document.getElementById("contact-search");e&&(e.oninput=t=>{const s=t.target.value.toLowerCase(),r=S.filter(n=>n.first_name&&n.first_name.toLowerCase().includes(s)||n.last_name&&n.last_name.toLowerCase().includes(s)||n.email.toLowerCase().includes(s)||n.tags&&n.tags.some(a=>a.text.toLowerCase().includes(s)));I(r)})},100),`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -359,26 +384,26 @@
                 #import-btn.loading::after { content: "⏳"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: var(--text-main); font-size: 1rem; animation: spin 1s linear infinite; }
             </style>
         </div>
-    `}function O(){const t=document.getElementById("contacts-list-body"),e=document.getElementById("modal-container"),s=document.getElementById("import-btn"),n=document.getElementById("import-file");_=i=>{t&&(t.innerHTML=i.map(l=>`
+    `}function U(){const e=document.getElementById("contacts-list-body"),t=document.getElementById("modal-container"),s=document.getElementById("import-btn"),r=document.getElementById("import-file");I=i=>{e&&(e.innerHTML=i.map(o=>`
             <tr>
                 <td style="font-weight: 700;">
-                    ${l.first_name||l.last_name?`${l.first_name||""} ${l.last_name||""}`:`<span class="text-muted" style="font-weight: 400; font-style: italic;">${l.email.split("@")[0]} (No Name)</span>`}
+                    ${o.first_name||o.last_name?`${o.first_name||""} ${o.last_name||""}`:`<span class="text-muted" style="font-weight: 400; font-style: italic;">${o.email.split("@")[0]} (No Name)</span>`}
                 </td>
-                <td class="text-muted">${l.email}</td>
+                <td class="text-muted">${o.email}</td>
                 <td>
                     <div class="flex gap-1 flex-wrap">
-                        ${l.tags&&l.tags.length>0?l.tags.map(o=>`<span class="status-badge" style="background: rgba(138, 154, 91, 0.1); color: var(--primary); font-size: 0.65rem;">${o.text}</span>`).join(""):'<span class="text-muted" style="font-size: 0.75rem;">None</span>'}
+                        ${o.tags&&o.tags.length>0?o.tags.map(l=>`<span class="status-badge" style="background: rgba(138, 154, 91, 0.1); color: var(--primary); font-size: 0.65rem;">${l.text}</span>`).join(""):'<span class="text-muted" style="font-size: 0.75rem;">None</span>'}
                     </div>
                 </td>
-                <td class="text-muted">${new Date(l.created_at).toLocaleDateString()}</td>
+                <td class="text-muted">${new Date(o.created_at).toLocaleDateString()}</td>
                 <td>
-                    <button class="btn btn-outline edit-contact-btn" data-id="${l.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
+                    <button class="btn btn-outline edit-contact-btn" data-id="${o.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
                 </td>
             </tr>
-        `).join("")+(i.length===0?'<tr><td colspan="5" style="text-align: center; padding: 3rem;" class="text-muted">No contacts found.</td></tr>':""),document.querySelectorAll(".edit-contact-btn").forEach(l=>{l.onclick=o=>{const d=o.target.dataset.id,c=S.find(p=>p.id==d);c&&r(c)}}))},_(S),s&&n&&(s.onclick=()=>n.click(),n.onchange=async i=>{const l=i.target.files[0];if(!l)return;s.classList.add("loading");const o=new FileReader;o.onload=async d=>{try{const c=new Uint8Array(d.target.result),p=window.XLSX.read(c,{type:"array"}),k=p.SheetNames[0],y=p.Sheets[k],u=window.XLSX.utils.sheet_to_json(y);let g=0;for(const m of u){const I=m.Email||m.email;if(!I)continue;let z=m["First Name"]||m.first_name||m.fname||"",C=m["Last Name"]||m.last_name||m.lname||"";if(!z&&!C&&(m.Name||m.name)){const h=(m.Name||m.name).split(" ");z=h[0],C=h.slice(1).join(" ")}const A=m.Tags||m.tags||"",tt=A?A.split(",").map(h=>h.trim()).filter(Boolean):[];await $.create({first_name:z,last_name:C,email:I,phone:m.Phone||m.phone||""}),g++}alert(`Successfully imported ${g} contacts.`),window.location.reload()}catch(c){s.classList.remove("loading"),alert("Import failed: "+c.message),console.error("Import error:",c)}},o.readAsArrayBuffer(l)});const r=(i=null)=>{const l=!!i;e.innerHTML=`
+        `).join("")+(i.length===0?'<tr><td colspan="5" style="text-align: center; padding: 3rem;" class="text-muted">No contacts found.</td></tr>':""),document.querySelectorAll(".edit-contact-btn").forEach(o=>{o.onclick=l=>{const d=l.target.dataset.id,c=S.find(p=>p.id==d);c&&n(c)}}))},I(S),s&&r&&(s.onclick=()=>r.click(),r.onchange=async i=>{const o=i.target.files[0];if(!o)return;s.classList.add("loading");const l=new FileReader;l.onload=async d=>{try{const c=new Uint8Array(d.target.result),p=window.XLSX.read(c,{type:"array"}),z=p.SheetNames[0],h=p.Sheets[z],u=window.XLSX.utils.sheet_to_json(h);let g=0;for(const m of u){const T=m.Email||m.email;if(!T)continue;let C=m["First Name"]||m.first_name||m.fname||"",E=m["Last Name"]||m.last_name||m.lname||"";if(!C&&!E&&(m.Name||m.name)){const x=(m.Name||m.name).split(" ");C=x[0],E=x.slice(1).join(" ")}const A=m.Tags||m.tags||"",ae=A?A.split(",").map(x=>x.trim()).filter(Boolean):[];await $.create({first_name:C,last_name:E,email:T,phone:m.Phone||m.phone||""}),g++}alert(`Successfully imported ${g} contacts.`),window.location.reload()}catch(c){s.classList.remove("loading"),alert("Import failed: "+c.message),console.error("Import error:",c)}},l.readAsArrayBuffer(o)});const n=(i=null)=>{const o=!!i;t.innerHTML=`
             <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
                 <div class="card" style="width: 100%; max-width: 500px; padding: 2rem;">
-                    <h2 class="mb-6">${l?"Edit Contact":"Add New Contact"}</h2>
+                    <h2 class="mb-6">${o?"Edit Contact":"Add New Contact"}</h2>
                     <form id="contact-form">
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">First Name</label>
@@ -398,12 +423,12 @@
                         </div>
                         <div class="flex justify-between mt-8" style="gap: 1rem;">
                             <button type="button" class="btn btn-outline" id="close-modal" style="flex: 1;">Cancel</button>
-                            <button type="submit" class="btn btn-primary" style="flex: 1;">${l?"Update Contact":"Save Contact"}</button>
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">${o?"Update Contact":"Save Contact"}</button>
                         </div>
                     </form>
                 </div>
             </div>
-        `,document.getElementById("close-modal").onclick=()=>e.innerHTML="",document.getElementById("modal-overlay").onclick=o=>{o.target.id==="modal-overlay"&&(e.innerHTML="")},document.getElementById("contact-form").onsubmit=async o=>{o.preventDefault();const d=new FormData(o.target),c=Object.fromEntries(d.entries());try{l?await $.update(i.id,c):await $.create(c),window.location.reload()}catch(p){alert("Action failed: "+p.message)}}},a=document.getElementById("add-contact-btn");a&&a.addEventListener("click",()=>r())}let b=[],w=null;async function H(){try{b=await f.list()}catch(t){console.error("Failed to fetch campaigns",t)}return`
+        `,document.getElementById("close-modal").onclick=()=>t.innerHTML="",document.getElementById("modal-overlay").onclick=l=>{l.target.id==="modal-overlay"&&(t.innerHTML="")},document.getElementById("contact-form").onsubmit=async l=>{l.preventDefault();const d=new FormData(l.target),c=Object.fromEntries(d.entries());try{o?await $.update(i.id,c):await $.create(c),window.location.reload()}catch(p){alert("Action failed: "+p.message)}}},a=document.getElementById("add-contact-btn");a&&a.addEventListener("click",()=>n())}let b=[],k=null;async function q(){try{b=await f.list()}catch(e){console.error("Failed to fetch campaigns",e)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -419,25 +444,25 @@
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Drafts</span>
-                        <span class="stat-value">${b.filter(t=>t.status==="draft").length}</span>
+                        <span class="stat-value">${b.filter(e=>e.status==="draft").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Scheduled</span>
-                        <span class="stat-value">${b.filter(t=>t.status==="scheduled").length}</span>
+                        <span class="stat-value">${b.filter(e=>e.status==="scheduled").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Sent</span>
-                        <span class="stat-value">${b.filter(t=>t.status==="sent").length}</span>
+                        <span class="stat-value">${b.filter(e=>e.status==="sent").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Paused</span>
-                        <span class="stat-value">${b.filter(t=>t.status==="paused").length}</span>
+                        <span class="stat-value">${b.filter(e=>e.status==="paused").length}</span>
                     </div>
                 </div>
             </div>
@@ -469,7 +494,7 @@
 
             <div id="campaign-modal-container"></div>
         </div>
-    `}function U(){const t=document.getElementById("campaigns-list-body"),e=document.getElementById("create-campaign-btn"),s=document.getElementById("campaign-modal-container"),n=document.querySelectorAll(".tab-btn");w=a=>{t&&(t.innerHTML=a.map(i=>`
+    `}function W(){const e=document.getElementById("campaigns-list-body"),t=document.getElementById("create-campaign-btn"),s=document.getElementById("campaign-modal-container"),r=document.querySelectorAll(".tab-btn");k=a=>{e&&(e.innerHTML=a.map(i=>`
             <tr>
                 <td style="font-weight: 700;">${i.name}</td>
                 <td>
@@ -484,7 +509,7 @@
                     <button class="btn btn-outline edit-campaign-btn" data-id="${i.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
                 </td>
             </tr>
-        `).join("")+(a.length===0?'<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No campaigns found for this view.</td></tr>':""),document.querySelectorAll(".edit-campaign-btn").forEach(i=>{i.onclick=l=>{const o=l.target.dataset.id,d=b.find(c=>c.id==o);d&&r(d)}}))},w(b),n.forEach(a=>{a.onclick=i=>{n.forEach(d=>{d.classList.remove("btn-primary"),d.classList.add("btn-outline")});const l=i.currentTarget;l.classList.remove("btn-outline"),l.classList.add("btn-primary");const o=l.dataset.filter;w(o==="all"?b:b.filter(d=>d.status===o))}});const r=(a=null)=>{const i=!!a;s.innerHTML=`
+        `).join("")+(a.length===0?'<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No campaigns found for this view.</td></tr>':""),document.querySelectorAll(".edit-campaign-btn").forEach(i=>{i.onclick=o=>{const l=o.target.dataset.id,d=b.find(c=>c.id==l);d&&n(d)}}))},k(b),r.forEach(a=>{a.onclick=i=>{r.forEach(d=>{d.classList.remove("btn-primary"),d.classList.add("btn-outline")});const o=i.currentTarget;o.classList.remove("btn-outline"),o.classList.add("btn-primary");const l=o.dataset.filter;k(l==="all"?b:b.filter(d=>d.status===l))}});const n=(a=null)=>{const i=!!a;s.innerHTML=`
             <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
                 <div class="card" style="width: 100%; max-width: 600px; padding: 2rem;">
                     <h2 class="mb-6">${i?"Edit Campaign":"Create New Campaign"}</h2>
@@ -523,7 +548,7 @@
                     </form>
                 </div>
             </div>
-        `,document.getElementById("close-modal").onclick=()=>s.innerHTML="",document.getElementById("modal-overlay").onclick=l=>{l.target.id==="modal-overlay"&&(s.innerHTML="")},document.getElementById("campaign-form").onsubmit=async l=>{l.preventDefault();const o=new FormData(l.target),d=Object.fromEntries(o.entries()),c={...d,open_rate:parseFloat(d.open_rate)||0,ctr:parseFloat(a?.ctr||0),conversions:parseFloat(a?.conversions||0)};try{i?await f.update(a.id,c):await f.create(c),window.location.reload()}catch(p){alert("Action failed: "+p.message)}}};e&&(e.onclick=()=>r())}async function q(){let t={total_contacts:0},e=[];try{[t,e]=await Promise.all([L.getOverview(),f.list()])}catch(n){console.error(n)}return`
+        `,document.getElementById("close-modal").onclick=()=>s.innerHTML="",document.getElementById("modal-overlay").onclick=o=>{o.target.id==="modal-overlay"&&(s.innerHTML="")},document.getElementById("campaign-form").onsubmit=async o=>{o.preventDefault();const l=new FormData(o.target),d=Object.fromEntries(l.entries()),c={...d,open_rate:parseFloat(d.open_rate)||0,ctr:parseFloat(a?.ctr||0),conversions:parseFloat(a?.conversions||0)};try{i?await f.update(a.id,c):await f.create(c),window.location.reload()}catch(p){alert("Action failed: "+p.message)}}};t&&(t.onclick=()=>n())}async function G(){let e={total_contacts:0},t=[];try{[e,t]=await Promise.all([L.getOverview(),f.list()])}catch(r){console.error(r)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -540,60 +565,60 @@
                     <div class="stat-icon">🔄</div>
                     <div class="stat-info">
                         <span class="stat-label">Active Automations</span>
-                        <span class="stat-value">${e.filter(n=>n.status==="sent").length}</span>
+                        <span class="stat-value">${t.filter(r=>r.status==="sent").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-icon">👥</div>
                     <div class="stat-info">
                         <span class="stat-label">Total Contacts</span>
-                        <span class="stat-value">${t.total_contacts}</span>
+                        <span class="stat-value">${e.total_contacts}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-icon">✉️</div>
                     <div class="stat-info">
                         <span class="stat-label">Total Sent</span>
-                        <span class="stat-value">${t.total_sent||0}</span>
+                        <span class="stat-value">${e.total_sent||0}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-icon">💰</div>
                     <div class="stat-info">
                         <span class="stat-label">Est. Revenue</span>
-                        <span class="stat-value">$${(t.revenue||0).toLocaleString()}</span>
+                        <span class="stat-value">$${(e.revenue||0).toLocaleString()}</span>
                     </div>
                 </div>
             </div>
 
             <h3 class="mb-4">Live Workflows</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                ${e.slice(0,4).map(n=>`
+                ${t.slice(0,4).map(r=>`
                     <div class="card">
                         <div class="flex justify-between items-start mb-4">
                             <div>
-                                <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem;">${n.name}</h4>
-                                <span class="status-badge status-${n.status}" style="font-size: 0.65rem;">${n.status}</span>
+                                <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem;">${r.name}</h4>
+                                <span class="status-badge status-${r.status}" style="font-size: 0.65rem;">${r.status}</span>
                             </div>
                             <span style="font-size: 1.25rem;">⚙️</span>
                         </div>
                         <div class="flex gap-4 mb-6">
                             <div style="flex: 1;">
                                 <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Open Rate</p>
-                                <p style="font-size: 1rem; font-weight: 700;">${n.open_rate}%</p>
+                                <p style="font-size: 1rem; font-weight: 700;">${r.open_rate}%</p>
                             </div>
                             <div style="flex: 1;">
                                 <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">CTR</p>
-                                <p style="font-size: 1rem; font-weight: 700;">${n.ctr}%</p>
+                                <p style="font-size: 1rem; font-weight: 700;">${r.ctr}%</p>
                             </div>
                         </div>
                         <button class="btn btn-outline" style="width: 100%; font-size: 0.8125rem;">Manage Workflow</button>
                     </div>
                 `).join("")}
-                ${e.length===0?'<div class="text-muted">No workflows found.</div>':""}
+                ${t.length===0?'<div class="text-muted">No workflows found.</div>':""}
             </div>
         </div>
-    `}async function W(){let t={open_rate:0,ctr:0,audience_growth:[]},e=[];try{const[s,n]=await Promise.all([L.getOverview(),f.list()]);t=s,e=(n||[]).filter(r=>r.status==="sent").sort((r,a)=>(a.open_rate||0)-(r.open_rate||0)).slice(0,3)}catch(s){console.error("Failed to fetch analytics data",s)}return`
+    `}async function J(){let e={open_rate:0,ctr:0,audience_growth:[]},t=[];try{const[s,r]=await Promise.all([L.getOverview(),f.list()]);e=s,t=(r||[]).filter(n=>n.status==="sent").sort((n,a)=>(a.open_rate||0)-(n.open_rate||0)).slice(0,3)}catch(s){console.error("Failed to fetch analytics data",s)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -610,13 +635,13 @@
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Avg. Open Rate</span>
-                        <span class="stat-value">${(t.open_rate||0).toFixed(1)}%</span>
+                        <span class="stat-value">${(e.open_rate||0).toFixed(1)}%</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Avg. CTR</span>
-                        <span class="stat-value">${(t.ctr||0).toFixed(1)}%</span>
+                        <span class="stat-value">${(e.ctr||0).toFixed(1)}%</span>
                     </div>
                 </div>
                 <div class="card stat-card">
@@ -651,7 +676,7 @@
                 <div class="card">
                     <h3 class="mb-6">Top Performing Campaigns</h3>
                     <div class="flex flex-col gap-4">
-                        ${e.length>0?e.map(s=>`
+                        ${t.length>0?t.map(s=>`
                             <div class="flex justify-between items-center py-3 border-bottom" style="border-bottom: 1px solid var(--border);">
                                 <span style="font-weight: 600;">${s.name}</span>
                                 <span style="color: var(--success); font-weight: 700;">${s.open_rate}% Open</span>
@@ -663,7 +688,7 @@
                     <h3 class="mb-6">Audience Metrics</h3>
                     <div class="flex flex-col gap-4">
                         <div class="insight-row">
-                            <div class="insight-label"><span>Total Contacts</span><span>${t.total_contacts||0}</span></div>
+                            <div class="insight-label"><span>Total Contacts</span><span>${e.total_contacts||0}</span></div>
                             <div class="progress-container"><div class="progress-bar" style="width: 100%;"></div></div>
                         </div>
                         <div class="insight-row">
@@ -674,9 +699,9 @@
                 </div>
             </div>
         </div>
-    `}async function G(){let t=[];try{t=(await f.list()||[]).filter(i=>i.status==="scheduled"||i.status==="draft").sort((i,l)=>new Date(i.created_at)-new Date(l.created_at)).slice(0,5)}catch(a){console.error("Failed to fetch schedule",a)}const e=new Date,s=new Date(e.getFullYear(),e.getMonth()+1,0).getDate(),n=new Date(e.getFullYear(),e.getMonth(),1).getDay();let r="";for(let a=0;a<n;a++)r+='<div style="padding: 1rem; border: 1px solid var(--border); background: var(--bg-main); opacity: 0.5;"></div>';for(let a=1;a<=s;a++){const i=t.some(l=>new Date(l.created_at).getDate()===a&&new Date(l.created_at).getMonth()===e.getMonth());r+=`
+    `}async function V(){let e=[];try{e=(await f.list()||[]).filter(i=>i.status==="scheduled"||i.status==="draft").sort((i,o)=>new Date(i.created_at)-new Date(o.created_at)).slice(0,5)}catch(a){console.error("Failed to fetch schedule",a)}const t=new Date,s=new Date(t.getFullYear(),t.getMonth()+1,0).getDate(),r=new Date(t.getFullYear(),t.getMonth(),1).getDay();let n="";for(let a=0;a<r;a++)n+='<div style="padding: 1rem; border: 1px solid var(--border); background: var(--bg-main); opacity: 0.5;"></div>';for(let a=1;a<=s;a++){const i=e.some(o=>new Date(o.created_at).getDate()===a&&new Date(o.created_at).getMonth()===t.getMonth());n+=`
             <div style="padding: 1rem; border: 1px solid var(--border); min-height: 80px; position: relative; background: var(--bg-card);">
-                <span style="font-weight: ${a===e.getDate()?"800":"500"}; color: ${a===e.getDate()?"var(--primary)":"inherit"};">${a}</span>
+                <span style="font-weight: ${a===t.getDate()?"800":"500"}; color: ${a===t.getDate()?"var(--primary)":"inherit"};">${a}</span>
                 ${i?'<div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--primary);"></div>':""}
             </div>
         `}return`
@@ -701,7 +726,7 @@
 
                 <!-- List View -->
                 <div id="schedule-list-view" class="flex flex-col gap-2">
-                    ${t.map(a=>`
+                    ${e.map(a=>`
                         <div class="flex items-center gap-6 p-4 border-bottom" style="border-bottom: 1px solid var(--border);">
                             <div style="text-align: center; min-width: 80px;">
                                 <p style="font-weight: 800; color: var(--primary);">${new Date(a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</p>
@@ -714,22 +739,22 @@
                             <button class="btn btn-outline edit-schedule-btn" data-id="${a.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
                         </div>
                     `).join("")}
-                    ${t.length===0?'<div class="text-muted" style="text-align: center; padding: 3rem;">No upcoming campaigns found.</div>':""}
+                    ${e.length===0?'<div class="text-muted" style="text-align: center; padding: 3rem;">No upcoming campaigns found.</div>':""}
                 </div>
 
                 <!-- Calendar View -->
                 <div id="schedule-calendar-view" style="display: none;">
-                    <h3 style="text-align: center; margin-bottom: 1rem;">${e.toLocaleDateString("en-US",{month:"long",year:"numeric"})}</h3>
+                    <h3 style="text-align: center; margin-bottom: 1rem;">${t.toLocaleDateString("en-US",{month:"long",year:"numeric"})}</h3>
                     <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; margin-bottom: 0.5rem;">
                         <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: var(--border);">
-                        ${r}
+                        ${n}
                     </div>
                 </div>
             </div>
         </div>
-    `}function J(){const t=document.getElementById("schedule-create-btn");t&&(t.onclick=()=>window.location.hash="#campaign");const e=document.getElementById("view-list-btn"),s=document.getElementById("view-calendar-btn"),n=document.getElementById("schedule-list-view"),r=document.getElementById("schedule-calendar-view");e&&s&&(e.onclick=()=>{n.style.display="flex",r.style.display="none",e.className="btn btn-primary",s.className="btn btn-outline",e.style.padding="0.5rem 1rem",e.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"},s.onclick=()=>{n.style.display="none",r.style.display="block",s.className="btn btn-primary",e.className="btn btn-outline",e.style.padding="0.5rem 1rem",e.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"})}async function V(){return`
+    `}function Y(){const e=document.getElementById("schedule-create-btn");e&&(e.onclick=()=>window.location.hash="#campaign");const t=document.getElementById("view-list-btn"),s=document.getElementById("view-calendar-btn"),r=document.getElementById("schedule-list-view"),n=document.getElementById("schedule-calendar-view");t&&s&&(t.onclick=()=>{r.style.display="flex",n.style.display="none",t.className="btn btn-primary",s.className="btn btn-outline",t.style.padding="0.5rem 1rem",t.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"},s.onclick=()=>{r.style.display="none",n.style.display="block",s.className="btn btn-primary",t.className="btn btn-outline",t.style.padding="0.5rem 1rem",t.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"})}async function X(){return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -748,9 +773,9 @@
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
-                ${[{name:"Minimalist Blog",desc:"Perfect for text-heavy updates.",color:"#f8fafc"},{name:"Modern E-commerce",desc:"Showcase your seasonal products.",color:"#f1f5f9"},{name:"Event Invitation",desc:"Elegant layout for webinars.",color:"#fdfcfe"},{name:"Monthly Digest",desc:"Curated content summary.",color:"#fff"},{name:"Welcome Series",desc:"First impression for new users.",color:"#faf9f6"},{name:"Flash Sale",desc:"High-conversion retail layout.",color:"#f8fafc"}].map((t,e)=>`
+                ${[{name:"Minimalist Blog",desc:"Perfect for text-heavy updates.",color:"#f8fafc"},{name:"Modern E-commerce",desc:"Showcase your seasonal products.",color:"#f1f5f9"},{name:"Event Invitation",desc:"Elegant layout for webinars.",color:"#fdfcfe"},{name:"Monthly Digest",desc:"Curated content summary.",color:"#fff"},{name:"Welcome Series",desc:"First impression for new users.",color:"#faf9f6"},{name:"Flash Sale",desc:"High-conversion retail layout.",color:"#f8fafc"}].map((e,t)=>`
                     <div class="card" style="padding: 0; overflow: hidden; border: 1px solid var(--border); transition: transform 0.2s ease;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                        <div style="height: 220px; background: ${t.color}; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border);">
+                        <div style="height: 220px; background: ${e.color}; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border);">
                             <div style="width: 70%; height: 60%; background: white; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 1rem; border: 1px solid #eee;">
                                 <div style="width: 100%; height: 8px; background: #eee; margin-bottom: 0.5rem;"></div>
                                 <div style="width: 60%; height: 8px; background: #f5f5f5; margin-bottom: 1rem;"></div>
@@ -761,15 +786,15 @@
                             </div>
                         </div>
                         <div style="padding: 1.5rem;">
-                            <h4 style="margin-bottom: 0.5rem; font-weight: 700;">${t.name}</h4>
-                            <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.5rem;">${t.desc}</p>
+                            <h4 style="margin-bottom: 0.5rem; font-weight: 700;">${e.name}</h4>
+                            <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.5rem;">${e.desc}</p>
                             <button class="btn btn-outline" style="width: 100%; font-size: 0.875rem;">Use Template</button>
                         </div>
                     </div>
                 `).join("")}
             </div>
         </div>
-    `}async function Y(){const t=localStorage.getItem("camp_sheets_connected")==="true";return setTimeout(()=>{const e=document.getElementById("connect-sheets-btn");e&&(e.onclick=()=>{t?(localStorage.setItem("camp_sheets_connected","false"),window.location.reload()):(e.innerHTML='<span style="display:inline-block; animation: spin 1s linear infinite;">⏳</span> Connecting...',e.style.opacity="0.7",setTimeout(()=>{localStorage.setItem("camp_sheets_connected","true"),window.location.reload()},1500))})},100),`
+    `}async function K(){const e=localStorage.getItem("camp_sheets_connected")==="true";return setTimeout(()=>{const t=document.getElementById("connect-sheets-btn");t&&(t.onclick=()=>{e?(localStorage.setItem("camp_sheets_connected","false"),window.location.reload()):(t.innerHTML='<span style="display:inline-block; animation: spin 1s linear infinite;">⏳</span> Connecting...',t.style.opacity="0.7",setTimeout(()=>{localStorage.setItem("camp_sheets_connected","true"),window.location.reload()},1500))})},100),`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -791,15 +816,15 @@
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
-                ${[{name:"Shopify",desc:"Import products and sync customer purchase history automatically.",icon:"🛍️",status:"Connected"},{name:"WordPress",desc:"Integrate signup forms and publish newsletters as blog posts.",icon:"📝",status:"Available"},{name:"Zapier",desc:"Connect with 5000+ apps to trigger emails from any event.",icon:"⚡",status:"Available"},{name:"Stripe",desc:"Track customer lifetime value and payment-triggered automations.",icon:"💳",status:"Available"},{name:"Salesforce",desc:"Sync leads and contacts directly with your Salesforce CRM.",icon:"☁️",status:"Available"},{name:"Google Sheets",desc:"Live sync your audience segments with shared spreadsheets.",icon:"📄",status:t?"Connected":"Available",id:"connect-sheets-btn"}].map(e=>`
+                ${[{name:"Shopify",desc:"Import products and sync customer purchase history automatically.",icon:"🛍️",status:"Connected"},{name:"WordPress",desc:"Integrate signup forms and publish newsletters as blog posts.",icon:"📝",status:"Available"},{name:"Zapier",desc:"Connect with 5000+ apps to trigger emails from any event.",icon:"⚡",status:"Available"},{name:"Stripe",desc:"Track customer lifetime value and payment-triggered automations.",icon:"💳",status:"Available"},{name:"Salesforce",desc:"Sync leads and contacts directly with your Salesforce CRM.",icon:"☁️",status:"Available"},{name:"Google Sheets",desc:"Live sync your audience segments with shared spreadsheets.",icon:"📄",status:e?"Connected":"Available",id:"connect-sheets-btn"}].map(t=>`
                     <div class="card" style="display: flex; flex-direction: column; align-items: flex-start; padding: 2rem; position: relative;">
-                        ${e.status==="Connected"?'<span class="status-badge status-sent" style="position: absolute; top: 1.5rem; right: 1.5rem;">Connected</span>':""}
+                        ${t.status==="Connected"?'<span class="status-badge status-sent" style="position: absolute; top: 1.5rem; right: 1.5rem;">Connected</span>':""}
                         <div style="width: 56px; height: 56px; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; margin-bottom: 1.5rem;">
-                            ${e.icon}
+                            ${t.icon}
                         </div>
-                        <h4 style="margin-bottom: 0.75rem; font-weight: 700;">${e.name}</h4>
-                        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 2rem; flex-grow: 1; line-height: 1.5;">${e.desc}</p>
-                        <button ${e.id?`id="${e.id}"`:""} class="btn ${e.status==="Connected"?"btn-outline":"btn-primary"}" style="width: 100%; border-radius: var(--radius-sm);">${e.status==="Connected"?"Disconnect":"Connect"}</button>
+                        <h4 style="margin-bottom: 0.75rem; font-weight: 700;">${t.name}</h4>
+                        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 2rem; flex-grow: 1; line-height: 1.5;">${t.desc}</p>
+                        <button ${t.id?`id="${t.id}"`:""} class="btn ${t.status==="Connected"?"btn-outline":"btn-primary"}" style="width: 100%; border-radius: var(--radius-sm);">${t.status==="Connected"?"Disconnect":"Connect"}</button>
                     </div>
                 `).join("")}
             </div>
@@ -808,7 +833,7 @@
                 @keyframes spin { 100% { transform: rotate(360deg); } }
             </style>
         </div>
-    `}function P(){return`
+    `}function B(){return`
         <div class="landing-page" style="width: 100%; display: flex; flex-direction: column; align-items: center; background: white; color: var(--text-main);">
             <header style="width: 100%; padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: white; z-index: 100;">
                 <div class="logo" style="margin-bottom: 0;">
@@ -953,7 +978,7 @@
                 </div>
             </footer>
         </div>
-    `}function T(t="signup"){return t==="signup"?K():X()}function X(){return`
+    `}function D(e="signup"){return e==="signup"?Q():Z()}function Z(){return`
         <div style="width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-main); padding: 2rem;">
             <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem;">
                 <div style="text-align: center; margin-bottom: 2rem;">
@@ -977,7 +1002,7 @@
                 </form>
             </div>
         </div>
-    `}function K(){return`
+    `}function Q(){return`
         <div style="width: 100%; min-height: 100vh; background: var(--bg-main); display: flex; align-items: center; justify-content: center; padding: 2rem;">
             <div class="card" style="width: 100%; max-width: 550px; padding: 3rem;">
                 <!-- Wizard Header -->
@@ -1056,11 +1081,11 @@
                 </form>
             </div>
         </div>
-    `}function Z(){const t=document.getElementById("auth-form");if(!t)return;let e=1;const s=n=>{document.querySelectorAll(".wizard-step").forEach(a=>a.style.display="none"),document.getElementById(`step-${n}`).style.display="block",document.querySelectorAll(".step-dot").forEach(a=>{a.classList.toggle("active",a.dataset.step==n)});const r=document.getElementById("wizard-title");r&&(n===1&&(r.textContent="Create your account"),n===2&&(r.textContent="Tell us about your business"),n===3&&(r.textContent="Guaranteed Inbox: SMTP Config"))};t.addEventListener("click",n=>{if(n.target.classList.contains("next-btn")){if(e===1){const r=t.querySelector('[name="name"]').value,a=t.querySelector('[name="email"]').value,i=t.querySelector('[name="password"]').value;if(!r||!a||!i){alert("Please fill in all account details.");return}}e++,s(e)}n.target.classList.contains("prev-btn")&&(e--,s(e))}),t.onsubmit=async n=>{n.preventDefault();const r=new FormData(t),a=Object.fromEntries(r.entries());try{const i=await E.signup({name:a.name,email:a.email,password:a.password,company_name:a.company_name,domain:a.domain});a.smtp_host&&await E.saveSMTP({account_id:i.id,host:a.smtp_host,port:parseInt(a.smtp_port),username:a.smtp_user,password:a.smtp_pass,security_type:"tls"}),localStorage.setItem("camp_user",JSON.stringify({id:i.id,name:a.name,email:a.email})),window.sessionStorage.setItem("isLoggedIn","true"),alert("Setup complete! Welcome to the premium inbox experience."),window.location.href="/"}catch(i){alert("Setup failed: "+i.message)}}}const D=document.getElementById("app"),B={"/":j,"/contacts":F,"/campaigns":H,"/automation":q,"/analytics":W,"/schedule":G,"/templates":V,"/integration":Y,"/login":()=>T("login"),"/signup":()=>T("signup"),"/landing":P};async function Q(t){const e=window.sessionStorage.getItem("isLoggedIn")==="true";if(t==="/logout"){window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing";return}!e&&!["/login","/signup","/landing"].includes(t)&&(window.history.replaceState({},"","/landing"),t="/landing"),e&&["/login","/signup","/landing"].includes(t)&&(window.history.replaceState({},"","/"),t="/");const s=B[t]||(e?j:P),r=e&&!["/landing","/login","/signup"].includes(t),a=await s();if(r){const u=M(t);D.innerHTML=`
+    `}function ee(){const e=document.getElementById("auth-form");if(!e)return;let t=1;const s=r=>{document.querySelectorAll(".wizard-step").forEach(a=>a.style.display="none"),document.getElementById(`step-${r}`).style.display="block",document.querySelectorAll(".step-dot").forEach(a=>{a.classList.toggle("active",a.dataset.step==r)});const n=document.getElementById("wizard-title");n&&(r===1&&(n.textContent="Create your account"),r===2&&(n.textContent="Tell us about your business"),r===3&&(n.textContent="Guaranteed Inbox: SMTP Config"))};e.addEventListener("click",r=>{if(r.target.classList.contains("next-btn")){if(t===1){const n=e.querySelector('[name="name"]').value,a=e.querySelector('[name="email"]').value,i=e.querySelector('[name="password"]').value;if(!n||!a||!i){alert("Please fill in all account details.");return}}t++,s(t)}r.target.classList.contains("prev-btn")&&(t--,s(t))}),e.onsubmit=async r=>{r.preventDefault();const n=new FormData(e),a=Object.fromEntries(n.entries());try{const i=await _.signup({name:a.name,email:a.email,password:a.password,company_name:a.company_name,domain:a.domain});a.smtp_host&&await _.saveSMTP({account_id:i.id,host:a.smtp_host,port:parseInt(a.smtp_port),username:a.smtp_user,password:a.smtp_pass,security_type:"tls"}),localStorage.setItem("camp_user",JSON.stringify({id:i.id,name:a.name,email:a.email})),window.sessionStorage.setItem("isLoggedIn","true"),alert("Setup complete! Welcome to the premium inbox experience."),window.location.href="/"}catch(i){alert("Setup failed: "+i.message)}}}const P=document.getElementById("app"),N={"/":j,"/contacts":H,"/campaigns":q,"/automation":G,"/analytics":J,"/schedule":V,"/templates":X,"/integration":K,"/login":()=>D("login"),"/signup":()=>D("signup"),"/landing":B};async function te(e){const t=window.sessionStorage.getItem("isLoggedIn")==="true";if(e==="/logout"){window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing";return}!t&&!["/login","/signup","/landing"].includes(e)&&(window.history.replaceState({},"","/landing"),e="/landing"),t&&["/login","/signup","/landing"].includes(e)&&(window.history.replaceState({},"","/"),e="/");const s=N[e]||(t?j:B),n=t&&!["/landing","/login","/signup"].includes(e),a=await s();if(n){const u=R(e);P.innerHTML=`
             ${u}
             <div class="layout-container" style="width: 100%;">
                 <div id="content-area" style="flex: 1; min-width: 0;">
                     ${a}
                 </div>
             </div>
-        `}else D.innerHTML=`<div style="width: 100%;">${a}</div>`;document.querySelectorAll(".card table, .card .campaign-table").forEach(u=>{if(!u.parentElement.classList.contains("table-wrapper")){const g=document.createElement("div");g.className="table-wrapper",u.parentNode.insertBefore(g,u),g.appendChild(u)}}),t==="/contacts"&&O(),t==="/campaigns"&&U(),t==="/schedule"&&J(),["/login","/signup"].includes(t)&&Z();const i=document.getElementById("logout-btn");i&&(i.onclick=u=>{u.preventDefault(),window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing"});const l=document.getElementById("dark-mode-circle"),o=document.getElementById("dark-mode-toggle");if(l&&o){const u=document.body.classList.contains("dark-theme");l.style.left=u?"21px":"3px",o.style.background=u?"var(--primary)":"var(--border)",o.onclick=()=>{const g=document.body.classList.toggle("dark-theme");localStorage.setItem("camp_dark_mode",g),l.style.left=g?"21px":"3px",o.style.background=g?"var(--primary)":"var(--border)"}}const d=document.getElementById("hamburger-btn"),c=document.getElementById("sidebar"),p=document.getElementById("sidebar-overlay");function k(){c&&c.classList.add("open"),p&&p.classList.add("active"),d&&d.classList.add("open"),document.body.style.overflow="hidden"}function y(){c&&c.classList.remove("open"),p&&p.classList.remove("active"),d&&d.classList.remove("open"),document.body.style.overflow=""}d&&(d.onclick=()=>c&&c.classList.contains("open")?y():k()),p&&(p.onclick=y),document.querySelectorAll(".sidebar .nav-link[data-link]").forEach(u=>{u.addEventListener("click",()=>{window.innerWidth<=768&&y()})})}localStorage.getItem("camp_dark_mode")==="true"&&document.body.classList.add("dark-theme");new N(B,t=>{Q(t)});
+        `}else P.innerHTML=`<div style="width: 100%;">${a}</div>`;document.querySelectorAll(".card table, .card .campaign-table").forEach(u=>{if(!u.parentElement.classList.contains("table-wrapper")){const g=document.createElement("div");g.className="table-wrapper",u.parentNode.insertBefore(g,u),g.appendChild(u)}}),e==="/contacts"&&U(),e==="/campaigns"&&W(),e==="/schedule"&&Y(),e==="/"&&F(),["/login","/signup"].includes(e)&&ee();const i=document.getElementById("logout-btn");i&&(i.onclick=u=>{u.preventDefault(),window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing"});const o=document.getElementById("dark-mode-circle"),l=document.getElementById("dark-mode-toggle");if(o&&l){const u=document.body.classList.contains("dark-theme");o.style.left=u?"21px":"3px",l.style.background=u?"var(--primary)":"var(--border)",l.onclick=()=>{const g=document.body.classList.toggle("dark-theme");localStorage.setItem("camp_dark_mode",g),o.style.left=g?"21px":"3px",l.style.background=g?"var(--primary)":"var(--border)"}}const d=document.getElementById("hamburger-btn"),c=document.getElementById("sidebar"),p=document.getElementById("sidebar-overlay");function z(){c&&c.classList.add("open"),p&&p.classList.add("active"),d&&d.classList.add("open"),document.body.style.overflow="hidden"}function h(){c&&c.classList.remove("open"),p&&p.classList.remove("active"),d&&d.classList.remove("open"),document.body.style.overflow=""}d&&(d.onclick=()=>c&&c.classList.contains("open")?h():z()),p&&(p.onclick=h),document.querySelectorAll(".sidebar .nav-link[data-link]").forEach(u=>{u.addEventListener("click",()=>{window.innerWidth<=768&&h()})})}localStorage.getItem("camp_dark_mode")==="true"&&document.body.classList.add("dark-theme");new M(N,e=>{te(e)});

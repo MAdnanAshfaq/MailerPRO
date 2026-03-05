@@ -239,24 +239,36 @@ export async function Dashboard() {
                     </div>
 
                     <!-- Deliverability Health -->
-                    <div class="card" style="border: 1px solid var(--primary); background: rgba(138, 154, 91, 0.02);">
+                    <div class="card" id="deliverability-card" style="border: 1px solid var(--border);">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 style="font-size: 1rem;">Deliverability Health</h3>
-                            <span class="status-badge status-${domainHealth && domainHealth.spf && domainHealth.dkim && domainHealth.dmarc ? 'sent' : 'draft'}" style="font-size: 0.65rem;">${domainHealth && domainHealth.spf && domainHealth.dkim && domainHealth.dmarc ? 'Excellent' : 'Action Needed'}</span>
+                            <h3 style="font-size: 1rem;">🛡 Deliverability Health</h3>
+                            <span class="status-badge" id="health-badge" style="font-size: 0.65rem; ${domainHealth ? (domainHealth.spf && domainHealth.dkim && domainHealth.dmarc ? 'background:#ecfdf5;color:#059669;' : 'background:#fff7ed;color:#ea580c;') : 'background:#f4f4f5;color:#71717a;'}">${domainHealth ? (domainHealth.spf && domainHealth.dkim && domainHealth.dmarc ? 'Excellent' : 'Action Needed') : 'Not Checked'}</span>
                         </div>
-                        <div class="flex items-center gap-4 mb-4">
-                            <div style="font-size: 2rem;">${domainHealth && domainHealth.spf && domainHealth.dkim && domainHealth.dmarc ? '🛡️' : '⚠️'}</div>
-                            <div>
-                                <p style="font-size: 0.875rem; font-weight: 700;">Domain: ${user.domain || 'Not configured'}</p>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">
-                                    SPF: ${domainHealth && domainHealth.spf ? '✅' : '❌'}, 
-                                    DKIM: ${domainHealth && domainHealth.dkim ? '✅' : '❌'}, 
-                                    DMARC: ${domainHealth && domainHealth.dmarc ? '✅' : '❌'}
-                                </p>
+
+                        <!-- Domain Input Row -->
+                        <div class="flex gap-2 mb-4" style="align-items: stretch;">
+                            <input type="text" id="domain-check-input" class="input" placeholder="yourdomain.com" value="${user.domain || ''}" style="flex: 1; padding: 0.6rem 0.875rem; font-size: 0.875rem;">
+                            <button class="btn btn-primary" id="check-health-btn" style="padding: 0.6rem 1rem; font-size: 0.8125rem; white-space: nowrap;">
+                                🔍 Check
+                            </button>
+                        </div>
+
+                        <!-- Result Panel -->
+                        <div id="health-result-panel">
+                            ${domainHealth ? `
+                            <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                                ${renderHealthRow('SPF', domainHealth.spf, domainHealth.spf_record)}
+                                ${renderHealthRow('DKIM', domainHealth.dkim, domainHealth.dkim_selector ? `Selector: ${domainHealth.dkim_selector}` : null)}
+                                ${renderHealthRow('DMARC', domainHealth.dmarc, domainHealth.dmarc_record)}
                             </div>
-                        </div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); background: white; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border);">
-                            ${domainHealth && domainHealth.spf && domainHealth.dkim && domainHealth.dmarc ? '"Your domain reputation is high. Emails are securely authenticated."' : '"Some authentication records are missing. Please configure your DNS settings to improve deliverability."'}
+                            <div style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-main); padding: 0.75rem; border-radius: 8px; margin-top: 0.875rem; line-height: 1.5;">
+                                ${domainHealth.spf && domainHealth.dkim && domainHealth.dmarc
+                                    ? '✅ All records verified. Your domain is properly authenticated for inbox delivery.'
+                                    : '⚠️ Some records are missing or not yet propagated. DNS changes can take up to 24–48 hours to propagate globally.'}
+                            </div>` : `
+                            <div style="font-size: 0.8125rem; color: var(--text-muted); text-align: center; padding: 1rem 0;">
+                                Enter your sending domain above and click Check to see your DNS health.
+                            </div>`}
                         </div>
                     </div>
 
@@ -288,11 +300,85 @@ export async function Dashboard() {
     `;
 }
 
+// Helper to render a single DNS check row
+function renderHealthRow(label, passed, detail) {
+    const color    = passed ? '#059669' : '#ea580c';
+    const bg       = passed ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.06)';
+    const icon     = passed ? '✅' : '❌';
+    const detailEl = detail
+        ? `<span style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;font-family:monospace;word-break:break-all;">${detail}</span>`
+        : '';
+    return `
+        <div style="display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0.75rem;background:${bg};border-radius:8px;">
+            <span style="font-size:0.9rem;flex-shrink:0;margin-top:1px;">${icon}</span>
+            <div style="display:flex;flex-direction:column;">
+                <span style="font-size:0.8125rem;font-weight:700;color:${color};">${label}</span>
+                ${detailEl}
+            </div>
+        </div>`;
+}
+
 export function initDashboard() {
     const createBtn = document.getElementById('dash-create-camp');
     if (createBtn) {
-        createBtn.onclick = () => {
-            window.location.hash = '#campaign';
-        };
+        createBtn.onclick = () => { window.history.pushState({}, '', '/campaigns'); window.dispatchEvent(new PopStateEvent('popstate')); };
     }
+
+    const checkBtn   = document.getElementById('check-health-btn');
+    const domainInput = document.getElementById('domain-check-input');
+    const badge      = document.getElementById('health-badge');
+    const resultPanel = document.getElementById('health-result-panel');
+
+    if (!checkBtn || !domainInput) return;
+
+    checkBtn.onclick = async () => {
+        const domain = domainInput.value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        if (!domain) {
+            domainInput.focus();
+            return;
+        }
+
+        // Loading state
+        checkBtn.disabled = true;
+        checkBtn.innerHTML = '<span style="display:inline-block;animation:spin 0.8s linear infinite;">⟳</span> Checking…';
+        resultPanel.innerHTML = `<div style="font-size:0.8125rem;color:var(--text-muted);text-align:center;padding:1rem 0;">Looking up DNS records for <strong>${domain}</strong>…</div>`;
+
+        try {
+            const res = await fetch(`/api/domain/health?domain=${encodeURIComponent(domain)}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const h = await res.json();
+
+            // Update badge
+            const allPassed = h.spf && h.dkim && h.dmarc;
+            badge.textContent = allPassed ? 'Excellent' : 'Action Needed';
+            badge.style.cssText = allPassed
+                ? 'font-size:0.65rem;background:#ecfdf5;color:#059669;'
+                : 'font-size:0.65rem;background:#fff7ed;color:#ea580c;';
+
+            // Update result panel
+            const dkimDetail = h.dkim_selector ? `Selector found: ${h.dkim_selector}` : null;
+            resultPanel.innerHTML = `
+                <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                    ${renderHealthRow('SPF',   h.spf,   h.spf_record   || null)}
+                    ${renderHealthRow('DKIM',  h.dkim,  dkimDetail)}
+                    ${renderHealthRow('DMARC', h.dmarc, h.dmarc_record || null)}
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-muted);background:var(--bg-main);padding:0.75rem;border-radius:8px;margin-top:0.875rem;line-height:1.5;">
+                    ${allPassed
+                        ? '✅ All records verified. Your domain is properly authenticated for inbox delivery.'
+                        : '⚠️ Some records are missing or not yet propagated. DNS changes can take 24–48 hours to be visible globally. If you just added a record, wait and try again.'}
+                </div>`;
+
+            // Save the checked domain for next load
+            const user = JSON.parse(localStorage.getItem('camp_user') || '{}');
+            localStorage.setItem('camp_user', JSON.stringify({ ...user, domain }));
+
+        } catch (err) {
+            resultPanel.innerHTML = `<div style="font-size:0.8125rem;color:var(--danger);padding:0.75rem;background:rgba(239,68,68,0.06);border-radius:8px;">⚠️ Error: ${err.message}. Make sure the backend is running and the domain is valid.</div>`;
+        } finally {
+            checkBtn.disabled = false;
+            checkBtn.innerHTML = '🔍 Check';
+        }
+    };
 }
+

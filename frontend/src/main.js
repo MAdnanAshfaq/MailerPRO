@@ -1,7 +1,7 @@
 import './style.css';
 import { Router } from './router';
 import { Sidebar } from './components/Sidebar';
-import { Dashboard } from './pages/Dashboard';
+import { Dashboard, initDashboard } from './pages/Dashboard';
 import { Contacts, initContacts } from './pages/Contacts';
 import { Campaigns, initCampaigns } from './pages/Campaigns';
 import { Automation } from './pages/Automation';
@@ -82,6 +82,7 @@ async function render(path) {
     if (path === '/contacts') initContacts();
     if (path === '/campaigns') initCampaigns();
     if (path === '/schedule') initSchedule();
+    if (path === '/') initDashboard();
     if (['/login', '/signup'].includes(path)) initAuth();
 
     // ── Logout ──
