@@ -22,7 +22,7 @@ function renderLogin() {
                         <a href="/signup" style="color: var(--primary); font-weight: 600; text-decoration: none;" data-link>Sign up</a>
                     </p>
                 </div>
-                <form id="auth-form">
+                <form id="auth-form" data-type="login">
                     <div class="mb-4">
                         <label class="label">Email address</label>
                         <input type="email" name="email" class="input" required placeholder="name@company.com">
@@ -53,7 +53,7 @@ function renderSignupWizard() {
                     </div>
                 </div>
 
-                <form id="auth-form">
+                <form id="auth-form" data-type="signup">
                     <!-- Step 1: Personal Info -->
                     <div id="step-1" class="wizard-step">
                         <div class="mb-4">
@@ -171,6 +171,7 @@ export function initAuth() {
         e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+        const isSignup = form.dataset.type === 'signup';
 
         try {
             let userData;
