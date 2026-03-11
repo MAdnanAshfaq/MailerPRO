@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/codersgyan/camp/internal/account"
+	"github.com/codersgyan/camp/internal/ai"
 	"github.com/codersgyan/camp/internal/campaign"
 	"github.com/codersgyan/camp/internal/contact"
 	"github.com/codersgyan/camp/internal/database"
@@ -54,9 +55,10 @@ func main() {
 	accountHandler := account.NewHandler(accountRepo)
 
 	mailerService := mailer.NewService(accountRepo, contactRepository)
+	aiService := ai.NewService()
 
 	campaignRepository := campaign.NewRepository(db)
-	campaignHandler := campaign.NewHandler(campaignRepository, mailerService)
+	campaignHandler := campaign.NewHandler(campaignRepository, mailerService, aiService)
 
 	warmingWorker := warming.NewWorker(db, accountRepo)
 	warmingWorker.Start()
@@ -76,6 +78,7 @@ func main() {
 	http.HandleFunc("PATCH /api/contacts/{id}/tag", contactHandler.RemoveTag)
 
 	http.HandleFunc("POST /api/campaigns", campaignHandler.Create)
+	http.HandleFunc("POST /api/campaigns/generate-ai", campaignHandler.GenerateAI)
 	http.HandleFunc("GET /api/campaigns/{id}", campaignHandler.Get)
 	http.HandleFunc("PUT /api/campaigns/{id}", campaignHandler.Update)
 	http.HandleFunc("GET /api/campaigns", campaignHandler.List)

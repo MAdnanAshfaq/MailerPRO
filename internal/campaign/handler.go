@@ -5,18 +5,21 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/codersgyan/camp/internal/ai"
 	"github.com/codersgyan/camp/internal/mailer"
 )
 
 type Handler struct {
 	repo   *Repository
 	mailer *mailer.Service
+	ai     *ai.Service
 }
 
-func NewHandler(repo *Repository, mailerSvc *mailer.Service) *Handler {
+func NewHandler(repo *Repository, mailerSvc *mailer.Service, aiSvc *ai.Service) *Handler {
 	return &Handler{
 		repo:   repo,
 		mailer: mailerSvc,
+		ai:     aiSvc,
 	}
 }
 
@@ -92,4 +95,30 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+func (h *Handler) GenerateAI(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Goal string `json:"goal"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	if h.ai == nil {
+		http.Error(w, "AI service not available", http.StatusServiceUnavailable)
+		return
+	}
+
+	subject, content, err := h.ai.GenerateEmailContent(body.Goal)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"subject": subject,
+		"content": content,
+	})
 }

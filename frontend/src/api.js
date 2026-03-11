@@ -54,7 +54,8 @@ export const campaignsApi = {
     list: async () => (await api.get('/campaigns')) || [],
     get: (id) => api.get(`/campaigns/${id}`),
     create: (data) => api.post('/campaigns', data),
-    update: (id, data) => api.put(`/campaigns/${id}`, data)
+    update: (id, data) => api.put(`/campaigns/${id}`, data),
+    generateAI: (data) => api.post('/campaigns/generate-ai', data)
 };
 
 export const statsApi = {

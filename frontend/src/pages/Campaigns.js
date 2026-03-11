@@ -146,6 +146,13 @@ export function initCampaigns() {
                 <div class="card" style="width: 100%; max-width: 600px; padding: 2rem;">
                     <h2 class="mb-6">${isEdit ? 'Edit Campaign' : 'Create New Campaign'}</h2>
                     <form id="campaign-form">
+                        <div class="mb-6 p-4" style="background: var(--bg-main); border: 1px dashed var(--primary); border-radius: var(--radius); text-align: center;">
+                            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Let AI draft your campaign for you!</p>
+                            <div class="flex gap-2">
+                                <input type="text" id="ai-goal" class="input" placeholder="e.g. Welcome email for new subscribers" style="flex: 1; padding: 0.5rem;">
+                                <button type="button" class="btn btn-primary" id="ai-magic-btn" style="padding: 0.5rem 1rem;">Magic Draft ✨</button>
+                            </div>
+                        </div>
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Campaign Name</label>
                             <input type="text" name="name" class="input" required placeholder="Summer Sale 2026" value="${campaign?.name || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
@@ -183,6 +190,35 @@ export function initCampaigns() {
         `;
 
         document.getElementById('close-modal').onclick = () => modalContainer.innerHTML = '';
+        
+        const aiMagicBtn = document.getElementById('ai-magic-btn');
+        const aiGoalInput = document.getElementById('ai-goal');
+        const subjectInput = form.querySelector('[name="subject"]');
+        const contentArea = form.querySelector('[name="content"]');
+
+        aiMagicBtn.onclick = async () => {
+            const goal = aiGoalInput.value.trim();
+            if (!goal) {
+                alert('Please describe your campaign goal first!');
+                return;
+            }
+
+            aiMagicBtn.disabled = true;
+            aiMagicBtn.textContent = 'Generating...';
+
+            try {
+                const res = await campaignsApi.generateAI({ goal });
+                subjectInput.value = res.subject;
+                contentArea.value = res.content;
+                alert('Campaign draft generated! ✨');
+            } catch (err) {
+                alert('AI Generation failed: ' + err.message);
+            } finally {
+                aiMagicBtn.disabled = false;
+                aiMagicBtn.textContent = 'Magic Draft ✨';
+            }
+        };
+
         document.getElementById('modal-overlay').onclick = (e) => {
             if (e.target.id === 'modal-overlay') modalContainer.innerHTML = '';
         };
