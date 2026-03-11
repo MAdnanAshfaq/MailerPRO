@@ -111,3 +111,67 @@ func (s *Service) GenerateEmailContent(goal string) (string, string, error) {
 
 	return result.Subject, result.HtmlContent, nil
 }
+
+func (s *Service) GeneratePersonalizedDraft(domain, goal string) (string, error) {
+	if s.apiKey == "" {
+		return "", fmt.Errorf("OpenAI API key not set")
+	}
+
+	prompt := fmt.Sprintf(`Draft a highly personalized short email for a contact at the company: %s.
+Goal of the email: %s
+Research notes: Assume the company is a leader in their field. Mention how our service can help them specifically based on their industry.
+Tone: Professional, friendly, and concise. 
+Format: Return ONLY the email body.`, domain, goal)
+
+	messages := []Message{
+		{Role: "system", Content: "You are an expert sales and marketing assistant. You research companies and write tailored outreach emails."},
+		{Role: "user", Content: prompt},
+	}
+
+	reqBody := struct {
+		Model    string    `json:"model"`
+		Messages []Message `json:"messages"`
+	}{
+		Model:    "gpt-4o",
+		Messages: messages,
+	}
+
+	jsonData, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+s.apiKey)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("OpenAI API error: %d", resp.StatusCode)
+	}
+
+	var res struct {
+		Choices []struct {
+			Message Message `json:"message"`
+		} `json:"choices"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return "", err
+	}
+
+	if len(res.Choices) > 0 {
+		return res.Choices[0].Message.Content, nil
+	}
+
+	return "", fmt.Errorf("no content generated")
+}

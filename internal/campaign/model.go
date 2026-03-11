@@ -14,6 +14,7 @@ type Campaign struct {
 	Conversions float64    `json:"conversions"`
 	SentAt      *time.Time `json:"sent_at"`
 	ScheduledAt *time.Time `json:"scheduled_at"`
-	CreatedAt   time.Time  `json:"created_at"`
+	IsPersonalized bool       `json:"is_personalized"`
+	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
 }

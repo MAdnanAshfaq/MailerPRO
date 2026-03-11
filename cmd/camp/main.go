@@ -56,8 +56,8 @@ func main() {
 	accountRepo := account.NewRepository(db)
 	accountHandler := account.NewHandler(accountRepo)
 
-	mailerService := mailer.NewService(accountRepo, contactRepository)
 	aiService := ai.NewService()
+	mailerService := mailer.NewService(accountRepo, contactRepository, aiService)
 
 	campaignRepository := campaign.NewRepository(db)
 	campaignHandler := campaign.NewHandler(campaignRepository, mailerService, aiService)

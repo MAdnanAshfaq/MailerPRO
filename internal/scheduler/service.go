@@ -44,7 +44,7 @@ func (w *Worker) ProcessScheduled() {
 		// Send the campaign
 		// Note: in a real application the accountID would be extracted from the session (JWT token)
 		// For now we assume a sender account exists.
-		err := w.mailer.SendCampaign(c.AccountID, c.Subject, c.Content)
+		err := w.mailer.SendCampaign(c.AccountID, c.Subject, c.Content, c.IsPersonalized)
 		if err != nil {
 			log.Printf("Scheduler: failed to send campaign %d: %v", c.ID, err)
 			continue

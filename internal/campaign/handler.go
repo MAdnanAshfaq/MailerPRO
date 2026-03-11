@@ -38,7 +38,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Trigger mailer if status is 'sent' immediately
 	if c.Status == "sent" && h.mailer != nil {
-		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content)
+		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content, c.IsPersonalized)
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -94,7 +94,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	// Trigger mailer if status is now 'sent'
 	if c.Status == "sent" && h.mailer != nil {
-		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content)
+		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content, c.IsPersonalized)
 	}
 
 	w.WriteHeader(http.StatusOK)

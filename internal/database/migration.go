@@ -61,6 +61,7 @@ func RunMigration(db *sql.DB) error {
 				conversions REAL DEFAULT 0,
 				sent_at %TIMESTAMP%,
 				scheduled_at %TIMESTAMP%,
+				is_personalized BOOLEAN DEFAULT FALSE,
 				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
 				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
 			)
@@ -109,6 +110,7 @@ func RunMigration(db *sql.DB) error {
 		// Add account_id and scheduled_at to campaigns if table already existed without them
 		`ALTER TABLE campaigns ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
 		`ALTER TABLE campaigns ADD COLUMN scheduled_at %TIMESTAMP%`,
+		`ALTER TABLE campaigns ADD COLUMN is_personalized BOOLEAN DEFAULT FALSE`,
 	}
 
 	for i, migration := range migrations {

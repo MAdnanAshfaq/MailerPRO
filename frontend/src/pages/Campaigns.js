@@ -184,6 +184,10 @@ export function initCampaigns() {
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Send At (Date & Time)</label>
                             <input type="datetime-local" name="scheduled_at" class="input" value="${campaign?.scheduled_at ? new Date(campaign.scheduled_at).toISOString().slice(0, 16) : ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
+                        <div class="mb-8 flex items-center gap-2">
+                            <input type="checkbox" name="is_personalized" id="is_personalized" ${campaign?.is_personalized ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
+                            <label for="is_personalized" style="font-weight: 700; cursor: pointer;">✨ Hyper-Personalization (AI Research each company)</label>
+                        </div>
                         <div class="flex justify-between mt-8" style="gap: 1rem;">
                             <button type="button" class="btn btn-outline" id="close-modal" style="flex: 1;">Cancel</button>
                             <button type="submit" class="btn btn-primary" style="flex: 1;">${isEdit ? 'Update Campaign' : 'Create Draft'}</button>
@@ -246,7 +250,8 @@ export function initCampaigns() {
                 open_rate: parseFloat(rawData.open_rate) || 0,
                 ctr: parseFloat(campaign?.ctr || 0),
                 conversions: parseFloat(campaign?.conversions || 0),
-                scheduled_at: rawData.scheduled_at ? new Date(rawData.scheduled_at).toISOString() : null
+                scheduled_at: rawData.scheduled_at ? new Date(rawData.scheduled_at).toISOString() : null,
+                is_personalized: form.querySelector('[name="is_personalized"]').checked
             };
 
             try {
