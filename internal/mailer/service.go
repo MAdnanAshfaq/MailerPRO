@@ -30,7 +30,7 @@ func (s *Service) SendCampaign(accID int64, subject, content string) error {
 	}
 
 	// 2. Get contacts
-	contacts, err := s.contactRepo.ListAll()
+	contacts, err := s.contactRepo.ListAll(accID)
 	if err != nil {
 		return fmt.Errorf("failed to fetch contacts: %w", err)
 	}

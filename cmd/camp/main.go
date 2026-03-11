@@ -14,12 +14,21 @@ import (
 	"github.com/codersgyan/camp/internal/mailer"
 	"github.com/codersgyan/camp/internal/stats"
 	"github.com/codersgyan/camp/internal/warming"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	dbPath := os.Getenv("DB_PATH")
-	if dbPath == "" {
-		dbPath = "./camp_data/camp.db"
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, relying on environment variables")
+	}
+
+	dbConn := os.Getenv("DB_URL")
+	if dbConn == "" {
+		dbConn = os.Getenv("DB_PATH")
+	}
+	if dbConn == "" {
+		dbConn = "./camp_data/camp.db"
 	}
 
 	port := os.Getenv("PORT")
@@ -27,7 +36,7 @@ func main() {
 		port = "8080"
 	}
 
-	db, err := database.Connect(dbPath)
+	db, err := database.Connect(dbConn)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,6 +85,7 @@ func main() {
 
 	// Accounts & Settings
 	http.HandleFunc("POST /api/signup", accountHandler.Signup)
+	http.HandleFunc("POST /api/login", accountHandler.Login)
 	http.HandleFunc("POST /api/settings/smtp", accountHandler.SaveSMTP)
 	http.HandleFunc("GET /api/stats/warming", accountHandler.GetWarming)
 

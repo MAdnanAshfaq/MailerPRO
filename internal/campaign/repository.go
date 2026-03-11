@@ -3,6 +3,7 @@ package campaign
 import (
 	"database/sql"
 	"fmt"
+	"github.com/codersgyan/camp/internal/database"
 )
 
 type Repository struct {
@@ -14,6 +15,20 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) Create(c *Campaign) (int64, error) {
+	if database.IsPostgres() {
+		query := `
+			INSERT INTO campaigns (name, subject, content, status)
+			VALUES ($1, $2, $3, $4)
+			RETURNING id
+		`
+		var id int64
+		err := r.db.QueryRow(query, c.Name, c.Subject, c.Content, "draft").Scan(&id)
+		if err != nil {
+			return 0, fmt.Errorf("failed to create campaign: %w", err)
+		}
+		return id, nil
+	}
+
 	query := `
 		INSERT INTO campaigns (name, subject, content, status)
 		VALUES (?, ?, ?, ?)
@@ -26,11 +41,11 @@ func (r *Repository) Create(c *Campaign) (int64, error) {
 }
 
 func (r *Repository) GetByID(id int64) (*Campaign, error) {
-	query := `
+	query := database.Translate(`
 		SELECT id, name, subject, content, status, open_rate, ctr, conversions, sent_at, created_at, updated_at
 		FROM campaigns
 		WHERE id = ?
-	`
+	`)
 	var c Campaign
 	err := r.db.QueryRow(query, id).Scan(
 		&c.ID, &c.Name, &c.Subject, &c.Content, &c.Status, &c.OpenRate, &c.CTR, &c.Conversions, &c.SentAt, &c.CreatedAt, &c.UpdatedAt,
@@ -45,11 +60,11 @@ func (r *Repository) GetByID(id int64) (*Campaign, error) {
 }
 
 func (r *Repository) List() ([]Campaign, error) {
-	query := `
+	query := database.Translate(`
 		SELECT id, name, subject, content, status, open_rate, ctr, conversions, sent_at, created_at, updated_at
 		FROM campaigns
 		ORDER BY created_at DESC
-	`
+	`)
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list campaigns: %w", err)
@@ -70,11 +85,11 @@ func (r *Repository) List() ([]Campaign, error) {
 	return campaigns, nil
 }
 func (r *Repository) Update(c *Campaign) error {
-	query := `
+	query := database.Translate(`
 		UPDATE campaigns
 		SET name = ?, subject = ?, content = ?, status = ?, open_rate = ?, ctr = ?, conversions = ?, sent_at = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE id = ?
-	`
+	`)
 	_, err := r.db.Exec(query, c.Name, c.Subject, c.Content, c.Status, c.OpenRate, c.CTR, c.Conversions, c.SentAt, c.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update campaign: %w", err)

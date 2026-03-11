@@ -3,6 +3,7 @@ package stats
 import (
 	"database/sql"
 	"fmt"
+	"github.com/codersgyan/camp/internal/database"
 )
 
 type Repository struct {
@@ -17,14 +18,14 @@ func (r *Repository) GetOverviewStats() (*OverviewStats, error) {
 	stats := &OverviewStats{}
 
 	// Total Contacts
-	err := r.db.QueryRow("SELECT COUNT(*) FROM contacts").Scan(&stats.TotalContacts)
+	err := r.db.QueryRow(database.Translate("SELECT COUNT(*) FROM contacts")).Scan(&stats.TotalContacts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get total contacts: %w", err)
 	}
 	stats.ActiveSubscribers = stats.TotalContacts // Placeholder logic for now
 
 	// Campaign Aggregates
-	query := `
+	query := database.Translate(`
 		SELECT 
 			COUNT(*) as total_sent,
 			AVG(open_rate) as avg_open_rate,
@@ -32,7 +33,7 @@ func (r *Repository) GetOverviewStats() (*OverviewStats, error) {
 			SUM(conversions * 10) as estimated_revenue -- Placeholder multipliers for "realtime" feel
 		FROM campaigns
 		WHERE status = 'sent'
-	`
+	`)
 	var totalSent sql.NullInt64
 	var avgOpenRate, avgCTR, revenue sql.NullFloat64
 

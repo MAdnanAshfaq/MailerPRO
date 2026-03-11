@@ -50,6 +50,31 @@ func (h *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"id": id, "message": "Account created successfully"})
 }
 
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	acc, err := h.repo.GetByEmail(req.Email)
+	if err != nil {
+		http.Error(w, "error logging in", http.StatusInternalServerError)
+		return
+	}
+
+	if acc == nil || acc.PasswordHash != req.Password {
+		http.Error(w, "invalid email or password", http.StatusUnauthorized)
+		return
+	}
+
+	json.NewEncoder(w).Encode(acc)
+}
+
 func (h *Handler) SaveSMTP(w http.ResponseWriter, r *http.Request) {
 	var s SMTPSettings
 	if err := json.NewDecoder(r.Body).Decode(&s); err != nil {

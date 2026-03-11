@@ -11,6 +11,7 @@ type Tag struct {
 
 type Contact struct {
 	ID        int64     `json:"id"`
+	AccountID int64     `json:"account_id"`
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Email     string    `json:"email"`

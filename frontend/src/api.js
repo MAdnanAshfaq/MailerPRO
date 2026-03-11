@@ -39,7 +39,11 @@ export const api = {
 };
 
 export const contactsApi = {
-    list: async () => (await api.get('/contacts')) || [],
+    list: async () => {
+        const user = JSON.parse(localStorage.getItem('camp_user') || '{}');
+        const qs = user.id ? `?account_id=${user.id}` : '';
+        return (await api.get(`/contacts${qs}`)) || [];
+    },
     create: (data) => api.post('/contacts', data),
     update: (id, data) => api.put(`/contacts/${id}`, data),
     addTag: (data) => api.post('/contacts/tag', data),
@@ -59,6 +63,7 @@ export const statsApi = {
 
 export const accountApi = {
     signup: (data) => api.post('/signup', data),
+    login: (data) => api.post('/login', data),
     saveSMTP: (data) => api.post('/settings/smtp', data),
     getWarming: (accountID) => api.get(`/stats/warming?account_id=${accountID}`),
 };

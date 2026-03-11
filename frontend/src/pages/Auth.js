@@ -173,38 +173,49 @@ export function initAuth() {
         const data = Object.fromEntries(formData.entries());
 
         try {
-            // 1. Signup
-            const signupRes = await accountApi.signup({
-                name: data.name,
-                email: data.email,
-                password: data.password,
-                company_name: data.company_name,
-                domain: data.domain
-            });
-
-            // 2. Save SMTP Settings if provided
-            if (data.smtp_host) {
-                await accountApi.saveSMTP({
-                    account_id: signupRes.id,
-                    host: data.smtp_host,
-                    port: parseInt(data.smtp_port),
-                    username: data.smtp_user,
-                    password: data.smtp_pass,
-                    security_type: 'tls'
+            let userData;
+            if (isSignup) {
+                // 1. Signup
+                const signupRes = await accountApi.signup({
+                    name: data.name,
+                    email: data.email,
+                    password: data.password,
+                    company_name: data.company_name,
+                    domain: data.domain
                 });
+
+                // 2. Save SMTP Settings if provided
+                if (data.smtp_host) {
+                    await accountApi.saveSMTP({
+                        account_id: signupRes.id,
+                        host: data.smtp_host,
+                        port: parseInt(data.smtp_port),
+                        username: data.smtp_user,
+                        password: data.smtp_pass,
+                        security_type: 'tls'
+                    });
+                }
+
+                userData = {
+                    id: signupRes.id,
+                    name: data.name,
+                    email: data.email
+                };
+            } else {
+                // Login
+                const loginRes = await accountApi.login({
+                    email: data.email,
+                    password: data.password
+                });
+                userData = loginRes;
             }
 
-            localStorage.setItem('camp_user', JSON.stringify({
-                id: signupRes.id,
-                name: data.name,
-                email: data.email
-            }));
-            
+            localStorage.setItem('camp_user', JSON.stringify(userData));
             window.sessionStorage.setItem('isLoggedIn', 'true');
-            alert('Setup complete! Welcome to the premium inbox experience.');
+            alert(isSignup ? 'Setup complete! Welcome to the premium inbox experience.' : 'Welcome back!');
             window.location.href = '/';
         } catch (err) {
-            alert('Setup failed: ' + err.message);
+            alert((isSignup ? 'Setup failed: ' : 'Login failed: ') + err.message);
         }
     };
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 type Handler struct {
@@ -15,10 +16,7 @@ func NewHandler(repo *Repository) *Handler {
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-
-	// todo: request validation
 	var contactBody Contact
-
 	if err := json.NewDecoder(r.Body).Decode(&contactBody); err != nil {
 		fmt.Println(err)
 		http.Error(w, "invalid json", http.StatusBadRequest)
@@ -29,23 +27,24 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	createdId, err := h.repo.CreateContactOrUpsertTags(&contactBody)
 	if err != nil {
-		resp := map[string]string{
-			"message": "Internal server error",
-		}
+		resp := map[string]string{"message": err.Error()}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	resp := map[string]int64{
-		"id": createdId,
-	}
-	json.NewEncoder(w).Encode(resp)
+	json.NewEncoder(w).Encode(map[string]int64{"id": createdId})
 }
 
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
-	contacts, err := h.repo.ListAll()
+	accountIDStr := r.URL.Query().Get("account_id")
+	var accountID int64
+	if accountIDStr != "" {
+		accountID, _ = strconv.ParseInt(accountIDStr, 10, 64)
+	}
+
+	contacts, err := h.repo.ListAll(accountID)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -101,6 +100,7 @@ func (h *Handler) RemoveTag(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	var id int64
