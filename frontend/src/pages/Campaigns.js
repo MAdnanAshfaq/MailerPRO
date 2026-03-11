@@ -180,6 +180,10 @@ export function initCampaigns() {
                                 <input type="number" step="0.1" name="open_rate" class="input" value="${campaign?.open_rate || 0}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                             </div>
                         </div>
+                        <div class="mb-8" id="schedule-field" style="display: ${campaign?.status === 'scheduled' ? 'block' : 'none'};">
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Send At (Date & Time)</label>
+                            <input type="datetime-local" name="scheduled_at" class="input" value="${campaign?.scheduled_at ? new Date(campaign.scheduled_at).toISOString().slice(0, 16) : ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                        </div>
                         <div class="flex justify-between mt-8" style="gap: 1rem;">
                             <button type="button" class="btn btn-outline" id="close-modal" style="flex: 1;">Cancel</button>
                             <button type="submit" class="btn btn-primary" style="flex: 1;">${isEdit ? 'Update Campaign' : 'Create Draft'}</button>
@@ -220,6 +224,12 @@ export function initCampaigns() {
             }
         };
 
+        const statusSelect = form.querySelector('[name="status"]');
+        statusSelect.onchange = (e) => {
+            const scheduleField = document.getElementById('schedule-field');
+            scheduleField.style.display = e.target.value === 'scheduled' ? 'block' : 'none';
+        };
+
         document.getElementById('modal-overlay').onclick = (e) => {
             if (e.target.id === 'modal-overlay') modalContainer.innerHTML = '';
         };
@@ -232,9 +242,11 @@ export function initCampaigns() {
             // Numeric conversions
             const data = {
                 ...rawData,
+                account_id: JSON.parse(localStorage.getItem('camp_user') || '{}').id || 1,
                 open_rate: parseFloat(rawData.open_rate) || 0,
                 ctr: parseFloat(campaign?.ctr || 0),
-                conversions: parseFloat(campaign?.conversions || 0)
+                conversions: parseFloat(campaign?.conversions || 0),
+                scheduled_at: rawData.scheduled_at ? new Date(rawData.scheduled_at).toISOString() : null
             };
 
             try {

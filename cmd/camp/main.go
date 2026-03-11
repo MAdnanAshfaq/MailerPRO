@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/codersgyan/camp/internal/account"
 	"github.com/codersgyan/camp/internal/ai"
@@ -15,6 +16,7 @@ import (
 	"github.com/codersgyan/camp/internal/mailer"
 	"github.com/codersgyan/camp/internal/stats"
 	"github.com/codersgyan/camp/internal/warming"
+	"github.com/codersgyan/camp/internal/scheduler"
 	"github.com/joho/godotenv"
 )
 
@@ -60,37 +62,61 @@ func main() {
 	campaignRepository := campaign.NewRepository(db)
 	campaignHandler := campaign.NewHandler(campaignRepository, mailerService, aiService)
 
+	statsRepo := stats.NewRepository(db)
+	statsHandler := stats.NewHandler(statsRepo)
+
 	warmingWorker := warming.NewWorker(db, accountRepo)
 	warmingWorker.Start()
+
+	schedulerWorker := scheduler.NewWorker(campaignRepository, mailerService)
+	schedulerWorker.Start()
 
 	// Serve static files from the frontend/dist directory
 	fs := http.FileServer(http.Dir("./frontend/dist"))
 	http.Handle("/assets/", fs)
 	http.Handle("/vite.svg", fs) // Assuming vite.svg is in dist
 
-	http.HandleFunc("POST /api/contacts", contactHandler.Create)
-	statsRepo := stats.NewRepository(db)
-	statsHandler := stats.NewHandler(statsRepo)
+	http.HandleFunc("/api/contacts", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			contactHandler.Create(w, r)
+		} else {
+			contactHandler.List(w, r)
+		}
+	})
+	http.HandleFunc("/api/contacts/", func(w http.ResponseWriter, r *http.Request) {
+		// This handles /api/contacts/{id} and others
+		if r.Method == http.MethodPut {
+			contactHandler.Update(w, r)
+		} else if r.Method == http.MethodPatch && strings.HasSuffix(r.URL.Path, "/tag") {
+			contactHandler.RemoveTag(w, r)
+		}
+	})
+	http.HandleFunc("/api/contacts/tag", contactHandler.AddTag)
 
-	http.HandleFunc("GET /api/contacts", contactHandler.List)
-	http.HandleFunc("PUT /api/contacts/{id}", contactHandler.Update)
-	http.HandleFunc("POST /api/contacts/tag", contactHandler.AddTag)
-	http.HandleFunc("PATCH /api/contacts/{id}/tag", contactHandler.RemoveTag)
-
-	http.HandleFunc("POST /api/campaigns", campaignHandler.Create)
-	http.HandleFunc("POST /api/campaigns/generate-ai", campaignHandler.GenerateAI)
-	http.HandleFunc("GET /api/campaigns/{id}", campaignHandler.Get)
-	http.HandleFunc("PUT /api/campaigns/{id}", campaignHandler.Update)
-	http.HandleFunc("GET /api/campaigns", campaignHandler.List)
+	http.HandleFunc("/api/campaigns", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			campaignHandler.Create(w, r)
+		} else {
+			campaignHandler.List(w, r)
+		}
+	})
+	http.HandleFunc("/api/campaigns/generate-ai", campaignHandler.GenerateAI)
+	http.HandleFunc("/api/campaigns/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			campaignHandler.Get(w, r)
+		} else if r.Method == http.MethodPut {
+			campaignHandler.Update(w, r)
+		}
+	})
 
 	// Stats
 	http.HandleFunc("/api/stats/overview", statsHandler.GetOverview)
 
 	// Accounts & Settings
-	http.HandleFunc("POST /api/signup", accountHandler.Signup)
-	http.HandleFunc("POST /api/login", accountHandler.Login)
-	http.HandleFunc("POST /api/settings/smtp", accountHandler.SaveSMTP)
-	http.HandleFunc("GET /api/stats/warming", accountHandler.GetWarming)
+	http.HandleFunc("/api/signup", accountHandler.Signup)
+	http.HandleFunc("/api/login", accountHandler.Login)
+	http.HandleFunc("/api/settings/smtp", accountHandler.SaveSMTP)
+	http.HandleFunc("/api/stats/warming", accountHandler.GetWarming)
 
 	domainHandler := domain.NewHandler()
 	http.HandleFunc("GET /api/domain/health", domainHandler.GetHealth)

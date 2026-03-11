@@ -137,6 +137,7 @@ export function initContacts() {
                     let errors = 0;
                     for (const row of rows) {
                         try {
+                            console.log(`Processing import row ${count + 1}/${rows.length}...`);
                             const email = row.Email || row.email || row.EMAIL || row['Email Address'] || row['Contact Email'];
                             if (!email) continue;
                             
@@ -175,8 +176,10 @@ export function initContacts() {
                     importBtn.classList.remove('loading');
                     if (errors > 0) {
                         alert(`Import finished: ${count} successful, ${errors} failed. Check console for details.`);
+                        console.warn(`Import partially failed with ${errors} errors.`);
                     } else {
                         alert(`Successfully imported ${count} contacts.`);
+                        console.log(`Import completed successfully: ${count} rows.`);
                     }
                     window.location.reload();
                 } catch (err) {

@@ -36,6 +36,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Trigger mailer if status is 'sent' immediately
+	if c.Status == "sent" && h.mailer != nil {
+		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content)
+	}
+
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]int64{"id": id})
 }
@@ -89,9 +94,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	// Trigger mailer if status is now 'sent'
 	if c.Status == "sent" && h.mailer != nil {
-		// As a prototype, assuming account ID 1 is the sender
-		// Note: in a real application the accountID would be extracted from the session (JWT token)
-		go h.mailer.SendCampaign(1, c.Subject, c.Content)
+		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content)
 	}
 
 	w.WriteHeader(http.StatusOK)

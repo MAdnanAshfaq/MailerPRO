@@ -5,9 +5,9 @@ export async function Schedule() {
     try {
         const campaigns = await campaignsApi.list();
         upcoming = (campaigns || [])
-            .filter(c => c.status === 'scheduled' || c.status === 'draft')
-            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-            .slice(0, 5);
+            .filter(c => c.status === 'scheduled')
+            .sort((a, b) => new Date(a.scheduled_at || a.created_at) - new Date(b.scheduled_at || b.created_at))
+            .slice(0, 10);
     } catch (e) {
         console.error('Failed to fetch schedule', e);
     }
@@ -24,7 +24,10 @@ export async function Schedule() {
     }
     // Days
     for (let i = 1; i <= daysInMonth; i++) {
-        const hasCampaign = upcoming.some(c => new Date(c.created_at).getDate() === i && new Date(c.created_at).getMonth() === now.getMonth());
+        const hasCampaign = upcoming.some(c => {
+            const date = new Date(c.scheduled_at || c.created_at);
+            return date.getDate() === i && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+        });
         calendarDaysHtml += `
             <div style="padding: 1rem; border: 1px solid var(--border); min-height: 80px; position: relative; background: var(--bg-card);">
                 <span style="font-weight: ${i === now.getDate() ? '800' : '500'}; color: ${i === now.getDate() ? 'var(--primary)' : 'inherit'};">${i}</span>
@@ -57,9 +60,9 @@ export async function Schedule() {
                 <div id="schedule-list-view" class="flex flex-col gap-2">
                     ${upcoming.map(item => `
                         <div class="flex items-center gap-6 p-4 border-bottom" style="border-bottom: 1px solid var(--border);">
-                            <div style="text-align: center; min-width: 80px;">
-                                <p style="font-weight: 800; color: var(--primary);">${new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">${new Date(item.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+                            <div style="text-align: center; min-width: 100px;">
+                                <p style="font-weight: 800; color: var(--primary);">${new Date(item.scheduled_at || item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">${new Date(item.scheduled_at || item.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
                             <div style="flex: 1;">
                                 <h4 style="font-size: 1rem; font-weight: 700;">${item.name}</h4>

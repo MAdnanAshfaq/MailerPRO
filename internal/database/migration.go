@@ -51,14 +51,16 @@ func RunMigration(db *sql.DB) error {
 		`
 			CREATE TABLE IF NOT EXISTS campaigns (
 				id %ID_AUTO%,
+				account_id INTEGER REFERENCES accounts(id),
 				name TEXT NOT NULL,
 				subject TEXT NOT NULL,
 				content TEXT NOT NULL,
-				status TEXT CHECK(status IN ('draft', 'sent', 'paused')) DEFAULT 'draft',
+				status TEXT CHECK(status IN ('draft', 'sent', 'paused', 'scheduled')) DEFAULT 'draft',
 				open_rate REAL DEFAULT 0,
 				ctr REAL DEFAULT 0,
 				conversions REAL DEFAULT 0,
 				sent_at %TIMESTAMP%,
+				scheduled_at %TIMESTAMP%,
 				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
 				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
 			)
@@ -104,6 +106,9 @@ func RunMigration(db *sql.DB) error {
 		`,
 		// Add account_id to contacts for per-user scoping
 		`ALTER TABLE contacts ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
+		// Add account_id and scheduled_at to campaigns if table already existed without them
+		`ALTER TABLE campaigns ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
+		`ALTER TABLE campaigns ADD COLUMN scheduled_at %TIMESTAMP%`,
 	}
 
 	for i, migration := range migrations {
