@@ -191,6 +191,7 @@ export function initCampaigns() {
 
         document.getElementById('close-modal').onclick = () => modalContainer.innerHTML = '';
         
+        const form = document.getElementById('campaign-form');
         const aiMagicBtn = document.getElementById('ai-magic-btn');
         const aiGoalInput = document.getElementById('ai-goal');
         const subjectInput = form.querySelector('[name="subject"]');
