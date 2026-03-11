@@ -1,4 +1,5 @@
 import { campaignsApi } from '../api';
+import { showToast } from '../utils/toast';
 
 let allCampaigns = [];
 let renderCampaignsTable = null;
@@ -208,7 +209,7 @@ export function initCampaigns() {
         aiMagicBtn.onclick = async () => {
             const goal = aiGoalInput.value.trim();
             if (!goal) {
-                alert('Please describe your campaign goal first!');
+                showToast('Please describe your campaign goal first!', 'info');
                 return;
             }
 
@@ -219,9 +220,9 @@ export function initCampaigns() {
                 const res = await campaignsApi.generateAI({ goal });
                 subjectInput.value = res.subject;
                 contentArea.value = res.content;
-                alert('Campaign draft generated! ✨');
+                showToast('Campaign draft generated! ✨', 'success');
             } catch (err) {
-                alert('AI Generation failed: ' + err.message);
+                showToast('AI Generation failed: ' + err.message, 'error');
             } finally {
                 aiMagicBtn.disabled = false;
                 aiMagicBtn.textContent = 'Magic Draft ✨';
@@ -262,7 +263,7 @@ export function initCampaigns() {
                 }
                 window.location.reload();
             } catch (err) {
-                alert('Action failed: ' + err.message);
+                showToast('Action failed: ' + err.message, 'error');
             }
         };
     };

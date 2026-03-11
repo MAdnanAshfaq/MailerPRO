@@ -1,4 +1,5 @@
 import { accountApi } from '../api';
+import { showToast } from '../utils/toast';
 
 export function Auth(type = 'signup') {
     const isSignup = type === 'signup';
@@ -154,7 +155,7 @@ export function initAuth() {
                 const email = form.querySelector('[name="email"]').value;
                 const pass = form.querySelector('[name="password"]').value;
                 if (!name || !email || !pass) {
-                    alert('Please fill in all account details.');
+                    showToast('Please fill in all account details.', 'error');
                     return;
                 }
             }
@@ -213,10 +214,10 @@ export function initAuth() {
 
             localStorage.setItem('camp_user', JSON.stringify(userData));
             window.sessionStorage.setItem('isLoggedIn', 'true');
-            alert(isSignup ? 'Setup complete! Welcome to the premium inbox experience.' : 'Welcome back!');
+            showToast(isSignup ? 'Setup complete! Welcome to the premium inbox experience.' : 'Welcome back!', 'success');
             window.location.href = '/';
         } catch (err) {
-            alert((isSignup ? 'Setup failed: ' : 'Login failed: ') + err.message);
+            showToast((isSignup ? 'Setup failed: ' : 'Login failed: ') + err.message, 'error');
         }
     };
 }

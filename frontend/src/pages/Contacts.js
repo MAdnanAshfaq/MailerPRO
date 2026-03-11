@@ -1,4 +1,5 @@
 import { contactsApi } from '../api';
+import { showToast } from '../utils/toast';
 
 let allContacts = [];
 let renderTable = null;
@@ -175,16 +176,16 @@ export function initContacts() {
                     
                     importBtn.classList.remove('loading');
                     if (errors > 0) {
-                        alert(`Import finished: ${count} successful, ${errors} failed. Check console for details.`);
+                        showToast(`Import finished: ${count} successful, ${errors} failed.`, 'error');
                         console.warn(`Import partially failed with ${errors} errors.`);
                     } else {
-                        alert(`Successfully imported ${count} contacts.`);
+                        showToast(`Successfully imported ${count} contacts.`, 'success');
                         console.log(`Import completed successfully: ${count} rows.`);
                     }
                     window.location.reload();
                 } catch (err) {
                     importBtn.classList.remove('loading');
-                    alert('Import failed: ' + err.message);
+                    showToast('Import failed: ' + err.message, 'error');
                     console.error('Import error:', err);
                 }
             };
@@ -241,7 +242,7 @@ export function initContacts() {
                 }
                 window.location.reload();
             } catch (err) {
-                alert('Action failed: ' + err.message);
+                showToast('Action failed: ' + err.message, 'error');
             }
         };
     };

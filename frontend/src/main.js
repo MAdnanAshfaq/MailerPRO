@@ -1,4 +1,5 @@
 import './style.css';
+import './toast.css';
 import { Router } from './router';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard, initDashboard } from './pages/Dashboard';
