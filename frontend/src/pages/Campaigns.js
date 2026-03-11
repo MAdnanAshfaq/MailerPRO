@@ -143,7 +143,7 @@ export function initCampaigns() {
         const isEdit = !!campaign;
         modalContainer.innerHTML = `
             <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
-                <div class="card" style="width: 100%; max-width: 600px; padding: 2rem;">
+                <div class="card" style="width: 100%; max-width: 600px; padding: 2rem; max-height: 90vh; overflow-y: auto;">
                     <h2 class="mb-6">${isEdit ? 'Edit Campaign' : 'Create New Campaign'}</h2>
                     <form id="campaign-form">
                         <div class="mb-6 p-4" style="background: var(--bg-main); border: 1px dashed var(--primary); border-radius: var(--radius); text-align: center;">

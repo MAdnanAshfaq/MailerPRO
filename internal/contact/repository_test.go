@@ -144,8 +144,8 @@ func TestContactRepositoryThrowErrorIfTagsNotSent(t *testing.T) {
 	}
 
 	_, err = repo.CreateContactOrUpsertTags(contact2)
-	if err == nil {
-		t.Fatalf("Expected error when tags are not sent, but got nil")
+	if err != nil {
+		t.Fatalf("Expected no error when tags are not sent (idempotent), but got %v", err)
 	}
 
 	var count int

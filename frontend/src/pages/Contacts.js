@@ -134,35 +134,50 @@ export function initContacts() {
                     const rows = window.XLSX.utils.sheet_to_json(sheet);
                     
                     let count = 0;
+                    let errors = 0;
                     for (const row of rows) {
-                        const email = row.Email || row.email;
-                        if (!email) continue;
-                        
-                        // Try to extract Fname/Lname
-                        let fname = row['First Name'] || row.first_name || row.fname || '';
-                        let lname = row['Last Name'] || row.last_name || row.lname || '';
-                        
-                        // Basic fallback if only "Name" exists
-                        if (!fname && !lname && (row.Name || row.name)) {
-                            const parts = (row.Name || row.name).split(' ');
-                            fname = parts[0];
-                            lname = parts.slice(1).join(' ');
+                        try {
+                            const email = row.Email || row.email || row.EMAIL || row['Email Address'] || row['Contact Email'];
+                            if (!email) continue;
+                            
+                            // Try to extract Fname/Lname
+                            let fname = row['First Name'] || row.first_name || row.fname || row.FNAME || row['Given Name'] || '';
+                            let lname = row['Last Name'] || row.last_name || row.lname || row.LNAME || row['Family Name'] || '';
+                            
+                            // Basic fallback if only "Name" exists
+                            if (!fname && !lname) {
+                                const nameVal = row.Name || row.name || row.NAME || row['Full Name'] || row.Contact || '';
+                                if (nameVal) {
+                                    const parts = nameVal.trim().split(' ');
+                                    fname = parts[0];
+                                    lname = parts.slice(1).join(' ');
+                                }
+                            }
+
+                            // Tags handling
+                            const tagsRaw = row.Tags || row.tags || row.TAGS || row['Segments'] || '';
+                            const tagList = tagsRaw ? String(tagsRaw).split(',').map(t => ({ text: t.trim() })).filter(t => t.text) : [];
+
+                            await contactsApi.create({
+                                first_name: fname,
+                                last_name: lname,
+                                email: email.trim().toLowerCase(),
+                                phone: String(row.Phone || row.phone || row.PHONE || row.Mobile || row['Phone Number'] || ''),
+                                tags: tagList
+                            });
+                            count++;
+                        } catch (err) {
+                            console.error('Row import failed:', err);
+                            errors++;
                         }
-
-                        // Tags handling if exists column "Tags" comma separated
-                        const tagsRaw = row.Tags || row.tags || '';
-                        const tagList = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
-
-                        await contactsApi.create({
-                            first_name: fname,
-                            last_name: lname,
-                            email: email,
-                            phone: row.Phone || row.phone || ''
-                        });
-                        count++;
                     }
                     
-                    alert(`Successfully imported ${count} contacts.`);
+                    importBtn.classList.remove('loading');
+                    if (errors > 0) {
+                        alert(`Import finished: ${count} successful, ${errors} failed. Check console for details.`);
+                    } else {
+                        alert(`Successfully imported ${count} contacts.`);
+                    }
                     window.location.reload();
                 } catch (err) {
                     importBtn.classList.remove('loading');

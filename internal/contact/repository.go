@@ -51,8 +51,9 @@ func (r *Repository) CreateContactOrUpsertTags(c *Contact) (int64, error) {
 			}
 			return existingContact.ID, nil
 		}
-		// Test expects error if tags are not sent for existing contact
-		return 0, fmt.Errorf("contact with email %s already exists", c.Email)
+		// Simply return the existing contact ID without error.
+		// This makes bulk imports idempotent and prevents 500 errors.
+		return existingContact.ID, nil
 	}
 
 	// New contact — create it
