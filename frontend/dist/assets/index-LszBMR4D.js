@@ -1,4 +1,4 @@
-(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))r(n);new MutationObserver(n=>{for(const a of n)if(a.type==="childList")for(const i of a.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&r(i)}).observe(document,{childList:!0,subtree:!0});function s(n){const a={};return n.integrity&&(a.integrity=n.integrity),n.referrerPolicy&&(a.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?a.credentials="include":n.crossOrigin==="anonymous"?a.credentials="omit":a.credentials="same-origin",a}function r(n){if(n.ep)return;n.ep=!0;const a=s(n);fetch(n.href,a)}})();class M{constructor(t,s){this.routes=t,this.onRouteMatch=s,this.init()}init(){window.addEventListener("popstate",()=>this.handleRoute()),document.body.addEventListener("click",t=>{const s=t.target.closest("a[data-link]");s&&(t.preventDefault(),this.navigate(s.getAttribute("href")))}),this.handleRoute()}navigate(t){window.history.pushState({},"",t),this.handleRoute()}handleRoute(){const t=window.location.pathname,s=this.routes[t]||this.routes["/"];this.onRouteMatch(t,s)}}function R(e){const t=[{path:"/",title:"Overview",icon:"▦"},{path:"/campaigns",title:"Campaign",icon:"✉"},{path:"/contacts",title:"Contacts",icon:"👥"},{path:"/automation",title:"Automation",icon:"⚙"},{path:"/analytics",title:"Analytics",icon:"📊"},{path:"/schedule",title:"Schedule",icon:"🕒",hasChevron:!0},{path:"/templates",title:"Templates",icon:"📄",hasChevron:!0},{path:"/integration",title:"Integration",icon:"📦"}],s=[{path:"/help",title:"Help Center",icon:"?"},{path:"/settings",title:"Setting",icon:"⚙"}],r=JSON.parse(localStorage.getItem("camp_user")||'{"name": "User", "email": "user@sendable.com"}');return`
+(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))i(n);new MutationObserver(n=>{for(const a of n)if(a.type==="childList")for(const r of a.addedNodes)r.tagName==="LINK"&&r.rel==="modulepreload"&&i(r)}).observe(document,{childList:!0,subtree:!0});function s(n){const a={};return n.integrity&&(a.integrity=n.integrity),n.referrerPolicy&&(a.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?a.credentials="include":n.crossOrigin==="anonymous"?a.credentials="omit":a.credentials="same-origin",a}function i(n){if(n.ep)return;n.ep=!0;const a=s(n);fetch(n.href,a)}})();class R{constructor(t,s){this.routes=t,this.onRouteMatch=s,this.init()}init(){window.addEventListener("popstate",()=>this.handleRoute()),document.body.addEventListener("click",t=>{const s=t.target.closest("a[data-link]");s&&(t.preventDefault(),this.navigate(s.getAttribute("href")))}),this.handleRoute()}navigate(t){window.history.pushState({},"",t),this.handleRoute()}handleRoute(){const t=window.location.pathname,s=this.routes[t]||this.routes["/"];this.onRouteMatch(t,s)}}function O(e){const t=[{path:"/",title:"Overview",icon:"▦"},{path:"/campaigns",title:"Campaign",icon:"✉"},{path:"/contacts",title:"Contacts",icon:"👥"},{path:"/automation",title:"Automation",icon:"⚙"},{path:"/analytics",title:"Analytics",icon:"📊"},{path:"/schedule",title:"Schedule",icon:"🕒",hasChevron:!0},{path:"/templates",title:"Templates",icon:"📄",hasChevron:!0},{path:"/integration",title:"Integration",icon:"📦"}],s=[{path:"/help",title:"Help Center",icon:"?"},{path:"/settings",title:"Setting",icon:"⚙"}],i=JSON.parse(localStorage.getItem("camp_user")||'{"name": "User", "email": "user@sendable.com"}');return`
         <!-- Mobile Topbar -->
         <div class="mobile-topbar">
             <div class="logo">
@@ -65,17 +65,17 @@
 
                 <div style="padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem;">
                     <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; flex-shrink: 0;">
-                        ${r.name.charAt(0).toUpperCase()}
+                        ${i.name.charAt(0).toUpperCase()}
                     </div>
                     <div style="overflow: hidden; flex: 1; min-width: 0;">
-                        <p class="truncate" style="font-size: 0.875rem; font-weight: 600;">${r.name}</p>
-                        <p class="truncate" style="font-size: 0.75rem; color: var(--text-muted);">${r.email}</p>
+                        <p class="truncate" style="font-size: 0.875rem; font-weight: 600;">${i.name}</p>
+                        <p class="truncate" style="font-size: 0.75rem; color: var(--text-muted);">${i.email}</p>
                     </div>
                     <a href="/logout" id="logout-btn" style="text-decoration: none; font-size: 1rem; flex-shrink: 0; opacity: 0.7; transition: opacity 0.2s;" title="Logout" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">🚪</a>
                 </div>
             </div>
         </div>
-    `}const w="/api",v={async get(e){const t=await fetch(`${w}${e}`);if(!t.ok)throw new Error(`API Error: ${t.statusText}`);return t.json()},async post(e,t){const s=await fetch(`${w}${e}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async patch(e,t){const s=await fetch(`${w}${e}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async put(e,t){const s=await fetch(`${w}${e}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.status===204?null:s.json()}},$={list:async()=>await v.get("/contacts")||[],create:e=>v.post("/contacts",e),update:(e,t)=>v.put(`/contacts/${e}`,t),addTag:e=>v.post("/contacts/tag",e),removeTag:(e,t)=>v.patch(`/contacts/${e}/tag`,t)},f={list:async()=>await v.get("/campaigns")||[],get:e=>v.get(`/campaigns/${e}`),create:e=>v.post("/campaigns",e),update:(e,t)=>v.put(`/campaigns/${e}`,t)},L={getOverview:()=>v.get("/stats/overview")},_={signup:e=>v.post("/signup",e),saveSMTP:e=>v.post("/settings/smtp",e),getWarming:e=>v.get(`/stats/warming?account_id=${e}`)},O={getHealth:e=>v.get(`/domain/health?domain=${e}`)};async function j(){let e={total_contacts:0,total_sent:0,open_rate:0,ctr:0,revenue:0,audience_growth:[]},t=[],s=null,r=null;try{const i=JSON.parse(localStorage.getItem("camp_user")||"{}"),o=[L.getOverview(),f.list()];i.id&&o.push(_.getWarming(i.id)),i.domain&&o.push(O.getHealth(i.domain));const l=await Promise.all(o);e=l[0],t=l[1],i.id&&(s=l[2]),i.domain&&(r=l[3]),t=(t||[]).slice(0,4)}catch(i){console.error("Failed to fetch dashboard data",i)}const n=JSON.parse(localStorage.getItem("camp_user")||'{ "name": "Test User" }'),a=n.name;return`
+    `}const S="/api",b={async get(e){const t=await fetch(`${S}${e}`);if(!t.ok)throw new Error(`API Error: ${t.statusText}`);return t.json()},async post(e,t){const s=await fetch(`${S}${e}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async patch(e,t){const s=await fetch(`${S}${e}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.json()},async put(e,t){const s=await fetch(`${S}${e}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)});if(!s.ok)throw new Error(`API Error: ${s.statusText}`);return s.status===204?null:s.json()}},C={list:async()=>{const e=JSON.parse(localStorage.getItem("camp_user")||"{}"),t=e.id?`?account_id=${e.id}`:"";return await b.get(`/contacts${t}`)||[]},create:e=>b.post("/contacts",e),update:(e,t)=>b.put(`/contacts/${e}`,t),addTag:e=>b.post("/contacts/tag",e),removeTag:(e,t)=>b.patch(`/contacts/${e}/tag`,t)},w={list:async()=>await b.get("/campaigns")||[],get:e=>b.get(`/campaigns/${e}`),create:e=>b.post("/campaigns",e),update:(e,t)=>b.put(`/campaigns/${e}`,t),generateAI:e=>b.post("/campaigns/generate-ai",e)},T={getOverview:()=>b.get("/stats/overview")},_={signup:e=>b.post("/signup",e),login:e=>b.post("/login",e),saveSMTP:e=>b.post("/settings/smtp",e),getWarming:e=>b.get(`/stats/warming?account_id=${e}`)},F={getHealth:e=>b.get(`/domain/health?domain=${e}`)};async function B(){let e={total_contacts:0,total_sent:0,open_rate:0,ctr:0,revenue:0,audience_growth:[]},t=[],s=null,i=null;try{const r=JSON.parse(localStorage.getItem("camp_user")||"{}"),o=[T.getOverview(),w.list()];r.id&&o.push(_.getWarming(r.id)),r.domain&&o.push(F.getHealth(r.domain));const l=await Promise.all(o);e=l[0],t=l[1],r.id&&(s=l[2]),r.domain&&(i=l[3]),t=(t||[]).slice(0,4)}catch(r){console.error("Failed to fetch dashboard data",r)}const n=JSON.parse(localStorage.getItem("camp_user")||'{ "name": "Test User" }'),a=n.name;return`
         <div class="main-content">
             <!-- Header -->
             <header class="flex justify-between items-center mb-8">
@@ -192,13 +192,13 @@
                                 <span style="cursor: pointer;">⚙</span>
                             </div>
                             <div class="flex flex-col gap-4">
-                                ${t.filter(i=>i.status==="scheduled").length>0?t.filter(i=>i.status==="scheduled").map(i=>`
+                                ${t.filter(r=>r.status==="scheduled").length>0?t.filter(r=>r.status==="scheduled").map(r=>`
                                         <div class="card" style="padding: 1rem; border: 1px solid var(--border); box-shadow: none;">
                                             <div class="flex justify-between items-center">
                                                 <div class="flex items-center gap-3">
                                                     <div style="font-size: 1.25rem;">✉</div>
                                                     <div>
-                                                        <p style="font-size: 0.875rem; font-weight: 700;">${i.name}</p>
+                                                        <p style="font-size: 0.875rem; font-weight: 700;">${r.name}</p>
                                                         <p style="font-size: 0.75rem; color: var(--text-muted);">Scheduled</p>
                                                     </div>
                                                 </div>
@@ -228,14 +228,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${t.map(i=>`
+                                ${t.map(r=>`
                                     <tr>
-                                        <td style="font-weight: 700;">${i.name}</td>
+                                        <td style="font-weight: 700;">${r.name}</td>
                                         <td>
-                                            <span class="status-badge status-${i.status}">${i.status}</span>
+                                            <span class="status-badge status-${r.status}">${r.status}</span>
                                         </td>
-                                        <td style="font-weight: 700;">${i.open_rate}%</td>
-                                        <td style="font-weight: 700;">${i.ctr}%</td>
+                                        <td style="font-weight: 700;">${r.open_rate}%</td>
+                                        <td style="font-weight: 700;">${r.ctr}%</td>
                                         <td><a href="/campaign" style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">View</a></td>
                                     </tr>
                                 `).join("")}
@@ -272,7 +272,7 @@
                     <div class="card" id="deliverability-card" style="border: 1px solid var(--border);">
                         <div class="flex justify-between items-center mb-4">
                             <h3 style="font-size: 1rem;">🛡 Deliverability Health</h3>
-                            <span class="status-badge" id="health-badge" style="font-size: 0.65rem; ${r?r.spf&&r.dkim&&r.dmarc?"background:#ecfdf5;color:#059669;":"background:#fff7ed;color:#ea580c;":"background:#f4f4f5;color:#71717a;"}">${r?r.spf&&r.dkim&&r.dmarc?"Excellent":"Action Needed":"Not Checked"}</span>
+                            <span class="status-badge" id="health-badge" style="font-size: 0.65rem; ${i?i.spf&&i.dkim&&i.dmarc?"background:#ecfdf5;color:#059669;":"background:#fff7ed;color:#ea580c;":"background:#f4f4f5;color:#71717a;"}">${i?i.spf&&i.dkim&&i.dmarc?"Excellent":"Action Needed":"Not Checked"}</span>
                         </div>
 
                         <!-- Domain Input Row -->
@@ -285,14 +285,14 @@
 
                         <!-- Result Panel -->
                         <div id="health-result-panel">
-                            ${r?`
+                            ${i?`
                             <div style="display: flex; flex-direction: column; gap: 0.625rem;">
-                                ${y("SPF",r.spf,r.spf_record)}
-                                ${y("DKIM",r.dkim,r.dkim_selector?`Selector: ${r.dkim_selector}`:null)}
-                                ${y("DMARC",r.dmarc,r.dmarc_record)}
+                                ${$("SPF",i.spf,i.spf_record)}
+                                ${$("DKIM",i.dkim,i.dkim_selector?`Selector: ${i.dkim_selector}`:null)}
+                                ${$("DMARC",i.dmarc,i.dmarc_record)}
                             </div>
                             <div style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-main); padding: 0.75rem; border-radius: 8px; margin-top: 0.875rem; line-height: 1.5;">
-                                ${r.spf&&r.dkim&&r.dmarc?"✅ All records verified. Your domain is properly authenticated for inbox delivery.":"⚠️ Some records are missing or not yet propagated. DNS changes can take up to 24–48 hours to propagate globally."}
+                                ${i.spf&&i.dkim&&i.dmarc?"✅ All records verified. Your domain is properly authenticated for inbox delivery.":"⚠️ Some records are missing or not yet propagated. DNS changes can take up to 24–48 hours to propagate globally."}
                             </div>`:`
                             <div style="font-size: 0.8125rem; color: var(--text-muted); text-align: center; padding: 1rem 0;">
                                 Enter your sending domain above and click Check to see your DNS health.
@@ -325,22 +325,25 @@
                 </div>
             </div>
         </div>
-    `}function y(e,t,s){const r=t?"#059669":"#ea580c",n=t?"rgba(16,185,129,0.08)":"rgba(239,68,68,0.06)",a=t?"✅":"❌",i=s?`<span style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;font-family:monospace;word-break:break-all;">${s}</span>`:"";return`
+    `}function $(e,t,s){const i=t?"#059669":"#ea580c",n=t?"rgba(16,185,129,0.08)":"rgba(239,68,68,0.06)",a=t?"✅":"❌",r=s?`<span style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;font-family:monospace;word-break:break-all;">${s}</span>`:"";return`
         <div style="display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0.75rem;background:${n};border-radius:8px;">
             <span style="font-size:0.9rem;flex-shrink:0;margin-top:1px;">${a}</span>
             <div style="display:flex;flex-direction:column;">
-                <span style="font-size:0.8125rem;font-weight:700;color:${r};">${e}</span>
-                ${i}
+                <span style="font-size:0.8125rem;font-weight:700;color:${i};">${e}</span>
+                ${r}
             </div>
-        </div>`}function F(){const e=document.getElementById("dash-create-camp");e&&(e.onclick=()=>{window.history.pushState({},"","/campaigns"),window.dispatchEvent(new PopStateEvent("popstate"))});const t=document.getElementById("check-health-btn"),s=document.getElementById("domain-check-input"),r=document.getElementById("health-badge"),n=document.getElementById("health-result-panel");!t||!s||(t.onclick=async()=>{const a=s.value.trim().replace(/^https?:\/\//,"").replace(/\/.*$/,"");if(!a){s.focus();return}t.disabled=!0,t.innerHTML='<span style="display:inline-block;animation:spin 0.8s linear infinite;">⟳</span> Checking…',n.innerHTML=`<div style="font-size:0.8125rem;color:var(--text-muted);text-align:center;padding:1rem 0;">Looking up DNS records for <strong>${a}</strong>…</div>`;try{const i=await fetch(`/api/domain/health?domain=${encodeURIComponent(a)}`);if(!i.ok)throw new Error(`HTTP ${i.status}`);const o=await i.json(),l=o.spf&&o.dkim&&o.dmarc;r.textContent=l?"Excellent":"Action Needed",r.style.cssText=l?"font-size:0.65rem;background:#ecfdf5;color:#059669;":"font-size:0.65rem;background:#fff7ed;color:#ea580c;";const d=o.dkim_selector?`Selector found: ${o.dkim_selector}`:null;n.innerHTML=`
+        </div>`}function H(){const e=document.getElementById("dash-create-camp");e&&(e.onclick=()=>{window.history.pushState({},"","/campaigns"),window.dispatchEvent(new PopStateEvent("popstate"))});const t=document.getElementById("check-health-btn"),s=document.getElementById("domain-check-input"),i=document.getElementById("health-badge"),n=document.getElementById("health-result-panel");!t||!s||(t.onclick=async()=>{const a=s.value.trim().replace(/^https?:\/\//,"").replace(/\/.*$/,"");if(!a){s.focus();return}t.disabled=!0,t.innerHTML='<span style="display:inline-block;animation:spin 0.8s linear infinite;">⟳</span> Checking…',n.innerHTML=`<div style="font-size:0.8125rem;color:var(--text-muted);text-align:center;padding:1rem 0;">Looking up DNS records for <strong>${a}</strong>…</div>`;try{const r=await fetch(`/api/domain/health?domain=${encodeURIComponent(a)}`);if(!r.ok)throw new Error(`HTTP ${r.status}`);const o=await r.json(),l=o.spf&&o.dkim&&o.dmarc;i.textContent=l?"Excellent":"Action Needed",i.style.cssText=l?"font-size:0.65rem;background:#ecfdf5;color:#059669;":"font-size:0.65rem;background:#fff7ed;color:#ea580c;";const c=o.dkim_selector?`Selector found: ${o.dkim_selector}`:null;n.innerHTML=`
                 <div style="display:flex;flex-direction:column;gap:0.625rem;">
-                    ${y("SPF",o.spf,o.spf_record||null)}
-                    ${y("DKIM",o.dkim,d)}
-                    ${y("DMARC",o.dmarc,o.dmarc_record||null)}
+                    ${$("SPF",o.spf,o.spf_record||null)}
+                    ${$("DKIM",o.dkim,c)}
+                    ${$("DMARC",o.dmarc,o.dmarc_record||null)}
                 </div>
                 <div style="font-size:0.75rem;color:var(--text-muted);background:var(--bg-main);padding:0.75rem;border-radius:8px;margin-top:0.875rem;line-height:1.5;">
                     ${l?"✅ All records verified. Your domain is properly authenticated for inbox delivery.":"⚠️ Some records are missing or not yet propagated. DNS changes can take 24–48 hours to be visible globally. If you just added a record, wait and try again."}
-                </div>`;const c=JSON.parse(localStorage.getItem("camp_user")||"{}");localStorage.setItem("camp_user",JSON.stringify({...c,domain:a}))}catch(i){n.innerHTML=`<div style="font-size:0.8125rem;color:var(--danger);padding:0.75rem;background:rgba(239,68,68,0.06);border-radius:8px;">⚠️ Error: ${i.message}. Make sure the backend is running and the domain is valid.</div>`}finally{t.disabled=!1,t.innerHTML="🔍 Check"}})}let S=[],I=null;async function H(){try{S=await $.list()}catch(e){console.error("Failed to fetch contacts",e)}return setTimeout(()=>{const e=document.getElementById("contact-search");e&&(e.oninput=t=>{const s=t.target.value.toLowerCase(),r=S.filter(n=>n.first_name&&n.first_name.toLowerCase().includes(s)||n.last_name&&n.last_name.toLowerCase().includes(s)||n.email.toLowerCase().includes(s)||n.tags&&n.tags.some(a=>a.text.toLowerCase().includes(s)));I(r)})},100),`
+                </div>`;const g=JSON.parse(localStorage.getItem("camp_user")||"{}");localStorage.setItem("camp_user",JSON.stringify({...g,domain:a}))}catch(r){n.innerHTML=`<div style="font-size:0.8125rem;color:var(--danger);padding:0.75rem;background:rgba(239,68,68,0.06);border-radius:8px;">⚠️ Error: ${r.message}. Make sure the backend is running and the domain is valid.</div>`}finally{t.disabled=!1,t.innerHTML="🔍 Check"}})}function y(e,t="info"){let s=document.getElementById("toast-container");s||(s=document.createElement("div"),s.id="toast-container",document.body.appendChild(s));const i=document.createElement("div");i.className=`toast toast-${t}`;const n={success:"✅",error:"❌",info:"ℹ️"};i.innerHTML=`
+        <span class="toast-icon">${n[t]||n.info}</span>
+        <span class="toast-message">${e}</span>
+    `,s.appendChild(i),setTimeout(()=>{i.classList.add("hide"),setTimeout(()=>{i.remove()},300)},4e3)}let E=[],L=null;async function q(){try{E=await C.list()}catch(e){console.error("Failed to fetch contacts",e)}return setTimeout(()=>{const e=document.getElementById("contact-search");e&&(e.oninput=t=>{const s=t.target.value.toLowerCase(),i=E.filter(n=>n.first_name&&n.first_name.toLowerCase().includes(s)||n.last_name&&n.last_name.toLowerCase().includes(s)||n.email.toLowerCase().includes(s)||n.tags&&n.tags.some(a=>a.text.toLowerCase().includes(s)));L(i)})},100),`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -384,51 +387,82 @@
                 #import-btn.loading::after { content: "⏳"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: var(--text-main); font-size: 1rem; animation: spin 1s linear infinite; }
             </style>
         </div>
-    `}function U(){const e=document.getElementById("contacts-list-body"),t=document.getElementById("modal-container"),s=document.getElementById("import-btn"),r=document.getElementById("import-file");I=i=>{e&&(e.innerHTML=i.map(o=>`
+    `}function U(){const e=document.getElementById("contacts-list-body"),t=document.getElementById("modal-container"),s=document.getElementById("import-btn"),i=document.getElementById("import-file");L=o=>{e&&(e.innerHTML=o.map(l=>`
             <tr>
                 <td style="font-weight: 700;">
-                    ${o.first_name||o.last_name?`${o.first_name||""} ${o.last_name||""}`:`<span class="text-muted" style="font-weight: 400; font-style: italic;">${o.email.split("@")[0]} (No Name)</span>`}
+                    ${l.first_name||l.last_name?`${l.first_name||""} ${l.last_name||""}`:`<span class="text-muted" style="font-weight: 400; font-style: italic;">${l.email.split("@")[0]} (No Name)</span>`}
                 </td>
-                <td class="text-muted">${o.email}</td>
+                <td class="text-muted">${l.email}</td>
                 <td>
                     <div class="flex gap-1 flex-wrap">
-                        ${o.tags&&o.tags.length>0?o.tags.map(l=>`<span class="status-badge" style="background: rgba(138, 154, 91, 0.1); color: var(--primary); font-size: 0.65rem;">${l.text}</span>`).join(""):'<span class="text-muted" style="font-size: 0.75rem;">None</span>'}
+                        ${l.tags&&l.tags.length>0?l.tags.map(c=>`<span class="status-badge" style="background: rgba(138, 154, 91, 0.1); color: var(--primary); font-size: 0.65rem;">${c.text}</span>`).join(""):'<span class="text-muted" style="font-size: 0.75rem;">None</span>'}
                     </div>
                 </td>
-                <td class="text-muted">${new Date(o.created_at).toLocaleDateString()}</td>
+                <td class="text-muted">${new Date(l.created_at).toLocaleDateString()}</td>
                 <td>
-                    <button class="btn btn-outline edit-contact-btn" data-id="${o.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
+                    <button class="btn btn-outline edit-contact-btn" data-id="${l.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
                 </td>
             </tr>
-        `).join("")+(i.length===0?'<tr><td colspan="5" style="text-align: center; padding: 3rem;" class="text-muted">No contacts found.</td></tr>':""),document.querySelectorAll(".edit-contact-btn").forEach(o=>{o.onclick=l=>{const d=l.target.dataset.id,c=S.find(p=>p.id==d);c&&n(c)}}))},I(S),s&&r&&(s.onclick=()=>r.click(),r.onchange=async i=>{const o=i.target.files[0];if(!o)return;s.classList.add("loading");const l=new FileReader;l.onload=async d=>{try{const c=new Uint8Array(d.target.result),p=window.XLSX.read(c,{type:"array"}),z=p.SheetNames[0],h=p.Sheets[z],u=window.XLSX.utils.sheet_to_json(h);let g=0;for(const m of u){const T=m.Email||m.email;if(!T)continue;let C=m["First Name"]||m.first_name||m.fname||"",E=m["Last Name"]||m.last_name||m.lname||"";if(!C&&!E&&(m.Name||m.name)){const x=(m.Name||m.name).split(" ");C=x[0],E=x.slice(1).join(" ")}const A=m.Tags||m.tags||"",ae=A?A.split(",").map(x=>x.trim()).filter(Boolean):[];await $.create({first_name:C,last_name:E,email:T,phone:m.Phone||m.phone||""}),g++}alert(`Successfully imported ${g} contacts.`),window.location.reload()}catch(c){s.classList.remove("loading"),alert("Import failed: "+c.message),console.error("Import error:",c)}},l.readAsArrayBuffer(o)});const n=(i=null)=>{const o=!!i;t.innerHTML=`
-            <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
-                <div class="card" style="width: 100%; max-width: 500px; padding: 2rem;">
-                    <h2 class="mb-6">${o?"Edit Contact":"Add New Contact"}</h2>
-                    <form id="contact-form">
-                        <div class="mb-4">
-                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">First Name</label>
-                            <input type="text" name="first_name" class="input" required placeholder="John" value="${i?.first_name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+        `).join("")+(o.length===0?'<tr><td colspan="5" style="text-align: center; padding: 3rem;" class="text-muted">No contacts found.</td></tr>':""),document.querySelectorAll(".edit-contact-btn").forEach(l=>{l.onclick=c=>{const g=c.target.dataset.id,d=E.find(v=>v.id==g);d&&a(d)}}))},L(E),s&&i&&(s.onclick=()=>i.click(),i.onchange=async o=>{const l=o.target.files[0];if(!l)return;const c=new FileReader;c.onload=async g=>{try{const d=new Uint8Array(g.target.result),v=window.XLSX.read(d,{type:"array"}),p=v.SheetNames[0],m=v.Sheets[p],u=window.XLSX.utils.sheet_to_json(m);if(u.length===0){y("The file is empty.","error");return}const f=Object.keys(u[0]);n(f,u)}catch(d){y("Failed to read file: "+d.message,"error")}},c.readAsArrayBuffer(l)});const n=(o,l)=>{const c=(d,v)=>{const p=d.toLowerCase().replace(/[^a-z]/g,"");return v.some(m=>p.includes(m.toLowerCase())||m.toLowerCase().includes(p))},g={email:o.find(d=>c(d,["email","mail","addr"]))||"",first_name:o.find(d=>c(d,["first","fname","given","name","full"]))||"",last_name:o.find(d=>c(d,["last","lname","sur"]))||"",phone:o.find(d=>c(d,["phone","mobile","tel"]))||"",tags:o.find(d=>c(d,["tag","segment","label"]))||""};t.innerHTML=`
+            <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000;" id="mapping-overlay">
+                <div class="card" style="width: 100%; max-width: 600px; padding: 2rem; max-height: 90vh; overflow-y: auto;">
+                    <h2 class="mb-2">Map Columns</h2>
+                    <p class="text-muted mb-6">Tell us which columns match our contact fields.</p>
+                    
+                    <div class="mb-6" style="background: rgba(0,0,0,0.05); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.8rem;">
+                        <strong>Preview (Row 1):</strong>
+                        <div style="overflow-x: auto; margin-top: 0.5rem; color: var(--text-muted);">
+                            ${o.map(d=>`<span style="display: inline-block; margin-right: 1rem;"><strong>${d}:</strong> ${l[0][d]||"-"}</span>`).join("")}
                         </div>
-                        <div class="mb-4">
-                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Last Name</label>
-                            <input type="text" name="last_name" class="input" required placeholder="Doe" value="${i?.last_name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
-                        </div>
-                        <div class="mb-4">
-                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Email Address</label>
-                            <input type="email" name="email" class="input" required placeholder="john@example.com" value="${i?.email||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
-                        </div>
-                        <div class="mb-8">
-                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Phone Number</label>
-                            <input type="text" name="phone" class="input" placeholder="+1 (555) 000-0000" value="${i?.phone||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
-                        </div>
+                    </div>
+
+                    <form id="mapping-form">
+                        ${["Email (Required)","First Name","Last Name","Phone","Tags"].map((d,v)=>{const p=["email","first_name","last_name","phone","tags"][v];return`
+                                <div class="mb-4 flex items-center justify-between">
+                                    <label style="font-weight: 700; flex: 1;">${d}</label>
+                                    <select name="${p}" class="input" style="flex: 1.5; padding: 0.5rem;">
+                                        <option value="">-- Skip --</option>
+                                        ${o.map(m=>`<option value="${m}" ${g[p]===m?"selected":""}>${m}</option>`).join("")}
+                                    </select>
+                                </div>
+                            `}).join("")}
+                        
                         <div class="flex justify-between mt-8" style="gap: 1rem;">
-                            <button type="button" class="btn btn-outline" id="close-modal" style="flex: 1;">Cancel</button>
-                            <button type="submit" class="btn btn-primary" style="flex: 1;">${o?"Update Contact":"Save Contact"}</button>
+                            <button type="button" class="btn btn-outline" id="close-mapping" style="flex: 1;">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="confirm-import" style="flex: 1;">Start Import (${l.length} rows)</button>
                         </div>
                     </form>
                 </div>
             </div>
-        `,document.getElementById("close-modal").onclick=()=>t.innerHTML="",document.getElementById("modal-overlay").onclick=l=>{l.target.id==="modal-overlay"&&(t.innerHTML="")},document.getElementById("contact-form").onsubmit=async l=>{l.preventDefault();const d=new FormData(l.target),c=Object.fromEntries(d.entries());try{o?await $.update(i.id,c):await $.create(c),window.location.reload()}catch(p){alert("Action failed: "+p.message)}}},a=document.getElementById("add-contact-btn");a&&a.addEventListener("click",()=>n())}let b=[],k=null;async function q(){try{b=await f.list()}catch(e){console.error("Failed to fetch campaigns",e)}return`
+        `,document.getElementById("close-mapping").onclick=()=>{t.innerHTML="",i.value=""},document.getElementById("mapping-form").onsubmit=async d=>{d.preventDefault();const v=new FormData(d.target),p=Object.fromEntries(v.entries());if(!p.email){y("Email mapping is required!","error");return}const m=document.getElementById("confirm-import");m.disabled=!0,m.innerText="Importing...";let u=0,f=0;for(const x of l)try{const k=x[p.email];if(!k)continue;const A=p.tags?x[p.tags]:"",N=A?String(A).split(",").map(I=>({text:I.trim()})).filter(I=>I.text):[];await C.create({first_name:String(p.first_name&&x[p.first_name]||""),last_name:String(p.last_name&&x[p.last_name]||""),email:String(k).trim().toLowerCase(),phone:String(p.phone&&x[p.phone]||""),tags:N}),u++}catch(k){console.error("Row import failed:",k),f++}t.innerHTML="",y(`Import finished: ${u} successful, ${f} failed.`,f>0?"error":"success"),window.location.reload()}},a=(o=null)=>{const l=!!o;t.innerHTML=`
+            <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
+                <div class="card" style="width: 100%; max-width: 500px; padding: 2rem;">
+                    <h2 class="mb-6">${l?"Edit Contact":"Add New Contact"}</h2>
+                    <form id="contact-form">
+                        <div class="mb-4">
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">First Name</label>
+                            <input type="text" name="first_name" class="input" required placeholder="John" value="${o?.first_name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                        </div>
+                        <div class="mb-4">
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Last Name</label>
+                            <input type="text" name="last_name" class="input" required placeholder="Doe" value="${o?.last_name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                        </div>
+                        <div class="mb-4">
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Email Address</label>
+                            <input type="email" name="email" class="input" required placeholder="john@example.com" value="${o?.email||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                        </div>
+                        <div class="mb-8">
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Phone Number</label>
+                            <input type="text" name="phone" class="input" placeholder="+1 (555) 000-0000" value="${o?.phone||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                        </div>
+                        <div class="flex justify-between mt-8" style="gap: 1rem;">
+                            <button type="button" class="btn btn-outline" id="close-modal" style="flex: 1;">Cancel</button>
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">${l?"Update Contact":"Save Contact"}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `,document.getElementById("close-modal").onclick=()=>t.innerHTML="",document.getElementById("modal-overlay").onclick=c=>{c.target.id==="modal-overlay"&&(t.innerHTML="")},document.getElementById("contact-form").onsubmit=async c=>{c.preventDefault();const g=new FormData(c.target),d=Object.fromEntries(g.entries());try{l?await C.update(o.id,d):await C.create(d),window.location.reload()}catch(v){y("Action failed: "+v.message,"error")}}},r=document.getElementById("add-contact-btn");r&&r.addEventListener("click",()=>a())}let h=[],z=null;async function W(){try{h=await w.list()}catch(e){console.error("Failed to fetch campaigns",e)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -444,25 +478,25 @@
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Drafts</span>
-                        <span class="stat-value">${b.filter(e=>e.status==="draft").length}</span>
+                        <span class="stat-value">${h.filter(e=>e.status==="draft").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Scheduled</span>
-                        <span class="stat-value">${b.filter(e=>e.status==="scheduled").length}</span>
+                        <span class="stat-value">${h.filter(e=>e.status==="scheduled").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Sent</span>
-                        <span class="stat-value">${b.filter(e=>e.status==="sent").length}</span>
+                        <span class="stat-value">${h.filter(e=>e.status==="sent").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-info">
                         <span class="stat-label">Paused</span>
-                        <span class="stat-value">${b.filter(e=>e.status==="paused").length}</span>
+                        <span class="stat-value">${h.filter(e=>e.status==="paused").length}</span>
                     </div>
                 </div>
             </div>
@@ -494,26 +528,33 @@
 
             <div id="campaign-modal-container"></div>
         </div>
-    `}function W(){const e=document.getElementById("campaigns-list-body"),t=document.getElementById("create-campaign-btn"),s=document.getElementById("campaign-modal-container"),r=document.querySelectorAll(".tab-btn");k=a=>{e&&(e.innerHTML=a.map(i=>`
+    `}function G(){const e=document.getElementById("campaigns-list-body"),t=document.getElementById("create-campaign-btn"),s=document.getElementById("campaign-modal-container"),i=document.querySelectorAll(".tab-btn");z=a=>{e&&(e.innerHTML=a.map(r=>`
             <tr>
-                <td style="font-weight: 700;">${i.name}</td>
+                <td style="font-weight: 700;">${r.name}</td>
                 <td>
-                    <span class="status-badge ${i.status==="sent"?"status-sent":i.status==="paused"?"status-paused":"status-draft"}">
-                        ${i.status.charAt(0).toUpperCase()+i.status.slice(1)}
+                    <span class="status-badge ${r.status==="sent"?"status-sent":r.status==="paused"?"status-paused":"status-draft"}">
+                        ${r.status.charAt(0).toUpperCase()+r.status.slice(1)}
                     </span>
                 </td>
-                <td style="font-weight: 700;">${i.open_rate}%</td>
-                <td style="font-weight: 700;">${i.ctr}%</td>
-                <td style="font-weight: 700;">${i.conversions}%</td>
+                <td style="font-weight: 700;">${r.open_rate}%</td>
+                <td style="font-weight: 700;">${r.ctr}%</td>
+                <td style="font-weight: 700;">${r.conversions}%</td>
                 <td>
-                    <button class="btn btn-outline edit-campaign-btn" data-id="${i.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
+                    <button class="btn btn-outline edit-campaign-btn" data-id="${r.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
                 </td>
             </tr>
-        `).join("")+(a.length===0?'<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No campaigns found for this view.</td></tr>':""),document.querySelectorAll(".edit-campaign-btn").forEach(i=>{i.onclick=o=>{const l=o.target.dataset.id,d=b.find(c=>c.id==l);d&&n(d)}}))},k(b),r.forEach(a=>{a.onclick=i=>{r.forEach(d=>{d.classList.remove("btn-primary"),d.classList.add("btn-outline")});const o=i.currentTarget;o.classList.remove("btn-outline"),o.classList.add("btn-primary");const l=o.dataset.filter;k(l==="all"?b:b.filter(d=>d.status===l))}});const n=(a=null)=>{const i=!!a;s.innerHTML=`
+        `).join("")+(a.length===0?'<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No campaigns found for this view.</td></tr>':""),document.querySelectorAll(".edit-campaign-btn").forEach(r=>{r.onclick=o=>{const l=o.target.dataset.id,c=h.find(g=>g.id==l);c&&n(c)}}))},z(h),i.forEach(a=>{a.onclick=r=>{i.forEach(c=>{c.classList.remove("btn-primary"),c.classList.add("btn-outline")});const o=r.currentTarget;o.classList.remove("btn-outline"),o.classList.add("btn-primary");const l=o.dataset.filter;z(l==="all"?h:h.filter(c=>c.status===l))}});const n=(a=null)=>{const r=!!a;s.innerHTML=`
             <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
-                <div class="card" style="width: 100%; max-width: 600px; padding: 2rem;">
-                    <h2 class="mb-6">${i?"Edit Campaign":"Create New Campaign"}</h2>
+                <div class="card" style="width: 100%; max-width: 600px; padding: 2rem; max-height: 90vh; overflow-y: auto;">
+                    <h2 class="mb-6">${r?"Edit Campaign":"Create New Campaign"}</h2>
                     <form id="campaign-form">
+                        <div class="mb-6 p-4" style="background: var(--bg-main); border: 1px dashed var(--primary); border-radius: var(--radius); text-align: center;">
+                            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Let AI draft your campaign for you!</p>
+                            <div class="flex gap-2">
+                                <input type="text" id="ai-goal" class="input" placeholder="e.g. Welcome email for new subscribers" style="flex: 1; padding: 0.5rem;">
+                                <button type="button" class="btn btn-primary" id="ai-magic-btn" style="padding: 0.5rem 1rem;">Magic Draft ✨</button>
+                            </div>
+                        </div>
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Campaign Name</label>
                             <input type="text" name="name" class="input" required placeholder="Summer Sale 2026" value="${a?.name||""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
@@ -541,14 +582,22 @@
                                 <input type="number" step="0.1" name="open_rate" class="input" value="${a?.open_rate||0}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                             </div>
                         </div>
+                        <div class="mb-8" id="schedule-field" style="display: ${a?.status==="scheduled"?"block":"none"};">
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Send At (Date & Time)</label>
+                            <input type="datetime-local" name="scheduled_at" id="scheduled_at_input" class="input" value="${a?.scheduled_at?new Date(a.scheduled_at).toISOString().slice(0,16):""}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                        </div>
+                        <div class="mb-8 flex items-center gap-2">
+                            <input type="checkbox" name="is_personalized" id="is_personalized" ${a?.is_personalized?"checked":""} style="width: 18px; height: 18px; cursor: pointer;">
+                            <label for="is_personalized" style="font-weight: 700; cursor: pointer;">✨ Hyper-Personalization (AI Research each company)</label>
+                        </div>
                         <div class="flex justify-between mt-8" style="gap: 1rem;">
                             <button type="button" class="btn btn-outline" id="close-modal" style="flex: 1;">Cancel</button>
-                            <button type="submit" class="btn btn-primary" style="flex: 1;">${i?"Update Campaign":"Create Draft"}</button>
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">${r?"Update Campaign":"Create Draft"}</button>
                         </div>
                     </form>
                 </div>
             </div>
-        `,document.getElementById("close-modal").onclick=()=>s.innerHTML="",document.getElementById("modal-overlay").onclick=o=>{o.target.id==="modal-overlay"&&(s.innerHTML="")},document.getElementById("campaign-form").onsubmit=async o=>{o.preventDefault();const l=new FormData(o.target),d=Object.fromEntries(l.entries()),c={...d,open_rate:parseFloat(d.open_rate)||0,ctr:parseFloat(a?.ctr||0),conversions:parseFloat(a?.conversions||0)};try{i?await f.update(a.id,c):await f.create(c),window.location.reload()}catch(p){alert("Action failed: "+p.message)}}};t&&(t.onclick=()=>n())}async function G(){let e={total_contacts:0},t=[];try{[e,t]=await Promise.all([L.getOverview(),f.list()])}catch(r){console.error(r)}return`
+        `,document.getElementById("close-modal").onclick=()=>s.innerHTML="";const o=document.getElementById("campaign-form"),l=document.getElementById("ai-magic-btn"),c=document.getElementById("ai-goal"),g=o.querySelector('[name="subject"]'),d=o.querySelector('[name="content"]');l.onclick=async()=>{const m=c.value.trim();if(!m){y("Please describe your campaign goal first!","info");return}l.disabled=!0,l.textContent="Generating...";try{const u=await w.generateAI({goal:m});g.value=u.subject,d.value=u.content,y("Campaign draft generated! ✨","success")}catch(u){y("AI Generation failed: "+u.message,"error")}finally{l.disabled=!1,l.textContent="Magic Draft ✨"}};const v=o.querySelector('[name="status"]'),p=()=>{const m=document.getElementById("schedule-field"),u=document.getElementById("scheduled_at_input"),f=v.value==="scheduled";m.style.display=f?"block":"none",f?u.setAttribute("required","true"):u.removeAttribute("required")};v.onchange=p,p(),document.getElementById("modal-overlay").onclick=m=>{m.target.id==="modal-overlay"&&(s.innerHTML="")},document.getElementById("campaign-form").onsubmit=async m=>{m.preventDefault();const u=new FormData(m.target),f=Object.fromEntries(u.entries()),x={...f,account_id:JSON.parse(localStorage.getItem("camp_user")||"{}").id||1,open_rate:parseFloat(f.open_rate)||0,ctr:parseFloat(a?.ctr||0),conversions:parseFloat(a?.conversions||0),scheduled_at:f.scheduled_at?new Date(f.scheduled_at).toISOString():null,is_personalized:o.querySelector('[name="is_personalized"]').checked};try{r?await w.update(a.id,x):await w.create(x),window.location.reload()}catch(k){y("Action failed: "+k.message,"error")}}};t&&(t.onclick=()=>n())}async function J(){let e={total_contacts:0},t=[];try{[e,t]=await Promise.all([T.getOverview(),w.list()])}catch(i){console.error(i)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -565,7 +614,7 @@
                     <div class="stat-icon">🔄</div>
                     <div class="stat-info">
                         <span class="stat-label">Active Automations</span>
-                        <span class="stat-value">${t.filter(r=>r.status==="sent").length}</span>
+                        <span class="stat-value">${t.filter(i=>i.status==="sent").length}</span>
                     </div>
                 </div>
                 <div class="card stat-card">
@@ -593,23 +642,23 @@
 
             <h3 class="mb-4">Live Workflows</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                ${t.slice(0,4).map(r=>`
+                ${t.slice(0,4).map(i=>`
                     <div class="card">
                         <div class="flex justify-between items-start mb-4">
                             <div>
-                                <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem;">${r.name}</h4>
-                                <span class="status-badge status-${r.status}" style="font-size: 0.65rem;">${r.status}</span>
+                                <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem;">${i.name}</h4>
+                                <span class="status-badge status-${i.status}" style="font-size: 0.65rem;">${i.status}</span>
                             </div>
                             <span style="font-size: 1.25rem;">⚙️</span>
                         </div>
                         <div class="flex gap-4 mb-6">
                             <div style="flex: 1;">
                                 <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Open Rate</p>
-                                <p style="font-size: 1rem; font-weight: 700;">${r.open_rate}%</p>
+                                <p style="font-size: 1rem; font-weight: 700;">${i.open_rate}%</p>
                             </div>
                             <div style="flex: 1;">
                                 <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">CTR</p>
-                                <p style="font-size: 1rem; font-weight: 700;">${r.ctr}%</p>
+                                <p style="font-size: 1rem; font-weight: 700;">${i.ctr}%</p>
                             </div>
                         </div>
                         <button class="btn btn-outline" style="width: 100%; font-size: 0.8125rem;">Manage Workflow</button>
@@ -618,7 +667,7 @@
                 ${t.length===0?'<div class="text-muted">No workflows found.</div>':""}
             </div>
         </div>
-    `}async function J(){let e={open_rate:0,ctr:0,audience_growth:[]},t=[];try{const[s,r]=await Promise.all([L.getOverview(),f.list()]);e=s,t=(r||[]).filter(n=>n.status==="sent").sort((n,a)=>(a.open_rate||0)-(n.open_rate||0)).slice(0,3)}catch(s){console.error("Failed to fetch analytics data",s)}return`
+    `}async function V(){let e={open_rate:0,ctr:0,audience_growth:[]},t=[];try{const[s,i]=await Promise.all([T.getOverview(),w.list()]);e=s,t=(i||[]).filter(n=>n.status==="sent").sort((n,a)=>(a.open_rate||0)-(n.open_rate||0)).slice(0,3)}catch(s){console.error("Failed to fetch analytics data",s)}return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -699,10 +748,10 @@
                 </div>
             </div>
         </div>
-    `}async function V(){let e=[];try{e=(await f.list()||[]).filter(i=>i.status==="scheduled"||i.status==="draft").sort((i,o)=>new Date(i.created_at)-new Date(o.created_at)).slice(0,5)}catch(a){console.error("Failed to fetch schedule",a)}const t=new Date,s=new Date(t.getFullYear(),t.getMonth()+1,0).getDate(),r=new Date(t.getFullYear(),t.getMonth(),1).getDay();let n="";for(let a=0;a<r;a++)n+='<div style="padding: 1rem; border: 1px solid var(--border); background: var(--bg-main); opacity: 0.5;"></div>';for(let a=1;a<=s;a++){const i=e.some(o=>new Date(o.created_at).getDate()===a&&new Date(o.created_at).getMonth()===t.getMonth());n+=`
+    `}async function Y(){let e=[];try{e=(await w.list()||[]).filter(r=>r.status==="scheduled").sort((r,o)=>new Date(r.scheduled_at||r.created_at)-new Date(o.scheduled_at||o.created_at)).slice(0,10)}catch(a){console.error("Failed to fetch schedule",a)}const t=new Date,s=new Date(t.getFullYear(),t.getMonth()+1,0).getDate(),i=new Date(t.getFullYear(),t.getMonth(),1).getDay();let n="";for(let a=0;a<i;a++)n+='<div style="padding: 1rem; border: 1px solid var(--border); background: var(--bg-main); opacity: 0.5;"></div>';for(let a=1;a<=s;a++){const r=e.some(o=>{const l=new Date(o.scheduled_at||o.created_at);return l.getDate()===a&&l.getMonth()===t.getMonth()&&l.getFullYear()===t.getFullYear()});n+=`
             <div style="padding: 1rem; border: 1px solid var(--border); min-height: 80px; position: relative; background: var(--bg-card);">
                 <span style="font-weight: ${a===t.getDate()?"800":"500"}; color: ${a===t.getDate()?"var(--primary)":"inherit"};">${a}</span>
-                ${i?'<div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--primary);"></div>':""}
+                ${r?'<div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--primary);"></div>':""}
             </div>
         `}return`
         <div class="main-content">
@@ -728,9 +777,9 @@
                 <div id="schedule-list-view" class="flex flex-col gap-2">
                     ${e.map(a=>`
                         <div class="flex items-center gap-6 p-4 border-bottom" style="border-bottom: 1px solid var(--border);">
-                            <div style="text-align: center; min-width: 80px;">
-                                <p style="font-weight: 800; color: var(--primary);">${new Date(a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</p>
-                                <p style="font-size: 0.75rem; color: var(--text-muted);">${new Date(a.created_at).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</p>
+                            <div style="text-align: center; min-width: 100px;">
+                                <p style="font-weight: 800; color: var(--primary);">${new Date(a.scheduled_at||a.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">${new Date(a.scheduled_at||a.created_at).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</p>
                             </div>
                             <div style="flex: 1;">
                                 <h4 style="font-size: 1rem; font-weight: 700;">${a.name}</h4>
@@ -754,7 +803,7 @@
                 </div>
             </div>
         </div>
-    `}function Y(){const e=document.getElementById("schedule-create-btn");e&&(e.onclick=()=>window.location.hash="#campaign");const t=document.getElementById("view-list-btn"),s=document.getElementById("view-calendar-btn"),r=document.getElementById("schedule-list-view"),n=document.getElementById("schedule-calendar-view");t&&s&&(t.onclick=()=>{r.style.display="flex",n.style.display="none",t.className="btn btn-primary",s.className="btn btn-outline",t.style.padding="0.5rem 1rem",t.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"},s.onclick=()=>{r.style.display="none",n.style.display="block",s.className="btn btn-primary",t.className="btn btn-outline",t.style.padding="0.5rem 1rem",t.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"})}async function X(){return`
+    `}function X(){const e=document.getElementById("schedule-create-btn");e&&(e.onclick=()=>window.location.hash="#campaign");const t=document.getElementById("view-list-btn"),s=document.getElementById("view-calendar-btn"),i=document.getElementById("schedule-list-view"),n=document.getElementById("schedule-calendar-view");t&&s&&(t.onclick=()=>{i.style.display="flex",n.style.display="none",t.className="btn btn-primary",s.className="btn btn-outline",t.style.padding="0.5rem 1rem",t.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"},s.onclick=()=>{i.style.display="none",n.style.display="block",s.className="btn btn-primary",t.className="btn btn-outline",t.style.padding="0.5rem 1rem",t.style.borderRadius="var(--radius-sm)",s.style.padding="0.5rem 1rem",s.style.borderRadius="var(--radius-sm)"})}async function K(){return`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -794,7 +843,7 @@
                 `).join("")}
             </div>
         </div>
-    `}async function K(){const e=localStorage.getItem("camp_sheets_connected")==="true";return setTimeout(()=>{const t=document.getElementById("connect-sheets-btn");t&&(t.onclick=()=>{e?(localStorage.setItem("camp_sheets_connected","false"),window.location.reload()):(t.innerHTML='<span style="display:inline-block; animation: spin 1s linear infinite;">⏳</span> Connecting...',t.style.opacity="0.7",setTimeout(()=>{localStorage.setItem("camp_sheets_connected","true"),window.location.reload()},1500))})},100),`
+    `}async function Z(){const e=localStorage.getItem("camp_sheets_connected")==="true";return setTimeout(()=>{const t=document.getElementById("connect-sheets-btn");t&&(t.onclick=()=>{e?(localStorage.setItem("camp_sheets_connected","false"),window.location.reload()):(t.innerHTML='<span style="display:inline-block; animation: spin 1s linear infinite;">⏳</span> Connecting...',t.style.opacity="0.7",setTimeout(()=>{localStorage.setItem("camp_sheets_connected","true"),window.location.reload()},1500))})},100),`
         <div class="main-content">
             <header class="flex justify-between items-center mb-8">
                 <div>
@@ -833,7 +882,7 @@
                 @keyframes spin { 100% { transform: rotate(360deg); } }
             </style>
         </div>
-    `}function B(){return`
+    `}function M(){return`
         <div class="landing-page" style="width: 100%; display: flex; flex-direction: column; align-items: center; background: white; color: var(--text-main);">
             <header style="width: 100%; padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: white; z-index: 100;">
                 <div class="logo" style="margin-bottom: 0;">
@@ -978,7 +1027,7 @@
                 </div>
             </footer>
         </div>
-    `}function D(e="signup"){return e==="signup"?Q():Z()}function Z(){return`
+    `}function D(e="signup"){return e==="signup"?ee():Q()}function Q(){return`
         <div style="width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-main); padding: 2rem;">
             <div class="card" style="width: 100%; max-width: 400px; padding: 2.5rem;">
                 <div style="text-align: center; margin-bottom: 2rem;">
@@ -989,7 +1038,7 @@
                         <a href="/signup" style="color: var(--primary); font-weight: 600; text-decoration: none;" data-link>Sign up</a>
                     </p>
                 </div>
-                <form id="auth-form">
+                <form id="auth-form" data-type="login">
                     <div class="mb-4">
                         <label class="label">Email address</label>
                         <input type="email" name="email" class="input" required placeholder="name@company.com">
@@ -1002,7 +1051,7 @@
                 </form>
             </div>
         </div>
-    `}function Q(){return`
+    `}function ee(){return`
         <div style="width: 100%; min-height: 100vh; background: var(--bg-main); display: flex; align-items: center; justify-content: center; padding: 2rem;">
             <div class="card" style="width: 100%; max-width: 550px; padding: 3rem;">
                 <!-- Wizard Header -->
@@ -1016,7 +1065,7 @@
                     </div>
                 </div>
 
-                <form id="auth-form">
+                <form id="auth-form" data-type="signup">
                     <!-- Step 1: Personal Info -->
                     <div id="step-1" class="wizard-step">
                         <div class="mb-4">
@@ -1081,11 +1130,11 @@
                 </form>
             </div>
         </div>
-    `}function ee(){const e=document.getElementById("auth-form");if(!e)return;let t=1;const s=r=>{document.querySelectorAll(".wizard-step").forEach(a=>a.style.display="none"),document.getElementById(`step-${r}`).style.display="block",document.querySelectorAll(".step-dot").forEach(a=>{a.classList.toggle("active",a.dataset.step==r)});const n=document.getElementById("wizard-title");n&&(r===1&&(n.textContent="Create your account"),r===2&&(n.textContent="Tell us about your business"),r===3&&(n.textContent="Guaranteed Inbox: SMTP Config"))};e.addEventListener("click",r=>{if(r.target.classList.contains("next-btn")){if(t===1){const n=e.querySelector('[name="name"]').value,a=e.querySelector('[name="email"]').value,i=e.querySelector('[name="password"]').value;if(!n||!a||!i){alert("Please fill in all account details.");return}}t++,s(t)}r.target.classList.contains("prev-btn")&&(t--,s(t))}),e.onsubmit=async r=>{r.preventDefault();const n=new FormData(e),a=Object.fromEntries(n.entries());try{const i=await _.signup({name:a.name,email:a.email,password:a.password,company_name:a.company_name,domain:a.domain});a.smtp_host&&await _.saveSMTP({account_id:i.id,host:a.smtp_host,port:parseInt(a.smtp_port),username:a.smtp_user,password:a.smtp_pass,security_type:"tls"}),localStorage.setItem("camp_user",JSON.stringify({id:i.id,name:a.name,email:a.email})),window.sessionStorage.setItem("isLoggedIn","true"),alert("Setup complete! Welcome to the premium inbox experience."),window.location.href="/"}catch(i){alert("Setup failed: "+i.message)}}}const P=document.getElementById("app"),N={"/":j,"/contacts":H,"/campaigns":q,"/automation":G,"/analytics":J,"/schedule":V,"/templates":X,"/integration":K,"/login":()=>D("login"),"/signup":()=>D("signup"),"/landing":B};async function te(e){const t=window.sessionStorage.getItem("isLoggedIn")==="true";if(e==="/logout"){window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing";return}!t&&!["/login","/signup","/landing"].includes(e)&&(window.history.replaceState({},"","/landing"),e="/landing"),t&&["/login","/signup","/landing"].includes(e)&&(window.history.replaceState({},"","/"),e="/");const s=N[e]||(t?j:B),n=t&&!["/landing","/login","/signup"].includes(e),a=await s();if(n){const u=R(e);P.innerHTML=`
-            ${u}
+    `}function te(){const e=document.getElementById("auth-form");if(!e)return;let t=1;const s=i=>{document.querySelectorAll(".wizard-step").forEach(a=>a.style.display="none"),document.getElementById(`step-${i}`).style.display="block",document.querySelectorAll(".step-dot").forEach(a=>{a.classList.toggle("active",a.dataset.step==i)});const n=document.getElementById("wizard-title");n&&(i===1&&(n.textContent="Create your account"),i===2&&(n.textContent="Tell us about your business"),i===3&&(n.textContent="Guaranteed Inbox: SMTP Config"))};e.addEventListener("click",i=>{if(i.target.classList.contains("next-btn")){if(t===1){const n=e.querySelector('[name="name"]').value,a=e.querySelector('[name="email"]').value,r=e.querySelector('[name="password"]').value;if(!n||!a||!r){y("Please fill in all account details.","error");return}}t++,s(t)}i.target.classList.contains("prev-btn")&&(t--,s(t))}),e.onsubmit=async i=>{i.preventDefault();const n=new FormData(e),a=Object.fromEntries(n.entries()),r=e.dataset.type==="signup";try{let o;if(r){const l=await _.signup({name:a.name,email:a.email,password:a.password,company_name:a.company_name,domain:a.domain});a.smtp_host&&await _.saveSMTP({account_id:l.id,host:a.smtp_host,port:parseInt(a.smtp_port),username:a.smtp_user,password:a.smtp_pass,security_type:"tls"}),o={id:l.id,name:a.name,email:a.email}}else o=await _.login({email:a.email,password:a.password});localStorage.setItem("camp_user",JSON.stringify(o)),window.sessionStorage.setItem("isLoggedIn","true"),y(r?"Setup complete! Welcome to the premium inbox experience.":"Welcome back!","success"),window.location.href="/"}catch(o){y((r?"Setup failed: ":"Login failed: ")+o.message,"error")}}}const j=document.getElementById("app"),P={"/":B,"/contacts":q,"/campaigns":W,"/automation":J,"/analytics":V,"/schedule":Y,"/templates":K,"/integration":Z,"/login":()=>D("login"),"/signup":()=>D("signup"),"/landing":M};async function ae(e){const t=window.sessionStorage.getItem("isLoggedIn")==="true";if(e==="/logout"){window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing";return}!t&&!["/login","/signup","/landing"].includes(e)&&(window.history.replaceState({},"","/landing"),e="/landing"),t&&["/login","/signup","/landing"].includes(e)&&(window.history.replaceState({},"","/"),e="/");const s=P[e]||(t?B:M),n=t&&!["/landing","/login","/signup"].includes(e),a=await s();if(n){const m=O(e);j.innerHTML=`
+            ${m}
             <div class="layout-container" style="width: 100%;">
                 <div id="content-area" style="flex: 1; min-width: 0;">
                     ${a}
                 </div>
             </div>
-        `}else P.innerHTML=`<div style="width: 100%;">${a}</div>`;document.querySelectorAll(".card table, .card .campaign-table").forEach(u=>{if(!u.parentElement.classList.contains("table-wrapper")){const g=document.createElement("div");g.className="table-wrapper",u.parentNode.insertBefore(g,u),g.appendChild(u)}}),e==="/contacts"&&U(),e==="/campaigns"&&W(),e==="/schedule"&&Y(),e==="/"&&F(),["/login","/signup"].includes(e)&&ee();const i=document.getElementById("logout-btn");i&&(i.onclick=u=>{u.preventDefault(),window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing"});const o=document.getElementById("dark-mode-circle"),l=document.getElementById("dark-mode-toggle");if(o&&l){const u=document.body.classList.contains("dark-theme");o.style.left=u?"21px":"3px",l.style.background=u?"var(--primary)":"var(--border)",l.onclick=()=>{const g=document.body.classList.toggle("dark-theme");localStorage.setItem("camp_dark_mode",g),o.style.left=g?"21px":"3px",l.style.background=g?"var(--primary)":"var(--border)"}}const d=document.getElementById("hamburger-btn"),c=document.getElementById("sidebar"),p=document.getElementById("sidebar-overlay");function z(){c&&c.classList.add("open"),p&&p.classList.add("active"),d&&d.classList.add("open"),document.body.style.overflow="hidden"}function h(){c&&c.classList.remove("open"),p&&p.classList.remove("active"),d&&d.classList.remove("open"),document.body.style.overflow=""}d&&(d.onclick=()=>c&&c.classList.contains("open")?h():z()),p&&(p.onclick=h),document.querySelectorAll(".sidebar .nav-link[data-link]").forEach(u=>{u.addEventListener("click",()=>{window.innerWidth<=768&&h()})})}localStorage.getItem("camp_dark_mode")==="true"&&document.body.classList.add("dark-theme");new M(N,e=>{te(e)});
+        `}else j.innerHTML=`<div style="width: 100%;">${a}</div>`;document.querySelectorAll(".card table, .card .campaign-table").forEach(m=>{if(!m.parentElement.classList.contains("table-wrapper")){const u=document.createElement("div");u.className="table-wrapper",m.parentNode.insertBefore(u,m),u.appendChild(m)}}),e==="/contacts"&&U(),e==="/campaigns"&&G(),e==="/schedule"&&X(),e==="/"&&H(),["/login","/signup"].includes(e)&&te();const r=document.getElementById("logout-btn");r&&(r.onclick=m=>{m.preventDefault(),window.sessionStorage.removeItem("isLoggedIn"),window.location.href="/landing"});const o=document.getElementById("dark-mode-circle"),l=document.getElementById("dark-mode-toggle");if(o&&l){const m=document.body.classList.contains("dark-theme");o.style.left=m?"21px":"3px",l.style.background=m?"var(--primary)":"var(--border)",l.onclick=()=>{const u=document.body.classList.toggle("dark-theme");localStorage.setItem("camp_dark_mode",u),o.style.left=u?"21px":"3px",l.style.background=u?"var(--primary)":"var(--border)"}}const c=document.getElementById("hamburger-btn"),g=document.getElementById("sidebar"),d=document.getElementById("sidebar-overlay");function v(){g&&g.classList.add("open"),d&&d.classList.add("active"),c&&c.classList.add("open"),document.body.style.overflow="hidden"}function p(){g&&g.classList.remove("open"),d&&d.classList.remove("active"),c&&c.classList.remove("open"),document.body.style.overflow=""}c&&(c.onclick=()=>g&&g.classList.contains("open")?p():v()),d&&(d.onclick=p),document.querySelectorAll(".sidebar .nav-link[data-link]").forEach(m=>{m.addEventListener("click",()=>{window.innerWidth<=768&&p()})})}localStorage.getItem("camp_dark_mode")==="true"&&document.body.classList.add("dark-theme");new R(P,e=>{ae(e)});

@@ -40,7 +40,7 @@ func (r *Repository) Create(c *Campaign) (int64, error) {
 	`
 	accountID := c.AccountID
 	if accountID == 0 { accountID = 1 }
-	result, err := r.db.Exec(query, accountID, c.Name, c.Subject, c.Content, c.Status, c.ScheduledAt, c.IsPersonalized)
+	result, err := r.db.Exec(database.Translate(query), accountID, c.Name, c.Subject, c.Content, c.Status, c.ScheduledAt, c.IsPersonalized)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create campaign: %w", err)
 	}

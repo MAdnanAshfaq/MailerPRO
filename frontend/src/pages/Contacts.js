@@ -114,7 +114,7 @@ export function initContacts() {
     // Initial render
     renderTable(allContacts);
 
-    // --- Import Logic ---
+    // --- Smart Import Logic ---
     if (importBtn && importFile) {
         importBtn.onclick = () => importFile.click();
         
@@ -122,76 +122,130 @@ export function initContacts() {
             const file = e.target.files[0];
             if (!file) return;
             
-            importBtn.classList.add('loading');
-            
             const reader = new FileReader();
             reader.onload = async (evt) => {
                 try {
                     const data = new Uint8Array(evt.target.result);
-                    // Use XLSX from global injected via HTML
                     const workbook = window.XLSX.read(data, { type: 'array' });
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const rows = window.XLSX.utils.sheet_to_json(sheet);
                     
-                    let count = 0;
-                    let errors = 0;
-                    for (const row of rows) {
-                        try {
-                            console.log(`Processing import row ${count + 1}/${rows.length}...`);
-                            const email = row.Email || row.email || row.EMAIL || row['Email Address'] || row['Contact Email'];
-                            if (!email) continue;
-                            
-                            // Try to extract Fname/Lname
-                            let fname = row['First Name'] || row.first_name || row.fname || row.FNAME || row['Given Name'] || '';
-                            let lname = row['Last Name'] || row.last_name || row.lname || row.LNAME || row['Family Name'] || '';
-                            
-                            // Basic fallback if only "Name" exists
-                            if (!fname && !lname) {
-                                const nameVal = row.Name || row.name || row.NAME || row['Full Name'] || row.Contact || '';
-                                if (nameVal) {
-                                    const parts = nameVal.trim().split(' ');
-                                    fname = parts[0];
-                                    lname = parts.slice(1).join(' ');
-                                }
-                            }
-
-                            // Tags handling
-                            const tagsRaw = row.Tags || row.tags || row.TAGS || row['Segments'] || '';
-                            const tagList = tagsRaw ? String(tagsRaw).split(',').map(t => ({ text: t.trim() })).filter(t => t.text) : [];
-
-                            await contactsApi.create({
-                                first_name: fname,
-                                last_name: lname,
-                                email: email.trim().toLowerCase(),
-                                phone: String(row.Phone || row.phone || row.PHONE || row.Mobile || row['Phone Number'] || ''),
-                                tags: tagList
-                            });
-                            count++;
-                        } catch (err) {
-                            console.error('Row import failed:', err);
-                            errors++;
-                        }
+                    if (rows.length === 0) {
+                        showToast('The file is empty.', 'error');
+                        return;
                     }
-                    
-                    importBtn.classList.remove('loading');
-                    if (errors > 0) {
-                        showToast(`Import finished: ${count} successful, ${errors} failed.`, 'error');
-                        console.warn(`Import partially failed with ${errors} errors.`);
-                    } else {
-                        showToast(`Successfully imported ${count} contacts.`, 'success');
-                        console.log(`Import completed successfully: ${count} rows.`);
-                    }
-                    window.location.reload();
+
+                    const headers = Object.keys(rows[0]);
+                    renderMappingModal(headers, rows);
                 } catch (err) {
-                    importBtn.classList.remove('loading');
-                    showToast('Import failed: ' + err.message, 'error');
-                    console.error('Import error:', err);
+                    showToast('Failed to read file: ' + err.message, 'error');
                 }
             };
             reader.readAsArrayBuffer(file);
         };
     }
+
+    const renderMappingModal = (headers, rows) => {
+        // Fuzzy matching for initial guesses
+        const guess = (h, targets) => {
+            const lowerH = h.toLowerCase().replace(/[^a-z]/g, '');
+            return targets.some(t => lowerH.includes(t.toLowerCase()) || t.toLowerCase().includes(lowerH));
+        };
+
+        const initialMapping = {
+            email: headers.find(h => guess(h, ['email', 'mail', 'addr'])) || '',
+            first_name: headers.find(h => guess(h, ['first', 'fname', 'given', 'name', 'full'])) || '',
+            last_name: headers.find(h => guess(h, ['last', 'lname', 'sur'])) || '',
+            phone: headers.find(h => guess(h, ['phone', 'mobile', 'tel'])) || '',
+            tags: headers.find(h => guess(h, ['tag', 'segment', 'label'])) || ''
+        };
+
+        modalContainer.innerHTML = `
+            <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000;" id="mapping-overlay">
+                <div class="card" style="width: 100%; max-width: 600px; padding: 2rem; max-height: 90vh; overflow-y: auto;">
+                    <h2 class="mb-2">Map Columns</h2>
+                    <p class="text-muted mb-6">Tell us which columns match our contact fields.</p>
+                    
+                    <div class="mb-6" style="background: rgba(0,0,0,0.05); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.8rem;">
+                        <strong>Preview (Row 1):</strong>
+                        <div style="overflow-x: auto; margin-top: 0.5rem; color: var(--text-muted);">
+                            ${headers.map(h => `<span style="display: inline-block; margin-right: 1rem;"><strong>${h}:</strong> ${rows[0][h] || '-'}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <form id="mapping-form">
+                        ${['Email (Required)', 'First Name', 'Last Name', 'Phone', 'Tags'].map((label, idx) => {
+                            const fieldKey = ['email', 'first_name', 'last_name', 'phone', 'tags'][idx];
+                            return `
+                                <div class="mb-4 flex items-center justify-between">
+                                    <label style="font-weight: 700; flex: 1;">${label}</label>
+                                    <select name="${fieldKey}" class="input" style="flex: 1.5; padding: 0.5rem;">
+                                        <option value="">-- Skip --</option>
+                                        ${headers.map(h => `<option value="${h}" ${initialMapping[fieldKey] === h ? 'selected' : ''}>${h}</option>`).join('')}
+                                    </select>
+                                </div>
+                            `;
+                        }).join('')}
+                        
+                        <div class="flex justify-between mt-8" style="gap: 1rem;">
+                            <button type="button" class="btn btn-outline" id="close-mapping" style="flex: 1;">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="confirm-import" style="flex: 1;">Start Import (${rows.length} rows)</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('close-mapping').onclick = () => {
+            modalContainer.innerHTML = '';
+            importFile.value = '';
+        };
+
+        document.getElementById('mapping-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const mapping = Object.fromEntries(formData.entries());
+
+            if (!mapping.email) {
+                showToast('Email mapping is required!', 'error');
+                return;
+            }
+
+            const confirmBtn = document.getElementById('confirm-import');
+            confirmBtn.disabled = true;
+            confirmBtn.innerText = 'Importing...';
+
+            let count = 0;
+            let errors = 0;
+
+            for (const row of rows) {
+                try {
+                    const email = row[mapping.email];
+                    if (!email) continue;
+
+                    const tagsRaw = mapping.tags ? row[mapping.tags] : '';
+                    const tagList = tagsRaw ? String(tagsRaw).split(',').map(t => ({ text: t.trim() })).filter(t => t.text) : [];
+
+                    await contactsApi.create({
+                        first_name: String(mapping.first_name ? row[mapping.first_name] || '' : ''),
+                        last_name: String(mapping.last_name ? row[mapping.last_name] || '' : ''),
+                        email: String(email).trim().toLowerCase(),
+                        phone: String(mapping.phone ? row[mapping.phone] || '' : ''),
+                        tags: tagList
+                    });
+                    count++;
+                } catch (err) {
+                    console.error('Row import failed:', err);
+                    errors++;
+                }
+            }
+
+            modalContainer.innerHTML = '';
+            showToast(`Import finished: ${count} successful, ${errors} failed.`, errors > 0 ? 'error' : 'success');
+            window.location.reload();
+        };
+    };
 
     const renderModal = (contact = null) => {
         const isEdit = !!contact;

@@ -232,7 +232,13 @@ func (r *Repository) RemoveTagFromContact(contactID int64, tagText string) error
 
 func insertTagIfNotExist(txn *sql.Tx, tags []Tag) error {
 	for _, tag := range tags {
-		_, err := txn.Exec(database.Translate(`INSERT OR IGNORE INTO tags (text) VALUES (?)`), tag.Text)
+		var query string
+		if database.IsPostgres() {
+			query = `INSERT INTO tags (text) VALUES ($1) ON CONFLICT (text) DO NOTHING`
+		} else {
+			query = `INSERT OR IGNORE INTO tags (text) VALUES (?)`
+		}
+		_, err := txn.Exec(query, tag.Text)
 		if err != nil {
 			return fmt.Errorf("failed to insert tag: %w", err)
 		}
@@ -275,8 +281,20 @@ func linkTagsToContact(txn *sql.Tx, contactID int64, tags []Tag) error {
 		valueArgs = append(valueArgs, contactID, tag.ID)
 	}
 
-	query := database.Translate(fmt.Sprintf(`INSERT OR IGNORE INTO contact_tag (contact_id, tag_id) VALUES %s`,
-		strings.Join(valueStrings, ",")))
+	var query string
+	if database.IsPostgres() {
+		// PostgreSQL placeholders are $1, $2...
+		n := 1
+		p := make([]string, len(tags))
+		for i := range tags {
+			p[i] = fmt.Sprintf("($%d, $%d)", n, n+1)
+			n += 2
+		}
+		query = fmt.Sprintf(`INSERT INTO contact_tag (contact_id, tag_id) VALUES %s ON CONFLICT (contact_id, tag_id) DO NOTHING`, strings.Join(p, ","))
+	} else {
+		query = fmt.Sprintf(`INSERT OR IGNORE INTO contact_tag (contact_id, tag_id) VALUES %s`, strings.Join(valueStrings, ","))
+	}
+
 	_, err := txn.Exec(query, valueArgs...)
 	if err != nil {
 		return fmt.Errorf("failed to add record in pivot table: %w", err)

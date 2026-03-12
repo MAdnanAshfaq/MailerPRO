@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/codersgyan/camp/internal/account"
+	"github.com/codersgyan/camp/internal/database"
 )
 
 type Worker struct {
@@ -62,7 +63,7 @@ func (w *Worker) sendWarmingEmail(accountID int64) {
 
 	log.Printf("Sending warming email for account %d...", accountID)
 
-	_, err := w.db.Exec(`UPDATE warming_status SET current_count = current_count + 1, updated_at = CURRENT_TIMESTAMP WHERE account_id = ?`, accountID)
+	_, err := w.db.Exec(database.Translate(`UPDATE warming_status SET current_count = current_count + 1, updated_at = CURRENT_TIMESTAMP WHERE account_id = ?`), accountID)
 	if err != nil {
 		log.Printf("Failed to update warming count for account %d: %v", accountID, err)
 	}

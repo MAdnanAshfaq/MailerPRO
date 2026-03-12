@@ -183,7 +183,7 @@ export function initCampaigns() {
                         </div>
                         <div class="mb-8" id="schedule-field" style="display: ${campaign?.status === 'scheduled' ? 'block' : 'none'};">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Send At (Date & Time)</label>
-                            <input type="datetime-local" name="scheduled_at" class="input" value="${campaign?.scheduled_at ? new Date(campaign.scheduled_at).toISOString().slice(0, 16) : ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <input type="datetime-local" name="scheduled_at" id="scheduled_at_input" class="input" value="${campaign?.scheduled_at ? new Date(campaign.scheduled_at).toISOString().slice(0, 16) : ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
                         <div class="mb-8 flex items-center gap-2">
                             <input type="checkbox" name="is_personalized" id="is_personalized" ${campaign?.is_personalized ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
@@ -230,10 +230,21 @@ export function initCampaigns() {
         };
 
         const statusSelect = form.querySelector('[name="status"]');
-        statusSelect.onchange = (e) => {
+        const updateScheduleVisibility = () => {
             const scheduleField = document.getElementById('schedule-field');
-            scheduleField.style.display = e.target.value === 'scheduled' ? 'block' : 'none';
+            const scheduleInput = document.getElementById('scheduled_at_input');
+            const isScheduled = statusSelect.value === 'scheduled';
+            scheduleField.style.display = isScheduled ? 'block' : 'none';
+            if (isScheduled) {
+                scheduleInput.setAttribute('required', 'true');
+            } else {
+                scheduleInput.removeAttribute('required');
+            }
         };
+
+        statusSelect.onchange = updateScheduleVisibility;
+        // Initial check for edit mode
+        updateScheduleVisibility();
 
         document.getElementById('modal-overlay').onclick = (e) => {
             if (e.target.id === 'modal-overlay') modalContainer.innerHTML = '';
