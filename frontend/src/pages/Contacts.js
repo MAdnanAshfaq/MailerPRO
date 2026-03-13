@@ -40,7 +40,7 @@ export async function Contacts() {
                         <input type="text" id="contact-search" placeholder="Search contacts..." class="input" style="padding-left: 2rem; width: 250px; border-radius: var(--radius-sm);">
                         <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;">🔍</span>
                     </div>
-                    <input type="file" id="import-file" accept=".xlsx, .xls, .csv" style="display: none;">
+                    <input type="file" id="import-file" accept=".xlsx, .xls, .csv, .json" style="display: none;">
                     <button class="btn btn-outline" id="import-btn">📥 Import</button>
                     <button class="btn btn-primary" id="add-contact-btn">
                         <span>+</span> Add Contact
@@ -125,18 +125,27 @@ export function initContacts() {
             const reader = new FileReader();
             reader.onload = async (evt) => {
                 try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = window.XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    const rows = window.XLSX.utils.sheet_to_json(sheet);
+                    let rows = [];
+                    let headers = [];
+
+                    if (file.name.endsWith('.json')) {
+                        const content = new TextDecoder().decode(evt.target.result);
+                        rows = JSON.parse(content);
+                        if (!Array.isArray(rows)) rows = [rows];
+                    } else {
+                        const data = new Uint8Array(evt.target.result);
+                        const workbook = window.XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        rows = window.XLSX.utils.sheet_to_json(sheet);
+                    }
                     
                     if (rows.length === 0) {
-                        showToast('The file is empty.', 'error');
+                        showToast('The file is empty or invalid.', 'error');
                         return;
                     }
 
-                    const headers = Object.keys(rows[0]);
+                    headers = Object.keys(rows[0]);
                     renderMappingModal(headers, rows);
                 } catch (err) {
                     showToast('Failed to read file: ' + err.message, 'error');
@@ -167,10 +176,10 @@ export function initContacts() {
                     <h2 class="mb-2">Map Columns</h2>
                     <p class="text-muted mb-6">Tell us which columns match our contact fields.</p>
                     
-                    <div class="mb-6" style="background: rgba(0,0,0,0.05); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.8rem;">
-                        <strong>Preview (Row 1):</strong>
-                        <div style="overflow-x: auto; margin-top: 0.5rem; color: var(--text-muted);">
-                            ${headers.map(h => `<span style="display: inline-block; margin-right: 1rem;"><strong>${h}:</strong> ${rows[0][h] || '-'}</span>`).join('')}
+                    <div class="mb-6" style="background: rgba(0,0,0,0.03); padding: 1.25rem; border-radius: var(--radius-sm); font-size: 0.85rem; border: 1px solid var(--border);">
+                        <strong style="display: block; margin-bottom: 0.5rem; color: var(--text-main);">Preview (Row 1):</strong>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.75rem; color: var(--text-muted);">
+                            ${headers.map(h => `<div style="background: white; padding: 0.4rem 0.6rem; border-radius: 4px; border: 1px solid var(--border); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong style="color: var(--text-main); font-size: 0.75rem;">${h}:</strong> ${rows[0][h] || '-'}</div>`).join('')}
                         </div>
                     </div>
 
@@ -235,6 +244,7 @@ export function initContacts() {
                         tags: tagList
                     });
                     count++;
+                    confirmBtn.innerText = `Importing (${count}/${rows.length})...`;
                 } catch (err) {
                     console.error('Row import failed:', err);
                     errors++;
@@ -256,11 +266,11 @@ export function initContacts() {
                     <form id="contact-form">
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">First Name</label>
-                            <input type="text" name="first_name" class="input" required placeholder="John" value="${contact?.first_name || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <input type="text" name="first_name" class="input" placeholder="John" value="${contact?.first_name || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Last Name</label>
-                            <input type="text" name="last_name" class="input" required placeholder="Doe" value="${contact?.last_name || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <input type="text" name="last_name" class="input" placeholder="Doe" value="${contact?.last_name || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Email Address</label>
@@ -288,11 +298,15 @@ export function initContacts() {
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
+            data.tags = []; // Ensure tags is an array, even if empty
+            
             try {
                 if (isEdit) {
                     await contactsApi.update(contact.id, data);
+                    showToast('Contact updated!', 'success');
                 } else {
                     await contactsApi.create(data);
+                    showToast('Contact saved!', 'success');
                 }
                 window.location.reload();
             } catch (err) {

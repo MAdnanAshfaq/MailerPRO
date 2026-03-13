@@ -2,6 +2,7 @@ package account
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -97,9 +98,47 @@ func (h *Handler) GetWarming(w http.ResponseWriter, r *http.Request) {
 
 	status, err := h.repo.GetWarmingStatus(accountID)
 	if err != nil {
+		fmt.Printf("[account] GetWarming error: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	if status == nil {
+		// No warming record yet for this account — return safe defaults
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status":        "active",
+			"daily_limit":   10,
+			"target_limit":  50,
+			"current_count": 0,
+		})
+		return
+	}
 	json.NewEncoder(w).Encode(status)
+}
+
+func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
+	// In a real app, this would use JWT from a cookie/header.
+	// For this prototype, we'll try to find an account by email if it's in a header or param,
+	// or just return the first account for demo purposes if not specified.
+	
+	email := r.URL.Query().Get("email")
+	if email == "" {
+		// Mock: just return a default if skipping auth logic for the prototype
+		acc, _ := h.repo.GetByEmail("test@example.com")
+		if acc != nil {
+			json.NewEncoder(w).Encode(acc)
+			return
+		}
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	acc, err := h.repo.GetByEmail(email)
+	if err != nil || acc == nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(acc)
 }

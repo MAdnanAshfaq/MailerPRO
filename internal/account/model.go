@@ -31,7 +31,7 @@ type WarmingStatus struct {
 	Status       string    `json:"status"`
 	DailyLimit   int       `json:"daily_limit"`
 	TargetLimit  int       `json:"target_limit"`
-	CurrentCount int       `json:"current_count"`
-	StartDate    time.Time `json:"start_date"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	CurrentCount int        `json:"current_count"`
+	StartDate    *time.Time `json:"start_date"`
+	UpdatedAt    *time.Time `json:"updated_at"`
 }

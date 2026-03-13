@@ -1,0 +1,5 @@
+2026/03/12 16:36:40 postgres database connected successfully!
+2026/03/12 16:36:43 Starting background email warming service...
+2026/03/12 16:36:43 Server started at :8080
+2026/03/12 16:36:43 listen tcp :8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+exit status 1

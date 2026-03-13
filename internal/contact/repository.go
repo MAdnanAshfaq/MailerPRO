@@ -96,11 +96,11 @@ func (r *Repository) GetByEmail(email string) (*Contact, error) {
 		LIMIT 1
 	`)
 	var result Contact
-	var accountID sql.NullInt64
+	var accountIDScan sql.NullInt64
 
 	err := r.db.QueryRow(query, email).Scan(
 		&result.ID,
-		&accountID,
+		&accountIDScan,
 		&result.FirstName,
 		&result.LastName,
 		&result.Email,
@@ -112,10 +112,11 @@ func (r *Repository) GetByEmail(email string) (*Contact, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, err
+		return nil, fmt.Errorf("GetByEmail: failed to fetch contact with email %s: %w", email, err)
 	}
-	if accountID.Valid {
-		result.AccountID = accountID.Int64
+	result.AccountID = 1 // Default
+	if accountIDScan.Valid {
+		result.AccountID = accountIDScan.Int64
 	}
 
 	return &result, nil
@@ -128,30 +129,31 @@ func (r *Repository) ListAll(accountID int64) ([]Contact, error) {
 
 	if accountID > 0 {
 		rows, err = r.db.Query(database.Translate(`
-			SELECT id, COALESCE(account_id, 0), fname, lname, email, phone, created_at, updated_at
+			SELECT id, account_id, fname, lname, email, phone, created_at, updated_at
 			FROM contacts
 			WHERE account_id = ?
 			ORDER BY created_at DESC
 		`), accountID)
 	} else {
 		rows, err = r.db.Query(database.Translate(`
-			SELECT id, COALESCE(account_id, 0), fname, lname, email, phone, created_at, updated_at
+			SELECT id, account_id, fname, lname, email, phone, created_at, updated_at
 			FROM contacts
 			ORDER BY created_at DESC
 		`))
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to list contacts: %w", err)
+		return nil, fmt.Errorf("failed to list contacts (query level): %w", err)
 	}
 	defer rows.Close()
 
 	contacts := make([]Contact, 0)
 	for rows.Next() {
 		var c Contact
+		var accountIDScan sql.NullInt64
 		if err := rows.Scan(
 			&c.ID,
-			&c.AccountID,
+			&accountIDScan,
 			&c.FirstName,
 			&c.LastName,
 			&c.Email,
@@ -161,13 +163,64 @@ func (r *Repository) ListAll(accountID int64) ([]Contact, error) {
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan contact: %w", err)
 		}
-
-		tags, err := r.GetTagsForContact(c.ID)
-		if err != nil {
-			return nil, err
+		c.AccountID = 1 // Default to 1
+		if accountIDScan.Valid {
+			c.AccountID = accountIDScan.Int64
 		}
-		c.Tags = tags
 		contacts = append(contacts, c)
+	}
+	
+	// Close rows before executing inner queries
+	rows.Close()
+
+	if len(contacts) == 0 {
+		return contacts, nil
+	}
+
+	// Batch fetch tags for all contacts in one query to prevent N+1 latency
+	contactIDs := make([]interface{}, len(contacts))
+	placeholders := make([]string, len(contacts))
+	isPostgres := database.IsPostgres()
+	
+	for i, c := range contacts {
+		contactIDs[i] = c.ID
+		if isPostgres {
+			placeholders[i] = fmt.Sprintf("$%d", i+1)
+		} else {
+			placeholders[i] = "?"
+		}
+	}
+
+	tagQuery := fmt.Sprintf(`
+		SELECT ct.contact_id, t.id, t.text, t.created_at, t.updated_at
+		FROM tags t
+		JOIN contact_tag ct ON t.id = ct.tag_id
+		WHERE ct.contact_id IN (%s)
+	`, strings.Join(placeholders, ","))
+
+	tagRows, err := r.db.Query(tagQuery, contactIDs...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to batch fetch tags: %w", err)
+	}
+	defer tagRows.Close()
+
+	// Map tags to contact IDs
+	tagsByContactID := make(map[int64][]Tag)
+	for tagRows.Next() {
+		var contactID int64
+		var t Tag
+		if err := tagRows.Scan(&contactID, &t.ID, &t.Text, &t.CreatedAt, &t.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("failed to scan batch tag: %w", err)
+		}
+		tagsByContactID[contactID] = append(tagsByContactID[contactID], t)
+	}
+
+	for i := range contacts {
+		if tags, exists := tagsByContactID[contacts[i].ID]; exists {
+			contacts[i].Tags = tags
+		} else {
+			contacts[i].Tags = []Tag{}
+		}
 	}
 
 	return contacts, nil
@@ -222,7 +275,7 @@ func (r *Repository) RemoveTagFromContact(contactID int64, tagText string) error
 
 	_, err = r.db.Exec(database.Translate("DELETE FROM contact_tag WHERE contact_id = ? AND tag_id = ?"), contactID, tagID)
 	if err != nil {
-		return fmt.Errorf("failed to remove tag from contact: %w", err)
+		return fmt.Errorf("RemoveTagFromContact: failed to remove tag %s from contact %d: %w", tagText, contactID, err)
 	}
 
 	return nil
@@ -249,15 +302,20 @@ func insertTagIfNotExist(txn *sql.Tx, tags []Tag) error {
 func getTagsByTexts(txn *sql.Tx, tags []Tag) ([]Tag, error) {
 	placeholders := make([]string, len(tags))
 	args := make([]interface{}, len(tags))
+	isPostgres := database.IsPostgres()
 	for i, tag := range tags {
-		placeholders[i] = "?"
+		if isPostgres {
+			placeholders[i] = fmt.Sprintf("$%d", i+1)
+		} else {
+			placeholders[i] = "?"
+		}
 		args[i] = tag.Text
 	}
 
 	query := fmt.Sprintf(`SELECT id, text FROM tags WHERE text IN (%s)`, strings.Join(placeholders, ","))
 	rows, err := txn.Query(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to select tags: %w", err)
+		return nil, fmt.Errorf("getTagsByTexts: failed to select tags: %w", err)
 	}
 	defer rows.Close()
 
@@ -303,11 +361,9 @@ func linkTagsToContact(txn *sql.Tx, contactID int64, tags []Tag) error {
 }
 
 func createContact(txn *sql.Tx, c *Contact) (int64, error) {
-	var accountID interface{}
+	var accountID int64 = 1
 	if c.AccountID > 0 {
 		accountID = c.AccountID
-	} else {
-		accountID = nil
 	}
 
 	if database.IsPostgres() {

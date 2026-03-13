@@ -34,7 +34,9 @@ export const api = {
             body: JSON.stringify(data)
         });
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-        return response.status === 204 ? null : response.json();
+        // 204 No Content or empty body — don't try to parse JSON
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;
     }
 };
 
@@ -44,7 +46,11 @@ export const contactsApi = {
         const qs = user.id ? `?account_id=${user.id}` : '';
         return (await api.get(`/contacts${qs}`)) || [];
     },
-    create: (data) => api.post('/contacts', data),
+    create: (data) => {
+        const user = JSON.parse(localStorage.getItem('camp_user') || '{}');
+        if (user.id) data.account_id = parseInt(user.id);
+        return api.post('/contacts', data);
+    },
     update: (id, data) => api.put(`/contacts/${id}`, data),
     addTag: (data) => api.post('/contacts/tag', data),
     removeTag: (id, data) => api.patch(`/contacts/${id}/tag`, data)

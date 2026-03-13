@@ -79,19 +79,24 @@ func main() {
 	http.HandleFunc("/api/contacts", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			contactHandler.Create(w, r)
-		} else {
+		} else if r.Method == http.MethodGet {
 			contactHandler.List(w, r)
 		}
 	})
+	// IMPORTANT: /api/contacts/tag MUST be registered before /api/contacts/
+	// because Go's mux treats trailing-slash patterns as prefix matchers.
+	http.HandleFunc("/api/contacts/tag", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			contactHandler.AddTag(w, r)
+		}
+	})
 	http.HandleFunc("/api/contacts/", func(w http.ResponseWriter, r *http.Request) {
-		// This handles /api/contacts/{id} and others
 		if r.Method == http.MethodPut {
 			contactHandler.Update(w, r)
 		} else if r.Method == http.MethodPatch && strings.HasSuffix(r.URL.Path, "/tag") {
 			contactHandler.RemoveTag(w, r)
 		}
 	})
-	http.HandleFunc("/api/contacts/tag", contactHandler.AddTag)
 
 	http.HandleFunc("/api/campaigns", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
@@ -117,6 +122,7 @@ func main() {
 	http.HandleFunc("/api/login", accountHandler.Login)
 	http.HandleFunc("/api/settings/smtp", accountHandler.SaveSMTP)
 	http.HandleFunc("/api/stats/warming", accountHandler.GetWarming)
+	http.HandleFunc("/api/account/me", accountHandler.GetMe)
 
 	domainHandler := domain.NewHandler()
 	http.HandleFunc("GET /api/domain/health", domainHandler.GetHealth)

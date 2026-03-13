@@ -27,10 +27,10 @@ func (r *Repository) GetOverviewStats() (*OverviewStats, error) {
 	// Campaign Aggregates
 	query := database.Translate(`
 		SELECT 
-			COUNT(*) as total_sent,
-			AVG(open_rate) as avg_open_rate,
-			AVG(ctr) as avg_ctr,
-			SUM(conversions * 10) as estimated_revenue -- Placeholder multipliers for "realtime" feel
+			COALESCE(COUNT(*), 0) as total_sent,
+			COALESCE(AVG(open_rate), 0) as avg_open_rate,
+			COALESCE(AVG(ctr), 0) as avg_ctr,
+			COALESCE(SUM(conversions * 10), 0) as estimated_revenue
 		FROM campaigns
 		WHERE status = 'sent'
 	`)

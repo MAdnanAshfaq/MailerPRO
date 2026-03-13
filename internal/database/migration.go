@@ -15,17 +15,33 @@ func RunMigration(db *sql.DB) error {
 	}
 
 	migrations := []string{
+		// 1. Accounts (no dependencies)
+		`
+			CREATE TABLE IF NOT EXISTS accounts (
+				id %ID_AUTO%,
+				name TEXT NOT NULL,
+				email TEXT UNIQUE NOT NULL,
+				password_hash TEXT NOT NULL,
+				company_name TEXT,
+				domain TEXT,
+				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
+				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
+			)
+		`,
+		// 2. Contacts (references accounts)
 		`
 			CREATE TABLE IF NOT EXISTS contacts (
 				id %ID_AUTO%,
-				fname TEXT NOT NULL,
-				lname TEXT NOT NULL,
+				account_id INTEGER REFERENCES accounts(id),
+				fname TEXT NOT NULL DEFAULT '',
+				lname TEXT NOT NULL DEFAULT '',
 				email TEXT UNIQUE NOT NULL,
 				phone TEXT,
 				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
 				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
 			)
 		`,
+		// 3. Tags
 		`
 			CREATE TABLE IF NOT EXISTS tags (
 				id %ID_AUTO%,
@@ -34,6 +50,7 @@ func RunMigration(db *sql.DB) error {
 				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
 			)
 		`,
+		// 4. Contact-tag pivot
 		`
 			CREATE TABLE IF NOT EXISTS contact_tag (
 				id %ID_AUTO%,
@@ -41,13 +58,27 @@ func RunMigration(db *sql.DB) error {
 				tag_id INTEGER NOT NULL,
 				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
 				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
-
 				FOREIGN KEY (contact_id) REFERENCES contacts(id) ON DELETE CASCADE,
 				FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
-
 				UNIQUE(contact_id, tag_id)
 			)
 		`,
+		// 5. SMTP settings (references accounts)
+		`
+			CREATE TABLE IF NOT EXISTS smtp_settings (
+				id %ID_AUTO%,
+				account_id INTEGER NOT NULL UNIQUE,
+				host TEXT NOT NULL,
+				port INTEGER NOT NULL,
+				username TEXT NOT NULL,
+				password TEXT NOT NULL,
+				security_type TEXT CHECK(security_type IN ('none', 'ssl', 'tls')) DEFAULT 'tls',
+				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
+				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
+				FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
+			)
+		`,
+		// 6. Campaigns (references accounts)
 		`
 			CREATE TABLE IF NOT EXISTS campaigns (
 				id %ID_AUTO%,
@@ -66,32 +97,7 @@ func RunMigration(db *sql.DB) error {
 				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
 			)
 		`,
-		`
-			CREATE TABLE IF NOT EXISTS accounts (
-				id %ID_AUTO%,
-				name TEXT NOT NULL,
-				email TEXT UNIQUE NOT NULL,
-				password_hash TEXT NOT NULL,
-				company_name TEXT,
-				domain TEXT,
-				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
-				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
-			)
-		`,
-		`
-			CREATE TABLE IF NOT EXISTS smtp_settings (
-				id %ID_AUTO%,
-				account_id INTEGER NOT NULL UNIQUE,
-				host TEXT NOT NULL,
-				port INTEGER NOT NULL,
-				username TEXT NOT NULL,
-				password TEXT NOT NULL,
-				security_type TEXT CHECK(security_type IN ('none', 'ssl', 'tls')) DEFAULT 'tls',
-				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
-				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
-				FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
-			)
-		`,
+		// 7. Warming status (references accounts)
 		`
 			CREATE TABLE IF NOT EXISTS warming_status (
 				id %ID_AUTO%,
@@ -105,12 +111,17 @@ func RunMigration(db *sql.DB) error {
 				FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
 			)
 		`,
-		// Add account_id to contacts for per-user scoping
+		// ALTER TABLE migrations for existing DBs (errors are ignored if columns already exist)
 		`ALTER TABLE contacts ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
-		// Add account_id and scheduled_at to campaigns if table already existed without them
 		`ALTER TABLE campaigns ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
 		`ALTER TABLE campaigns ADD COLUMN scheduled_at %TIMESTAMP%`,
 		`ALTER TABLE campaigns ADD COLUMN is_personalized BOOLEAN DEFAULT FALSE`,
+		`ALTER TABLE campaigns ADD COLUMN open_rate REAL DEFAULT 0`,
+		`ALTER TABLE campaigns ADD COLUMN ctr REAL DEFAULT 0`,
+		`ALTER TABLE campaigns ADD COLUMN conversions REAL DEFAULT 0`,
+		`ALTER TABLE campaigns ADD COLUMN sent_at %TIMESTAMP%`,
+		`UPDATE campaigns SET account_id = 1 WHERE account_id IS NULL`,
+		`UPDATE contacts SET account_id = 1 WHERE account_id IS NULL`,
 	}
 
 	for i, migration := range migrations {

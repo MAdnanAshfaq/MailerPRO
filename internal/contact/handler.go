@@ -27,6 +27,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	createdId, err := h.repo.CreateContactOrUpsertTags(&contactBody)
 	if err != nil {
+		fmt.Printf("Error creating/upserting contact (email: %s): %v\n", contactBody.Email, err)
 		resp := map[string]string{"message": err.Error()}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
@@ -46,6 +47,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 	contacts, err := h.repo.ListAll(accountID)
 	if err != nil {
+		fmt.Printf("[contacts] List error: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -118,5 +120,5 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }

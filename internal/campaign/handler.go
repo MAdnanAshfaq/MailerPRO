@@ -68,6 +68,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	campaigns, err := h.repo.List()
 	if err != nil {
+		fmt.Printf("[campaigns] List error: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -97,7 +98,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content, c.IsPersonalized)
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 }
 func (h *Handler) GenerateAI(w http.ResponseWriter, r *http.Request) {
 	var body struct {

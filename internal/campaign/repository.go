@@ -49,13 +49,14 @@ func (r *Repository) Create(c *Campaign) (int64, error) {
 
 func (r *Repository) GetByID(id int64) (*Campaign, error) {
 	query := database.Translate(`
-		SELECT id, account_id, name, subject, content, status, open_rate, ctr, conversions, sent_at, scheduled_at, is_personalized, created_at, updated_at
+		SELECT id, account_id, name, subject, content, status, COALESCE(open_rate, 0), COALESCE(ctr, 0), COALESCE(conversions, 0), sent_at, scheduled_at, is_personalized, created_at, updated_at
 		FROM campaigns
 		WHERE id = ?
 	`)
 	var c Campaign
+	var accountID sql.NullInt64
 	err := r.db.QueryRow(query, id).Scan(
-		&c.ID, &c.AccountID, &c.Name, &c.Subject, &c.Content, &c.Status, &c.OpenRate, &c.CTR, &c.Conversions, &c.SentAt, &c.ScheduledAt, &c.IsPersonalized, &c.CreatedAt, &c.UpdatedAt,
+		&c.ID, &accountID, &c.Name, &c.Subject, &c.Content, &c.Status, &c.OpenRate, &c.CTR, &c.Conversions, &c.SentAt, &c.ScheduledAt, &c.IsPersonalized, &c.CreatedAt, &c.UpdatedAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -63,12 +64,16 @@ func (r *Repository) GetByID(id int64) (*Campaign, error) {
 		}
 		return nil, fmt.Errorf("failed to get campaign: %w", err)
 	}
+	c.AccountID = 1
+	if accountID.Valid {
+		c.AccountID = accountID.Int64
+	}
 	return &c, nil
 }
 
 func (r *Repository) List() ([]Campaign, error) {
 	query := database.Translate(`
-		SELECT id, account_id, name, subject, content, status, open_rate, ctr, conversions, sent_at, scheduled_at, is_personalized, created_at, updated_at
+		SELECT id, account_id, name, subject, content, status, COALESCE(open_rate, 0), COALESCE(ctr, 0), COALESCE(conversions, 0), sent_at, scheduled_at, is_personalized, created_at, updated_at
 		FROM campaigns
 		ORDER BY created_at DESC
 	`)
@@ -81,11 +86,16 @@ func (r *Repository) List() ([]Campaign, error) {
 	campaigns := make([]Campaign, 0)
 	for rows.Next() {
 		var c Campaign
+		var accountID sql.NullInt64
 		err := rows.Scan(
-			&c.ID, &c.AccountID, &c.Name, &c.Subject, &c.Content, &c.Status, &c.OpenRate, &c.CTR, &c.Conversions, &c.SentAt, &c.ScheduledAt, &c.IsPersonalized, &c.CreatedAt, &c.UpdatedAt,
+			&c.ID, &accountID, &c.Name, &c.Subject, &c.Content, &c.Status, &c.OpenRate, &c.CTR, &c.Conversions, &c.SentAt, &c.ScheduledAt, &c.IsPersonalized, &c.CreatedAt, &c.UpdatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan campaign: %w", err)
+		}
+		c.AccountID = 1
+		if accountID.Valid {
+			c.AccountID = accountID.Int64
 		}
 		campaigns = append(campaigns, c)
 	}
@@ -105,7 +115,7 @@ func (r *Repository) Update(c *Campaign) error {
 }
 func (r *Repository) GetAllScheduled() ([]Campaign, error) {
 	query := database.Translate(`
-		SELECT id, account_id, name, subject, content, status, open_rate, ctr, conversions, sent_at, scheduled_at, is_personalized, created_at, updated_at
+		SELECT id, account_id, name, subject, content, status, COALESCE(open_rate, 0), COALESCE(ctr, 0), COALESCE(conversions, 0), sent_at, scheduled_at, is_personalized, created_at, updated_at
 		FROM campaigns
 		WHERE status = 'scheduled' AND (scheduled_at <= CURRENT_TIMESTAMP OR scheduled_at IS NULL)
 	`)
@@ -118,11 +128,16 @@ func (r *Repository) GetAllScheduled() ([]Campaign, error) {
 	var campaigns []Campaign
 	for rows.Next() {
 		var c Campaign
+		var accountID sql.NullInt64
 		err := rows.Scan(
-			&c.ID, &c.AccountID, &c.Name, &c.Subject, &c.Content, &c.Status, &c.OpenRate, &c.CTR, &c.Conversions, &c.SentAt, &c.ScheduledAt, &c.IsPersonalized, &c.CreatedAt, &c.UpdatedAt,
+			&c.ID, &accountID, &c.Name, &c.Subject, &c.Content, &c.Status, &c.OpenRate, &c.CTR, &c.Conversions, &c.SentAt, &c.ScheduledAt, &c.IsPersonalized, &c.CreatedAt, &c.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
+		}
+		c.AccountID = 1
+		if accountID.Valid {
+			c.AccountID = accountID.Int64
 		}
 		campaigns = append(campaigns, c)
 	}

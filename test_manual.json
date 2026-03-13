@@ -1,0 +1,8 @@
+// test input file for manual creation
+{
+    "first_name": "Manual",
+    "last_name": "Test",
+    "email": "manual@example.com",
+    "phone": "123456",
+    "tags": []
+}
