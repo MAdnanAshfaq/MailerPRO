@@ -93,6 +93,7 @@ func RunMigration(db *sql.DB) error {
 				sent_at %TIMESTAMP%,
 				scheduled_at %TIMESTAMP%,
 				is_personalized BOOLEAN DEFAULT FALSE,
+				target_folder TEXT DEFAULT '',
 				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
 				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
 			)
@@ -111,17 +112,32 @@ func RunMigration(db *sql.DB) error {
 				FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
 			)
 		`,
+		// 8. Sent Emails log (references accounts)
+		`
+			CREATE TABLE IF NOT EXISTS sent_emails (
+				id %ID_AUTO%,
+				account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+				recipient TEXT NOT NULL,
+				subject TEXT NOT NULL,
+				type TEXT CHECK(type IN ('campaign', 'warming')) NOT NULL,
+				sent_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
+			)
+		`,
 		// ALTER TABLE migrations for existing DBs (errors are ignored if columns already exist)
 		`ALTER TABLE contacts ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
 		`ALTER TABLE campaigns ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
 		`ALTER TABLE campaigns ADD COLUMN scheduled_at %TIMESTAMP%`,
 		`ALTER TABLE campaigns ADD COLUMN is_personalized BOOLEAN DEFAULT FALSE`,
+		`ALTER TABLE campaigns ADD COLUMN target_folder TEXT DEFAULT ''`,
 		`ALTER TABLE campaigns ADD COLUMN open_rate REAL DEFAULT 0`,
 		`ALTER TABLE campaigns ADD COLUMN ctr REAL DEFAULT 0`,
 		`ALTER TABLE campaigns ADD COLUMN conversions REAL DEFAULT 0`,
 		`ALTER TABLE campaigns ADD COLUMN sent_at %TIMESTAMP%`,
 		`UPDATE campaigns SET account_id = 1 WHERE account_id IS NULL`,
 		`UPDATE contacts SET account_id = 1 WHERE account_id IS NULL`,
+		// Fix: drop old status constraint that may not include 'scheduled'
+		`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`,
+		`ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check CHECK(status IN ('draft', 'sent', 'paused', 'scheduled'))`,
 	}
 
 	for i, migration := range migrations {
@@ -138,7 +154,7 @@ func RunMigration(db *sql.DB) error {
 		if err != nil {
 			// SQLite doesn't support ALTER TABLE ADD COLUMN IF NOT EXISTS,
 			// Postgres might already have it too.
-			if strings.Contains(m, "ALTER TABLE") && (strings.Contains(err.Error(), "duplicate column") || strings.Contains(err.Error(), "already exists")) {
+			if strings.Contains(m, "ALTER TABLE") && (strings.Contains(err.Error(), "duplicate column") || strings.Contains(err.Error(), "already exists") || strings.Contains(err.Error(), "multiple primary keys")) {
 				continue
 			}
 			return fmt.Errorf("migration %d failed: %w", i+1, err)

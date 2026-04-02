@@ -12,9 +12,10 @@ type Campaign struct {
 	OpenRate    float64    `json:"open_rate"`
 	CTR         float64    `json:"ctr"`
 	Conversions float64    `json:"conversions"`
-	SentAt      *time.Time `json:"sent_at"`
-	ScheduledAt *time.Time `json:"scheduled_at"`
+	SentAt         *time.Time `json:"sent_at"`
+	ScheduledAt    *time.Time `json:"scheduled_at"`
 	IsPersonalized bool       `json:"is_personalized"`
+	TargetFolder   string     `json:"target_folder"`
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
 }

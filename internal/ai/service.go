@@ -37,12 +37,12 @@ type ChatResponse struct {
 	} `json:"error"`
 }
 
-func (s *Service) GenerateEmailContent(goal string) (string, string, error) {
+func (s *Service) GenerateEmailContent(goal, painPoint string) (string, string, error) {
 	if s.apiKey == "" {
 		return "", "", fmt.Errorf("OpenAI API key not configured")
 	}
 
-	prompt := fmt.Sprintf("Draft a professional marketing email for the following goal: %s. Return a JSON object with 'subject' and 'html_content' keys. Ensure the content is engaging and use HTML formatting.", goal)
+	prompt := fmt.Sprintf("Draft a professional marketing email for the following goal: %s.\nCritically address this target pain point in the pitch: %s\nReturn a JSON object with 'subject' and 'html_content' keys. Ensure the content is engaging and use full HTML formatting.", goal, painPoint)
 
 	reqBody := ChatRequest{
 		Model: "gpt-3.5-turbo",

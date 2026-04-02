@@ -3,8 +3,10 @@ package account
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type Handler struct {
@@ -26,6 +28,19 @@ func (h *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Validate Email Domain via MX records
+	parts := strings.Split(req.Email, "@")
+	if len(parts) != 2 || parts[1] == "" {
+		http.Error(w, "invalid email format", http.StatusBadRequest)
+		return
+	}
+	domain := parts[1]
+	mxRecords, err := net.LookupMX(domain)
+	if err != nil || len(mxRecords) == 0 {
+		http.Error(w, "invalid or unreachable email domain", http.StatusBadRequest)
 		return
 	}
 
@@ -90,6 +105,24 @@ func (h *Handler) SaveSMTP(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "SMTP settings saved"})
+}
+
+func (h *Handler) GetSMTP(w http.ResponseWriter, r *http.Request) {
+	accountIDStr := r.URL.Query().Get("account_id")
+	accountID, _ := strconv.ParseInt(accountIDStr, 10, 64)
+
+	settings, err := h.repo.GetSMTPSettings(accountID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if settings == nil {
+		json.NewEncoder(w).Encode(map[string]interface{}{})
+		return
+	}
+	json.NewEncoder(w).Encode(settings)
 }
 
 func (h *Handler) GetWarming(w http.ResponseWriter, r *http.Request) {

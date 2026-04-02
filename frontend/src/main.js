@@ -11,6 +11,7 @@ import { Schedule, initSchedule } from './pages/Schedule';
 import { Templates } from './pages/Templates';
 import { Integration } from './pages/Integration';
 import { Landing } from './pages/Landing';
+import { Settings, initSettings } from './pages/Settings';
 import { Auth, initAuth } from './pages/Auth';
 
 const app = document.getElementById('app');
@@ -24,6 +25,7 @@ const routes = {
     '/schedule': Schedule,
     '/templates': Templates,
     '/integration': Integration,
+    '/settings': Settings,
     '/login': () => Auth('login'),
     '/signup': () => Auth('signup'),
     '/landing': Landing
@@ -83,6 +85,7 @@ async function render(path) {
     if (path === '/contacts') initContacts();
     if (path === '/campaigns') initCampaigns();
     if (path === '/schedule') initSchedule();
+    if (path === '/settings') initSettings();
     if (path === '/') initDashboard();
     if (['/login', '/signup'].includes(path)) initAuth();
 

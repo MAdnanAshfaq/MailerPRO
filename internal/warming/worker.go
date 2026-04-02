@@ -2,22 +2,26 @@ package warming
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/codersgyan/camp/internal/account"
 	"github.com/codersgyan/camp/internal/database"
+	"github.com/codersgyan/camp/internal/mailer"
 )
 
 type Worker struct {
 	db          *sql.DB
 	accountRepo *account.Repository
+	mailer      *mailer.Service
 }
 
-func NewWorker(db *sql.DB, repo *account.Repository) *Worker {
+func NewWorker(db *sql.DB, repo *account.Repository, ms *mailer.Service) *Worker {
 	return &Worker{
 		db:          db,
 		accountRepo: repo,
+		mailer:      ms,
 	}
 }
 
@@ -66,5 +70,10 @@ func (w *Worker) sendWarmingEmail(accountID int64) {
 	_, err := w.db.Exec(database.Translate(`UPDATE warming_status SET current_count = current_count + 1, updated_at = CURRENT_TIMESTAMP WHERE account_id = ?`), accountID)
 	if err != nil {
 		log.Printf("Failed to update warming count for account %d: %v", accountID, err)
+	} else if w.mailer != nil {
+		// Log the warming email as a sent email
+		// Random seed address for prototype
+		seedAddress := fmt.Sprintf("inbox+seed%d@warmuppool.com", accountID)
+		w.mailer.LogSentEmail(accountID, seedAddress, "Account Warming Routine", "warming")
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type Handler struct {
@@ -82,7 +83,10 @@ func (h *Handler) AddTag(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) RemoveTag(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
+	idStr := r.URL.Path[len("/api/contacts/"):]
+	if strings.Contains(idStr, "/") {
+		idStr = strings.Split(idStr, "/")[0]
+	}
 	var id int64
 	fmt.Sscanf(idStr, "%d", &id)
 
@@ -104,7 +108,7 @@ func (h *Handler) RemoveTag(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
+	idStr := r.URL.Path[len("/api/contacts/"):]
 	var id int64
 	fmt.Sscanf(idStr, "%d", &id)
 
@@ -116,6 +120,19 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	contactBody.ID = id
 
 	if err := h.repo.Update(&contactBody); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Path[len("/api/contacts/"):]
+	var id int64
+	fmt.Sscanf(idStr, "%d", &id)
+
+	if err := h.repo.Delete(id); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}

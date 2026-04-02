@@ -37,6 +37,15 @@ export const api = {
         // 204 No Content or empty body — don't try to parse JSON
         const text = await response.text();
         return text ? JSON.parse(text) : null;
+    },
+
+    async delete(path) {
+        const response = await fetch(`${API_URL}${path}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;
     }
 };
 
@@ -52,6 +61,7 @@ export const contactsApi = {
         return api.post('/contacts', data);
     },
     update: (id, data) => api.put(`/contacts/${id}`, data),
+    delete: (id) => api.delete(`/contacts/${id}`),
     addTag: (data) => api.post('/contacts/tag', data),
     removeTag: (id, data) => api.patch(`/contacts/${id}/tag`, data)
 };
@@ -64,6 +74,14 @@ export const campaignsApi = {
     generateAI: (data) => api.post('/campaigns/generate-ai', data)
 };
 
+export const mailerApi = {
+    listSent: async () => {
+        const user = JSON.parse(localStorage.getItem('camp_user') || '{}');
+        const qs = user.id ? `?account_id=${user.id}` : '';
+        return (await api.get(`/emails/sent${qs}`)) || [];
+    }
+};
+
 export const statsApi = {
     getOverview: () => api.get('/stats/overview'),
 };
@@ -71,6 +89,7 @@ export const statsApi = {
 export const accountApi = {
     signup: (data) => api.post('/signup', data),
     login: (data) => api.post('/login', data),
+    getSMTP: (accountID) => api.get(`/settings/smtp?account_id=${accountID}`),
     saveSMTP: (data) => api.post('/settings/smtp', data),
     getWarming: (accountID) => api.get(`/stats/warming?account_id=${accountID}`),
 };

@@ -1,14 +1,24 @@
-import { campaignsApi } from '../api';
+import { campaignsApi, mailerApi, contactsApi } from '../api';
 import { showToast } from '../utils/toast';
 
 let allCampaigns = [];
+let allSentEmails = [];
+let allContacts = [];
 let renderCampaignsTable = null;
+let renderSentTable = null;
 
 export async function Campaigns() {
     try {
-        allCampaigns = await campaignsApi.list();
+        const [c, s, contacts] = await Promise.all([
+            campaignsApi.list(), 
+            mailerApi.listSent(),
+            contactsApi.list()
+        ]);
+        allCampaigns = c;
+        allSentEmails = s;
+        allContacts = contacts;
     } catch (e) {
-        console.error('Failed to fetch campaigns', e);
+        console.error('Failed to fetch campaigns, sent emails, or contacts', e);
     }
 
     return `
@@ -57,9 +67,9 @@ export async function Campaigns() {
                 <button class="btn btn-outline tab-btn" data-filter="sent" style="padding: 0.5rem 1rem; border-radius: var(--radius-sm);">Sent (Inbox)</button>
             </div>
 
-            <div class="card" style="padding: 0; overflow: hidden;">
-                <table class="campaign-table">
-                    <thead>
+            <div class="card" style="padding: 0; overflow: hidden;" id="table-card">
+                <table class="campaign-table" id="main-table">
+                    <thead id="table-head">
                         <tr>
                             <th>Campaign Name ⌵</th>
                             <th>Status ⌵</th>
@@ -100,12 +110,12 @@ export function initCampaigns() {
                 <td style="font-weight: 700;">${campaign.ctr}%</td>
                 <td style="font-weight: 700;">${campaign.conversions}%</td>
                 <td>
-                    <button class="btn btn-outline edit-campaign-btn" data-id="${campaign.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Edit</button>
+                    <button class="btn btn-outline edit-campaign-btn" data-id="${campaign.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem; margin-right: 0.5rem;">Edit</button>
+                    ${campaign.status !== 'scheduled' && campaign.status !== 'sent' ? `<button class="btn btn-primary schedule-campaign-btn" data-id="${campaign.id}" style="padding: 0.4rem 0.8rem; font-size: 0.8125rem;">Schedule</button>` : ''}
                 </td>
             </tr>
         `).join('') + (campaignsToRender.length === 0 ? '<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No campaigns found for this view.</td></tr>' : '');
 
-        // Reattach listeners
         document.querySelectorAll('.edit-campaign-btn').forEach(btn => {
             btn.onclick = (e) => {
                 const id = e.target.dataset.id;
@@ -113,9 +123,57 @@ export function initCampaigns() {
                 if (campaign) renderModal(campaign);
             };
         });
+
+        document.querySelectorAll('.schedule-campaign-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                const id = e.target.dataset.id;
+                const campaign = allCampaigns.find(c => c.id == id);
+                if (campaign) renderModal(campaign, true); // Open natively as 'scheduled'
+            };
+        });
+    };
+
+    renderSentTable = () => {
+        if (!tbody) return;
+        const thead = document.getElementById('table-head');
+        thead.innerHTML = `
+            <tr>
+                <th>Recipient (Email) ⌵</th>
+                <th>Subject ⌵</th>
+                <th>Type ⌵</th>
+                <th>Sent At ⌵</th>
+            </tr>
+        `;
+        tbody.innerHTML = allSentEmails.map(email => `
+            <tr>
+                <td style="font-weight: 700;">${email.recipient}</td>
+                <td>${email.subject}</td>
+                <td>
+                    <span class="status-badge ${email.type === 'warming' ? 'status-draft' : 'status-sent'}">
+                        ${email.type === 'warming' ? '🔥 Warming' : '✉️ Campaign'}
+                    </span>
+                </td>
+                <td class="text-muted">${new Date(email.sent_at).toLocaleString()}</td>
+            </tr>
+        `).join('') + (allSentEmails.length === 0 ? '<tr><td colspan="4" style="text-align: center; padding: 3rem;" class="text-muted">No sent emails recorded.</td></tr>' : '');
+    };
+
+    const renderCampaignHeaders = () => {
+        const thead = document.getElementById('table-head');
+        thead.innerHTML = `
+            <tr>
+                <th>Campaign Name ⌵</th>
+                <th>Status ⌵</th>
+                <th>Open Rate ⌵</th>
+                <th>CTR ⌵</th>
+                <th>Conversions ⌵</th>
+                <th>Actions ⌵</th>
+            </tr>
+        `;
     };
 
     // Initial render
+    renderCampaignHeaders();
     renderCampaignsTable(allCampaigns);
 
     // Tab Logic
@@ -132,48 +190,93 @@ export function initCampaigns() {
 
             // Filter data
             const filter = clicked.dataset.filter;
-            if (filter === 'all') {
+            if (filter === 'sent') {
+                renderSentTable();
+            } else if (filter === 'all') {
+                renderCampaignHeaders();
                 renderCampaignsTable(allCampaigns);
             } else {
+                renderCampaignHeaders();
                 renderCampaignsTable(allCampaigns.filter(c => c.status === filter));
             }
         };
     });
 
-    const renderModal = (campaign = null) => {
+    const renderModal = (campaign = null, autoSchedule = false) => {
         const isEdit = !!campaign;
+        const initialStatus = autoSchedule ? 'scheduled' : (campaign?.status || 'draft');
+
+        // Derive unique folder names from all contacts' tags
+        const folderSet = new Set();
+        allContacts.forEach(c => {
+            (c.tags || []).forEach(t => folderSet.add(t.text));
+        });
+        const folders = Array.from(folderSet).sort();
+        
         modalContainer.innerHTML = `
             <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;" id="modal-overlay">
-                <div class="card" style="width: 100%; max-width: 600px; padding: 2rem; max-height: 90vh; overflow-y: auto;">
+                <div class="card" style="width: 100%; max-width: 800px; padding: 2rem; max-height: 90vh; overflow-y: auto;">
                     <h2 class="mb-6">${isEdit ? 'Edit Campaign' : 'Create New Campaign'}</h2>
                     <form id="campaign-form">
                         <div class="mb-6 p-4" style="background: var(--bg-main); border: 1px dashed var(--primary); border-radius: var(--radius); text-align: center;">
                             <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Let AI draft your campaign for you!</p>
-                            <div class="flex gap-2">
-                                <input type="text" id="ai-goal" class="input" placeholder="e.g. Welcome email for new subscribers" style="flex: 1; padding: 0.5rem;">
-                                <button type="button" class="btn btn-primary" id="ai-magic-btn" style="padding: 0.5rem 1rem;">Magic Draft ✨</button>
+                            <div class="flex gap-2 flex-col">
+                                <input type="text" id="ai-goal" class="input mb-2" placeholder="Goal (e.g. Welcome email for new subscribers)" style="width: 100%; padding: 0.5rem;">
+                                <textarea id="ai-pain-point" class="input mb-2" placeholder="Target pain point to pitch (e.g. Teams struggle with slow manual email generation)" style="width: 100%; padding: 0.5rem;"></textarea>
+                                <button type="button" class="btn btn-primary" id="ai-magic-btn" style="padding: 0.75rem 1rem; width: 100%;">Magic Draft ✨</button>
                             </div>
                         </div>
                         <div class="mb-4">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Campaign Name</label>
                             <input type="text" name="name" class="input" required placeholder="Summer Sale 2026" value="${campaign?.name || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
-                        <div class="mb-4">
-                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Email Subject</label>
-                            <input type="text" name="subject" class="input" required placeholder="Our biggest sale ever!" value="${campaign?.subject || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                        <div class="grid-2 mb-4" style="grid-template-columns: 2fr 1fr; gap: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Email Subject</label>
+                                <input type="text" name="subject" class="input" required placeholder="Our biggest sale ever!" value="${campaign?.subject || ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Target Folder</label>
+                                <select name="target_folder" class="input" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                                    <option value="">Everyone (Full List)</option>
+                                    ${folders.map(f => `<option value="${f}" ${campaign?.target_folder === f ? 'selected' : ''}>${f}</option>`).join('')}
+                                </select>
+                            </div>
                         </div>
                         <div class="mb-4">
-                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Content (HTML)</label>
-                            <textarea name="content" class="input" required placeholder="<h1>Hello!</h1>" style="width: 100%; min-height: 150px; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">${campaign?.content || ''}</textarea>
+                            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Content (Rich Text)</label>
+                            <div id="rte-toolbar" style="display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px; background: #2a2a2a; border: 1px solid var(--border); border-bottom: none; border-radius: var(--radius) var(--radius) 0 0;">
+                                <button type="button" data-cmd="bold" title="Bold" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;font-weight:700;">B</button>
+                                <button type="button" data-cmd="italic" title="Italic" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;font-style:italic;">I</button>
+                                <button type="button" data-cmd="underline" title="Underline" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;text-decoration:underline;">U</button>
+                                <button type="button" data-cmd="strikeThrough" title="Strikethrough" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;text-decoration:line-through;">S</button>
+                                <span style="width:1px;background:#555;margin:2px 4px;"></span>
+                                <button type="button" data-cmd="insertOrderedList" title="Ordered List" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;">1.</button>
+                                <button type="button" data-cmd="insertUnorderedList" title="Bullet List" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;">•</button>
+                                <span style="width:1px;background:#555;margin:2px 4px;"></span>
+                                <select data-format="formatBlock" title="Heading" style="padding:4px 6px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;">
+                                    <option value="p">Normal</option>
+                                    <option value="h1">H1</option>
+                                    <option value="h2">H2</option>
+                                    <option value="h3">H3</option>
+                                </select>
+                                <span style="width:1px;background:#555;margin:2px 4px;"></span>
+                                <label title="Text Color" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:4px;">A<input type="color" data-cmd="foreColor" style="width:20px;height:16px;border:none;background:none;cursor:pointer;padding:0;"></label>
+                                <span style="width:1px;background:#555;margin:2px 4px;"></span>
+                                <button type="button" id="rte-link-btn" title="Insert Link" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;">🔗</button>
+                                <button type="button" data-cmd="removeFormat" title="Clear Formatting" style="min-width:30px;padding:4px 8px;background:#3a3a3a;border:1px solid #555;border-radius:4px;color:#fff;cursor:pointer;">✕</button>
+                            </div>
+                            <div id="rte-content" contenteditable="true" style="min-height: 250px; padding: 12px; background: white; color: #111; border: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; outline: none; overflow-y: auto;"></div>
+                            <input type="hidden" name="content" id="hidden-content">
                         </div>
                         <div class="grid-2 mb-8" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div>
                                 <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Status</label>
                                 <select name="status" class="input" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
-                                    <option value="draft" ${campaign?.status === 'draft' ? 'selected' : ''}>Draft</option>
-                                    <option value="sent" ${campaign?.status === 'sent' ? 'selected' : ''}>Sent</option>
-                                    <option value="paused" ${campaign?.status === 'paused' ? 'selected' : ''}>Paused</option>
-                                    <option value="scheduled" ${campaign?.status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
+                                    <option value="draft" ${initialStatus === 'draft' ? 'selected' : ''}>Draft</option>
+                                    <option value="sent" ${initialStatus === 'sent' ? 'selected' : ''}>Sent</option>
+                                    <option value="paused" ${initialStatus === 'paused' ? 'selected' : ''}>Paused</option>
+                                    <option value="scheduled" ${initialStatus === 'scheduled' ? 'selected' : ''}>Scheduled</option>
                                 </select>
                             </div>
                             <div>
@@ -181,7 +284,7 @@ export function initCampaigns() {
                                 <input type="number" step="0.1" name="open_rate" class="input" value="${campaign?.open_rate || 0}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                             </div>
                         </div>
-                        <div class="mb-8" id="schedule-field" style="display: ${campaign?.status === 'scheduled' ? 'block' : 'none'};">
+                        <div class="mb-8" id="schedule-field" style="display: ${initialStatus === 'scheduled' ? 'block' : 'none'};">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Send At (Date & Time)</label>
                             <input type="datetime-local" name="scheduled_at" id="scheduled_at_input" class="input" value="${campaign?.scheduled_at ? new Date(campaign.scheduled_at).toISOString().slice(0, 16) : ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
                         </div>
@@ -200,14 +303,57 @@ export function initCampaigns() {
 
         document.getElementById('close-modal').onclick = () => modalContainer.innerHTML = '';
         
+        // --- Native Rich Text Editor setup ---
+        const rteContent = document.getElementById('rte-content');
+        const hiddenContent = document.getElementById('hidden-content');
+        
+        // Populate with existing content
+        if (campaign?.content) rteContent.innerHTML = campaign.content;
+        
+        // Toolbar button commands
+        document.getElementById('rte-toolbar').addEventListener('mousedown', (e) => {
+            const btn = e.target.closest('[data-cmd]');
+            if (btn) {
+                e.preventDefault();
+                if (btn.dataset.cmd === 'foreColor') return; // handled by color input
+                document.execCommand(btn.dataset.cmd, false, null);
+                rteContent.focus();
+            }
+        });
+        
+        // Color picker
+        const colorInput = document.querySelector('#rte-toolbar [data-cmd="foreColor"]');
+        if (colorInput) {
+            colorInput.addEventListener('input', () => {
+                document.execCommand('foreColor', false, colorInput.value);
+            });
+        }
+
+        // Format block (headings)
+        const formatSelect = document.querySelector('#rte-toolbar [data-format="formatBlock"]');
+        if (formatSelect) {
+            formatSelect.addEventListener('change', () => {
+                document.execCommand('formatBlock', false, formatSelect.value);
+                rteContent.focus();
+            });
+        }
+
+        // Link button
+        document.getElementById('rte-link-btn')?.addEventListener('click', () => {
+            const url = prompt('Enter URL:');
+            if (url) document.execCommand('createLink', false, url);
+            rteContent.focus();
+        });
+        
         const form = document.getElementById('campaign-form');
         const aiMagicBtn = document.getElementById('ai-magic-btn');
         const aiGoalInput = document.getElementById('ai-goal');
+        const aiPainPointInput = document.getElementById('ai-pain-point');
         const subjectInput = form.querySelector('[name="subject"]');
-        const contentArea = form.querySelector('[name="content"]');
 
         aiMagicBtn.onclick = async () => {
             const goal = aiGoalInput.value.trim();
+            const pain_point = aiPainPointInput.value.trim();
             if (!goal) {
                 showToast('Please describe your campaign goal first!', 'info');
                 return;
@@ -217,9 +363,9 @@ export function initCampaigns() {
             aiMagicBtn.textContent = 'Generating...';
 
             try {
-                const res = await campaignsApi.generateAI({ goal });
+                const res = await campaignsApi.generateAI({ goal, pain_point });
                 subjectInput.value = res.subject;
-                contentArea.value = res.content;
+                rteContent.innerHTML = res.content || '';
                 showToast('Campaign draft generated! ✨', 'success');
             } catch (err) {
                 showToast('AI Generation failed: ' + err.message, 'error');
@@ -252,6 +398,9 @@ export function initCampaigns() {
 
         document.getElementById('campaign-form').onsubmit = async (e) => {
             e.preventDefault();
+            const hiddenContent = document.getElementById('hidden-content');
+            hiddenContent.value = rteContent.innerHTML;
+
             const formData = new FormData(e.target);
             const rawData = Object.fromEntries(formData.entries());
             
@@ -263,7 +412,8 @@ export function initCampaigns() {
                 ctr: parseFloat(campaign?.ctr || 0),
                 conversions: parseFloat(campaign?.conversions || 0),
                 scheduled_at: rawData.scheduled_at ? new Date(rawData.scheduled_at).toISOString() : null,
-                is_personalized: form.querySelector('[name="is_personalized"]').checked
+                is_personalized: form.querySelector('[name="is_personalized"]').checked,
+                target_folder: rawData.target_folder || ""
             };
 
             try {

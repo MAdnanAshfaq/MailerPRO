@@ -227,14 +227,49 @@ func (r *Repository) ListAll(accountID int64) ([]Contact, error) {
 }
 
 func (r *Repository) Update(c *Contact) error {
+	txn, err := r.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+	defer txn.Rollback()
+
 	query := database.Translate(`
 		UPDATE contacts
 		SET fname = ?, lname = ?, email = ?, phone = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE id = ?
 	`)
-	_, err := r.db.Exec(query, c.FirstName, c.LastName, c.Email, c.Phone, c.ID)
+	_, err = txn.Exec(query, c.FirstName, c.LastName, c.Email, c.Phone, c.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update contact: %w", err)
+	}
+
+	// Sync Tags
+	_, err = txn.Exec(database.Translate("DELETE FROM contact_tag WHERE contact_id = ?"), c.ID)
+	if err != nil {
+		return fmt.Errorf("failed to clear old tags: %w", err)
+	}
+
+	if len(c.Tags) > 0 {
+		if err := insertTagIfNotExist(txn, c.Tags); err != nil {
+			return err
+		}
+		tags, err := getTagsByTexts(txn, c.Tags)
+		if err != nil {
+			return err
+		}
+		if err := linkTagsToContact(txn, c.ID, tags); err != nil {
+			return err
+		}
+	}
+
+	return txn.Commit()
+}
+
+func (r *Repository) Delete(id int64) error {
+	query := database.Translate("DELETE FROM contacts WHERE id = ?")
+	_, err := r.db.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete contact: %w", err)
 	}
 	return nil
 }

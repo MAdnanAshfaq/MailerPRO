@@ -57,7 +57,8 @@ func main() {
 	accountHandler := account.NewHandler(accountRepo)
 
 	aiService := ai.NewService()
-	mailerService := mailer.NewService(accountRepo, contactRepository, aiService)
+	mailerService := mailer.NewService(db, accountRepo, contactRepository, aiService)
+	mailerHandler := mailer.NewHandler(db)
 
 	campaignRepository := campaign.NewRepository(db)
 	campaignHandler := campaign.NewHandler(campaignRepository, mailerService, aiService)
@@ -65,7 +66,7 @@ func main() {
 	statsRepo := stats.NewRepository(db)
 	statsHandler := stats.NewHandler(statsRepo)
 
-	warmingWorker := warming.NewWorker(db, accountRepo)
+	warmingWorker := warming.NewWorker(db, accountRepo, mailerService)
 	warmingWorker.Start()
 
 	schedulerWorker := scheduler.NewWorker(campaignRepository, mailerService)
@@ -93,6 +94,8 @@ func main() {
 	http.HandleFunc("/api/contacts/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPut {
 			contactHandler.Update(w, r)
+		} else if r.Method == http.MethodDelete {
+			contactHandler.Delete(w, r)
 		} else if r.Method == http.MethodPatch && strings.HasSuffix(r.URL.Path, "/tag") {
 			contactHandler.RemoveTag(w, r)
 		}
@@ -117,10 +120,19 @@ func main() {
 	// Stats
 	http.HandleFunc("/api/stats/overview", statsHandler.GetOverview)
 
+	// Email Logs
+	http.HandleFunc("GET /api/emails/sent", mailerHandler.ListSent)
+
 	// Accounts & Settings
 	http.HandleFunc("/api/signup", accountHandler.Signup)
 	http.HandleFunc("/api/login", accountHandler.Login)
-	http.HandleFunc("/api/settings/smtp", accountHandler.SaveSMTP)
+	http.HandleFunc("/api/settings/smtp", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			accountHandler.GetSMTP(w, r)
+		} else if r.Method == http.MethodPost {
+			accountHandler.SaveSMTP(w, r)
+		}
+	})
 	http.HandleFunc("/api/stats/warming", accountHandler.GetWarming)
 	http.HandleFunc("/api/account/me", accountHandler.GetMe)
 

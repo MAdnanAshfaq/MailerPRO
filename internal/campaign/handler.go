@@ -38,7 +38,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Trigger mailer if status is 'sent' immediately
 	if c.Status == "sent" && h.mailer != nil {
-		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content, c.IsPersonalized)
+		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content, c.IsPersonalized, c.TargetFolder)
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -46,7 +46,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
+	idStr := r.URL.Path[len("/api/campaigns/"):]
 	var id int64
 	fmt.Sscanf(idStr, "%d", &id)
 
@@ -77,7 +77,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(campaigns)
 }
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
+	idStr := r.URL.Path[len("/api/campaigns/"):]
 	var id int64
 	fmt.Sscanf(idStr, "%d", &id)
 
@@ -89,20 +89,22 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	c.ID = id
 
 	if err := h.repo.Update(&c); err != nil {
+		fmt.Printf("[campaigns] Update error for id=%d: %v\n", id, err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	// Trigger mailer if status is now 'sent'
 	if c.Status == "sent" && h.mailer != nil {
-		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content, c.IsPersonalized)
+		go h.mailer.SendCampaign(c.AccountID, c.Subject, c.Content, c.IsPersonalized, c.TargetFolder)
 	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
 func (h *Handler) GenerateAI(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Goal string `json:"goal"`
+		Goal      string `json:"goal"`
+		PainPoint string `json:"pain_point"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
@@ -114,7 +116,7 @@ func (h *Handler) GenerateAI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	subject, content, err := h.ai.GenerateEmailContent(body.Goal)
+	subject, content, err := h.ai.GenerateEmailContent(body.Goal, body.PainPoint)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
