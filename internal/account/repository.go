@@ -3,6 +3,8 @@ package account
 import (
 	"database/sql"
 	"fmt"
+	"strings"
+
 	"github.com/codersgyan/camp/internal/database"
 )
 
@@ -54,6 +56,12 @@ func (r *Repository) GetByEmail(email string) (*Account, error) {
 }
 
 func (r *Repository) SaveSMTPSettings(s *SMTPSettings) error {
+	// Normalize security type to lowercase for database CHECK constraints
+	s.SecurityType = strings.ToLower(strings.TrimSpace(s.SecurityType))
+	if s.SecurityType == "" {
+		s.SecurityType = "tls" // Default
+	}
+
 	query := database.Translate(`
 		INSERT INTO smtp_settings (account_id, host, port, username, password, security_type)
 		VALUES (?, ?, ?, ?, ?, ?)

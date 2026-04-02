@@ -75,9 +75,9 @@ export async function Settings() {
                         <div class="mb-8">
                             <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">Security Type</label>
                             <select name="security_type" class="input" style="width: 100%; padding: 0.75rem;">
-                                <option value="SSL" ${settings.security_type === 'SSL' ? 'selected' : ''}>SSL (Port 465)</option>
-                                <option value="TLS" ${settings.security_type === 'TLS' ? 'selected' : ''}>TLS (Port 587)</option>
-                                <option value="None" ${settings.security_type === 'None' ? 'selected' : ''}>None (Port 25)</option>
+                                <option value="ssl" ${settings.security_type?.toLowerCase() === 'ssl' ? 'selected' : ''}>SSL (Port 465)</option>
+                                <option value="tls" ${settings.security_type?.toLowerCase() === 'tls' || !settings.security_type ? 'selected' : ''}>TLS (Port 587)</option>
+                                <option value="none" ${settings.security_type?.toLowerCase() === 'none' ? 'selected' : ''}>None (Port 25)</option>
                             </select>
                         </div>
 
@@ -100,11 +100,11 @@ export function initSettings() {
             if (type === 'hostinger') {
                 form.host.value = 'smtp.hostinger.com';
                 form.port.value = '465';
-                form.security_type.value = 'SSL';
+                form.security_type.value = 'ssl';
             } else if (type === 'gmail') {
                 form.host.value = 'smtp.gmail.com';
                 form.port.value = '587';
-                form.security_type.value = 'TLS';
+                form.security_type.value = 'tls';
             }
             showToast(`Applied ${type} presets`, 'info');
         };
