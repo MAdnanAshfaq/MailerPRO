@@ -58,7 +58,7 @@ func main() {
 
 	aiService := ai.NewService()
 	mailerService := mailer.NewService(db, accountRepo, contactRepository, aiService)
-	mailerHandler := mailer.NewHandler(db)
+	mailerHandler := mailer.NewHandler(db, mailerService)
 
 	campaignRepository := campaign.NewRepository(db)
 	campaignHandler := campaign.NewHandler(campaignRepository, mailerService, aiService)
@@ -84,6 +84,9 @@ func main() {
 			contactHandler.List(w, r)
 		}
 	})
+	http.HandleFunc("/api/contacts/bulk-delete", contactHandler.BulkDelete)
+	http.HandleFunc("/api/contacts/bulk-move", contactHandler.BulkMove)
+
 	// IMPORTANT: /api/contacts/tag MUST be registered before /api/contacts/
 	// because Go's mux treats trailing-slash patterns as prefix matchers.
 	http.HandleFunc("/api/contacts/tag", func(w http.ResponseWriter, r *http.Request) {
@@ -138,6 +141,8 @@ func main() {
 
 	domainHandler := domain.NewHandler()
 	http.HandleFunc("GET /api/domain/health", domainHandler.GetHealth)
+
+	http.HandleFunc("/api/mailer/test-send", mailerHandler.SendTest)
 
 	// Health Check Route
 	http.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {

@@ -84,6 +84,17 @@ export async function Settings() {
                         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-weight: 700; border-radius: var(--radius);">Save Settings</button>
                     </form>
                 </div>
+
+                <!-- Test Section -->
+                <div class="card" style="padding: 2rem;">
+                    <h3 class="mb-4" style="font-weight: 700;">Deliverability Test</h3>
+                    <p class="text-muted mb-6" style="font-size: 0.9rem;">Send a single email to any address to verify your inbox deliverability and SMTP health.</p>
+                    
+                    <div style="display: flex; gap: 0.75rem;">
+                        <input type="email" id="test-email-target" class="input" placeholder="inbox@example.com" style="flex: 1; padding: 0.75rem;">
+                        <button id="send-test-btn" class="btn btn-outline" style="white-space: nowrap;">Send Test</button>
+                    </div>
+                </div>
             </div>
         </div>
     `;
@@ -92,7 +103,35 @@ export async function Settings() {
 export function initSettings() {
     const form = document.getElementById('smtp-form');
     const presets = document.querySelectorAll('.preset-btn');
+    const testBtn = document.getElementById('send-test-btn');
+    const testInput = document.getElementById('test-email-target');
     const user = JSON.parse(localStorage.getItem('camp_user') || '{}');
+
+    if (testBtn && testInput) {
+        testBtn.onclick = async () => {
+            const target = testInput.value.trim();
+            if (!target) {
+                showToast('Please enter a target email address.', 'error');
+                return;
+            }
+
+            testBtn.disabled = true;
+            testBtn.textContent = 'Sending...';
+
+            try {
+                await accountApi.testSend({
+                    account_id: user.id,
+                    to_email: target
+                });
+                showToast(`Test email sent to ${target}! Check your inbox.`, 'success');
+            } catch (err) {
+                showToast('Test failed: ' + err.message, 'error');
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = 'Send Test';
+            }
+        };
+    }
 
     presets.forEach(btn => {
         btn.onclick = () => {

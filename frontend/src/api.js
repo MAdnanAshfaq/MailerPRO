@@ -62,6 +62,8 @@ export const contactsApi = {
     },
     update: (id, data) => api.put(`/contacts/${id}`, data),
     delete: (id) => api.delete(`/contacts/${id}`),
+    bulkDelete: (ids) => api.post('/contacts/bulk-delete', { ids }),
+    bulkMove: (ids, folder) => api.post('/contacts/bulk-move', { ids, folder }),
     addTag: (data) => api.post('/contacts/tag', data),
     removeTag: (id, data) => api.patch(`/contacts/${id}/tag`, data)
 };
@@ -91,6 +93,7 @@ export const accountApi = {
     login: (data) => api.post('/login', data),
     getSMTP: (accountID) => api.get(`/settings/smtp?account_id=${accountID}`),
     saveSMTP: (data) => api.post('/settings/smtp', data),
+    testSend: (data) => api.post('/mailer/test-send', data),
     getWarming: (accountID) => api.get(`/stats/warming?account_id=${accountID}`),
 };
 

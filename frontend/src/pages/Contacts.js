@@ -64,6 +64,9 @@ export async function Contacts() {
                     <table class="campaign-table">
                         <thead>
                             <tr>
+                                <th style="width: 40px; padding-left: 1.5rem;">
+                                    <input type="checkbox" id="select-all-contacts" class="checkbox-custom">
+                                </th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Folders</th>
@@ -74,6 +77,19 @@ export async function Contacts() {
                         <tbody id="contacts-list-body"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Bulk Actions Toolbar -->
+            <div id="bulk-actions-bar" style="position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-card); border: 1px solid var(--primary); padding: 0.75rem 2rem; border-radius: 99px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 1.5rem; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 100;">
+                <div style="font-size: 0.875rem; font-weight: 700; color: var(--primary);">
+                    <span id="selected-count">0</span> Selected
+                </div>
+                <div style="height: 20px; width: 1px; background: var(--border);"></div>
+                <div class="flex gap-2">
+                    <button class="btn btn-outline" id="bulk-move-btn" style="font-size: 0.75rem; padding: 0.5rem 1rem;">📁 Move to Folder</button>
+                    <button class="btn btn-outline" id="bulk-delete-btn" style="font-size: 0.75rem; padding: 0.5rem 1rem; color: #dc3545; border-color: #dc3545;">🗑️ Delete</button>
+                </div>
+                <button id="cancel-selection" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">✕</button>
             </div>
 
             <div id="modal-container"></div>
@@ -112,6 +128,9 @@ export function initContacts() {
         const folderList = document.getElementById('folder-list');
         if (!folderList) return;
         const folders = getFolders();
+        const sessionFolders = JSON.parse(sessionStorage.getItem('session_folders') || '[]');
+        sessionFolders.forEach(f => { if (!folders[f]) folders[f] = 0; });
+
         const allCount = allContacts.length;
 
         const itemStyle = (name) => `
@@ -191,7 +210,10 @@ export function initContacts() {
     renderTable = (contactsToRender) => {
         if (!tbody) return;
         tbody.innerHTML = contactsToRender.map(contact => `
-            <tr>
+            <tr data-contact-id="${contact.id}">
+                <td style="padding-left: 1.5rem;">
+                    <input type="checkbox" class="contact-checkbox checkbox-custom" data-id="${contact.id}">
+                </td>
                 <td style="font-weight: 700;">
                     ${(contact.first_name || contact.last_name)
                         ? `${contact.first_name || ''} ${contact.last_name || ''}`.trim()
@@ -212,8 +234,82 @@ export function initContacts() {
                 </td>
             </tr>
         `).join('') + (contactsToRender.length === 0
-            ? '<tr><td colspan="5" style="text-align: center; padding: 3rem;" class="text-muted">No contacts in this folder.</td></tr>'
+            ? '<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No contacts in this folder.</td></tr>'
             : '');
+
+        // Update bulk selection logic
+        const selectAll = document.getElementById('select-all-contacts');
+        const checkboxes = document.querySelectorAll('.contact-checkbox');
+        const bulkBar = document.getElementById('bulk-actions-bar');
+        const countBadge = document.getElementById('selected-count');
+
+        const updateBulkBar = () => {
+            const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => parseInt(cb.dataset.id));
+            if (selected.length > 0) {
+                bulkBar.style.transform = 'translateX(-50%) translateY(0)';
+                countBadge.textContent = selected.length;
+            } else {
+                bulkBar.style.transform = 'translateX(-50%) translateY(100px)';
+            }
+            if (selectAll) selectAll.checked = selected.length === checkboxes.length && checkboxes.length > 0;
+        };
+
+        if (selectAll) {
+            selectAll.onchange = () => {
+                checkboxes.forEach(cb => cb.checked = selectAll.checked);
+                updateBulkBar();
+            };
+        }
+
+        checkboxes.forEach(cb => {
+            cb.onchange = updateBulkBar;
+        });
+
+        document.getElementById('cancel-selection').onclick = () => {
+            checkboxes.forEach(cb => cb.checked = false);
+            if (selectAll) selectAll.checked = false;
+            updateBulkBar();
+        };
+
+        document.getElementById('bulk-delete-btn').onclick = async () => {
+            const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => parseInt(cb.dataset.id));
+            if (!confirm(`Delete ${selected.length} contacts?`)) return;
+            try {
+                await contactsApi.bulkDelete(selected);
+                allContacts = allContacts.filter(c => !selected.includes(c.id));
+                showToast(`Deleted ${selected.length} contacts`, 'success');
+                renderFolderSidebar();
+                renderTable(activeFolder ? allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)) : allContacts);
+                updateBulkBar();
+            } catch (err) {
+                showToast('Bulk delete failed: ' + err.message, 'error');
+            }
+        };
+
+        document.getElementById('bulk-move-btn').onclick = async () => {
+            const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => parseInt(cb.dataset.id));
+            const folder = prompt('Enter folder name to move to:');
+            if (!folder) return;
+            try {
+                await contactsApi.bulkMove(selected, folder);
+                // Update in-memory
+                selected.forEach(id => {
+                    const c = allContacts.find(x => x.id === id);
+                    if (c) {
+                        if (!c.tags) c.tags = [];
+                        if (!c.tags.some(t => t.text === folder)) {
+                            c.tags.push({ text: folder });
+                        }
+                    }
+                });
+                showToast(`Moved ${selected.length} contacts to "${folder}"`, 'success');
+                renderFolderSidebar();
+                renderTable(activeFolder ? allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)) : allContacts);
+                updateBulkBar();
+            } catch (err) {
+                showToast('Bulk move failed: ' + err.message, 'error');
+            }
+        };
 
         // Click folder badge → jump to that folder
         tbody.querySelectorAll('[data-folder-jump]').forEach(badge => {
@@ -261,7 +357,33 @@ export function initContacts() {
     document.getElementById('new-folder-btn')?.addEventListener('click', () => {
         const name = prompt('New folder name:');
         if (!name) return;
-        showToast(`Folder "${name}" created! Add contacts to it via Edit Contact.`, 'info');
+        
+        // To make "empty" folders appear, we can use a local storage "extra folders" list
+        // or just let the user know they need to add contacts.
+        // Better: let's add a dummy tag to the sidebar if it doesn't exist.
+        const existing = getFolders();
+        if (existing[name]) {
+            showToast(`Folder "${name}" already exists.`, 'info');
+            return;
+        }
+        
+        // Mock creation by updating the UI title and showing instructions
+        activeFolder = name;
+        const title = document.getElementById('folder-title');
+        const subtitle = document.getElementById('folder-subtitle');
+        if (title) title.textContent = name;
+        if (subtitle) subtitle.textContent = `New folder "${name}" created. Add contacts to see them here.`;
+        
+        // Add to a local "session" folders list to show in sidebar
+        const sessionFolders = JSON.parse(sessionStorage.getItem('session_folders') || '[]');
+        if (!sessionFolders.includes(name)) {
+            sessionFolders.push(name);
+            sessionStorage.setItem('session_folders', JSON.stringify(sessionFolders));
+        }
+        
+        renderFolderSidebar();
+        renderTable([]);
+        showToast(`Folder "${name}" created!`, 'success');
     });
 
     // Add contact

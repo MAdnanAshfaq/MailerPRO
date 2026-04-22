@@ -10,11 +10,40 @@ import (
 )
 
 type Handler struct {
-	db *sql.DB
+	db      *sql.DB
+	service *Service
 }
 
-func NewHandler(db *sql.DB) *Handler {
-	return &Handler{db: db}
+func NewHandler(db *sql.DB, service *Service) *Handler {
+	return &Handler{db: db, service: service}
+}
+
+func (h *Handler) SendTest(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		AccountID int64  `json:"account_id"`
+		ToEmail   string `json:"to_email"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	if req.ToEmail == "" {
+		http.Error(w, "to_email is required", http.StatusBadRequest)
+		return
+	}
+
+	err := h.service.SendTestEmail(req.AccountID, req.ToEmail)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"message": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "Test email sent successfully"})
 }
 
 func (h *Handler) ListSent(w http.ResponseWriter, r *http.Request) {

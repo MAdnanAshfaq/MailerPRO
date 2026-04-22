@@ -30,6 +30,37 @@ func NewService(db *sql.DB, accRepo *account.Repository, contactRepo *contact.Re
 	}
 }
 
+func (s *Service) SendTestEmail(accID int64, toEmail string) error {
+	settings, err := s.accountRepo.GetSMTPSettings(accID)
+	if err != nil || settings == nil {
+		return fmt.Errorf("no SMTP settings found for account %d", accID)
+	}
+
+	subject := "MailerPRO Deliverability Test"
+	body := `
+		<div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+			<h2 style="color: #00ff88;">Deliverability Test Successful!</h2>
+			<p>If you are reading this, your SMTP settings in MailerPRO are correctly configured.</p>
+			<hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+			<p style="font-size: 12px; color: #999;">Sent from your MailerPRO Deliverability Engine.</p>
+		</div>
+	`
+
+	msg := []byte(fmt.Sprintf("To: %s\r\n"+
+		"Subject: %s\r\n"+
+		"Content-Type: text/html; charset=UTF-8\r\n"+
+		"\r\n"+
+		"%s\r\n", toEmail, subject, body))
+
+	err = s.sendMail(settings, []string{toEmail}, msg)
+	if err != nil {
+		return fmt.Errorf("failed to send test email: %w", err)
+	}
+
+	s.LogSentEmail(accID, toEmail, subject, "test")
+	return nil
+}
+
 func (s *Service) SendCampaign(accID int64, subject, content string, isPersonalized bool, targetFolder string) error {
 	// 1. Get SMTP settings for the account
 	settings, err := s.accountRepo.GetSMTPSettings(accID)

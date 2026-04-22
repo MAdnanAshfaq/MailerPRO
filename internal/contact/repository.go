@@ -274,6 +274,53 @@ func (r *Repository) Delete(id int64) error {
 	return nil
 }
 
+func (r *Repository) BulkDelete(ids []int64) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	placeholders := make([]string, len(ids))
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		placeholders[i] = "?"
+		args[i] = id
+	}
+	query := fmt.Sprintf("DELETE FROM contacts WHERE id IN (%s)", strings.Join(placeholders, ","))
+	_, err := r.db.Exec(database.Translate(query), args...)
+	return err
+}
+
+func (r *Repository) BulkMoveToFolder(ids []int64, folderName string) error {
+	if len(ids) == 0 || folderName == "" {
+		return nil
+	}
+
+	txn, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer txn.Rollback()
+
+	// 1. Ensure tag exists
+	tags := []Tag{{Text: folderName}}
+	if err := insertTagIfNotExist(txn, tags); err != nil {
+		return err
+	}
+	tagList, err := getTagsByTexts(txn, tags)
+	if err != nil || len(tagList) == 0 {
+		return fmt.Errorf("failed to get tag ID for folder")
+	}
+	tagID := tagList[0].ID
+
+	// 2. Link tag to all contacts
+	for _, id := range ids {
+		if err := linkTagsToContact(txn, id, tagList); err != nil {
+			return err
+		}
+	}
+
+	return txn.Commit()
+}
+
 func (r *Repository) GetTagsForContact(contactID int64) ([]Tag, error) {
 	query := database.Translate(`
 		SELECT t.id, t.text, t.created_at, t.updated_at
