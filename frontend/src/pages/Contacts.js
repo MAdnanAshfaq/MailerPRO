@@ -268,7 +268,6 @@ export function initContacts() {
             ? '<tr><td colspan="6" style="text-align: center; padding: 3rem;" class="text-muted">No contacts in this folder.</td></tr>'
             : '');
 
-        // Update bulk selection logic
         const selectAll = document.getElementById('select-all-contacts');
         const checkboxes = document.querySelectorAll('.contact-checkbox');
         const bulkBar = document.getElementById('bulk-actions-bar');
@@ -321,6 +320,42 @@ export function initContacts() {
             const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => parseInt(cb.dataset.id));
             renderMoveModal(selected);
         };
+
+        tbody.querySelectorAll('[data-folder-jump]').forEach(badge => {
+            badge.onclick = () => {
+                activeFolder = badge.dataset.folderJump;
+                renderFolderSidebar();
+                const title = document.getElementById('folder-title');
+                const subtitle = document.getElementById('folder-subtitle');
+                if (title) title.textContent = activeFolder;
+                if (subtitle) subtitle.textContent = `Contacts in folder "${activeFolder}"`;
+                renderTable(allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)));
+            };
+        });
+
+        tbody.querySelectorAll('.edit-contact-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                const id = e.target.dataset.id;
+                const contact = allContacts.find(c => c.id == id);
+                if (contact) renderModal(contact);
+            };
+        });
+
+        tbody.querySelectorAll('.delete-contact-btn').forEach(btn => {
+            btn.onclick = async (e) => {
+                if (!confirm('Delete this contact?')) return;
+                const id = e.target.dataset.id;
+                try {
+                    await contactsApi.delete(id);
+                    allContacts = allContacts.filter(c => c.id != id);
+                    renderFolderSidebar();
+                    renderTable(activeFolder ? allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)) : allContacts);
+                    showToast('Contact deleted', 'success');
+                } catch (err) {
+                    showToast('Failed to delete: ' + err.message, 'error');
+                }
+            };
+        });
     };
 
     const renderMoveModal = (selectedIds) => {
@@ -380,7 +415,6 @@ export function initContacts() {
                 renderFolderSidebar();
                 renderTable(activeFolder ? allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)) : allContacts);
                 
-                // Hide bulk bar
                 const bulkBar = document.getElementById('bulk-actions-bar');
                 if (bulkBar) bulkBar.style.transform = 'translateX(-50%) translateY(100px)';
                 
@@ -393,49 +427,9 @@ export function initContacts() {
         };
     };
 
-        // Click folder badge → jump to that folder
-        tbody.querySelectorAll('[data-folder-jump]').forEach(badge => {
-            badge.onclick = () => {
-                activeFolder = badge.dataset.folderJump;
-                renderFolderSidebar();
-                const title = document.getElementById('folder-title');
-                const subtitle = document.getElementById('folder-subtitle');
-                if (title) title.textContent = activeFolder;
-                if (subtitle) subtitle.textContent = `Contacts in folder "${activeFolder}"`;
-                renderTable(allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)));
-            };
-        });
-
-        document.querySelectorAll('.edit-contact-btn').forEach(btn => {
-            btn.onclick = (e) => {
-                const id = e.target.dataset.id;
-                const contact = allContacts.find(c => c.id == id);
-                if (contact) renderModal(contact);
-            };
-        });
-
-        document.querySelectorAll('.delete-contact-btn').forEach(btn => {
-            btn.onclick = async (e) => {
-                if (!confirm('Delete this contact?')) return;
-                const id = e.target.dataset.id;
-                try {
-                    await contactsApi.delete(id);
-                    allContacts = allContacts.filter(c => c.id != id);
-                    renderFolderSidebar();
-                    renderTable(activeFolder ? allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)) : allContacts);
-                    showToast('Contact deleted', 'success');
-                } catch (err) {
-                    showToast('Failed to delete: ' + err.message, 'error');
-                }
-            };
-        });
-    };
-
-    // Initial render
     renderFolderSidebar();
     renderTable(allContacts);
 
-    // New folder button
     document.getElementById('new-folder-btn')?.addEventListener('click', () => renderNewFolderModal());
 
     const renderNewFolderModal = () => {
@@ -491,10 +485,8 @@ export function initContacts() {
         };
     };
 
-    // Add contact
     document.getElementById('add-contact-btn')?.addEventListener('click', () => renderModal(null));
 
-    // Import
     if (importBtn && importFile) {
         importBtn.onclick = () => importFile.click();
         importFile.onchange = async (e) => {
@@ -641,7 +633,6 @@ export function initContacts() {
             try {
                 if (isEdit) {
                     await contactsApi.update(contact.id, data);
-                    // Update in-memory
                     const idx = allContacts.findIndex(c => c.id === contact.id);
                     if (idx !== -1) allContacts[idx] = { ...allContacts[idx], ...data };
                     showToast('Contact updated!', 'success');
