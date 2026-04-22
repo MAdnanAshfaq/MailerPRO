@@ -149,6 +149,11 @@ func main() {
 		})
 	})
 
+	// Immersive landing page at root
+	http.HandleFunc("/landing", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./frontend/landing.html")
+	})
+
 	// Catch-all route to serve index.html for SPA routing
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// If it's an API request that didn't match, return 404
@@ -156,7 +161,12 @@ func main() {
 			http.NotFound(w, r)
 			return
 		}
-		// Otherwise serve index.html
+		// Serve landing page at root
+		if r.URL.Path == "/" {
+			http.ServeFile(w, r, "./frontend/landing.html")
+			return
+		}
+		// Otherwise serve SPA index.html
 		http.ServeFile(w, r, "./frontend/dist/index.html")
 	})
 
@@ -172,7 +182,7 @@ func withSecurityHeaders(next http.Handler) http.Handler {
 		// style-src 'self' 'unsafe-inline' ...: Google Fonts and inline styles
 		// img-src 'self' data: https://*: allow all images for AI personalization research
 		csp := "default-src 'self'; " +
-			"script-src 'self' https://cdnjs.cloudflare.com 'unsafe-eval'; " +
+			"script-src 'self' https://cdnjs.cloudflare.com 'unsafe-eval' 'unsafe-inline'; " +
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
 			"font-src 'self' https://fonts.gstatic.com; " +
 			"img-src 'self' data: https://*; " +

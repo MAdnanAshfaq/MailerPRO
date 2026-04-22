@@ -135,29 +135,46 @@ func RunMigration(db *sql.DB) error {
 		`ALTER TABLE campaigns ADD COLUMN sent_at %TIMESTAMP%`,
 		`UPDATE campaigns SET account_id = 1 WHERE account_id IS NULL`,
 		`UPDATE contacts SET account_id = 1 WHERE account_id IS NULL`,
-		// Fix: drop old status constraint that may not include 'scheduled'
+	}
+
+	// Postgres-only: DROP/ADD CONSTRAINT (SQLite doesn't support this syntax)
+	postgresMigrations := []string{
 		`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`,
 		`ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check CHECK(status IN ('draft', 'sent', 'paused', 'scheduled'))`,
 	}
 
-	for i, migration := range migrations {
-		m := migration
-		if isPostgres {
-			m = strings.ReplaceAll(m, "%ID_AUTO%", "SERIAL PRIMARY KEY")
-			m = strings.ReplaceAll(m, "%TIMESTAMP%", "TIMESTAMP")
-		} else {
-			m = strings.ReplaceAll(m, "%ID_AUTO%", "INTEGER PRIMARY KEY AUTOINCREMENT")
-			m = strings.ReplaceAll(m, "%TIMESTAMP%", "DATETIME")
-		}
-
-		_, err := db.Exec(m)
-		if err != nil {
-			// SQLite doesn't support ALTER TABLE ADD COLUMN IF NOT EXISTS,
-			// Postgres might already have it too.
-			if strings.Contains(m, "ALTER TABLE") && (strings.Contains(err.Error(), "duplicate column") || strings.Contains(err.Error(), "already exists") || strings.Contains(err.Error(), "multiple primary keys")) {
-				continue
+	runMigrationList := func(list []string, label string) error {
+		for i, migration := range list {
+			m := migration
+			if isPostgres {
+				m = strings.ReplaceAll(m, "%ID_AUTO%", "SERIAL PRIMARY KEY")
+				m = strings.ReplaceAll(m, "%TIMESTAMP%", "TIMESTAMP")
+			} else {
+				m = strings.ReplaceAll(m, "%ID_AUTO%", "INTEGER PRIMARY KEY AUTOINCREMENT")
+				m = strings.ReplaceAll(m, "%TIMESTAMP%", "DATETIME")
 			}
-			return fmt.Errorf("migration %d failed: %w", i+1, err)
+
+			_, err := db.Exec(m)
+			if err != nil {
+				// SQLite doesn't support ALTER TABLE ADD COLUMN IF NOT EXISTS,
+				// Postgres might already have it too.
+				if strings.Contains(m, "ALTER TABLE") && (strings.Contains(err.Error(), "duplicate column") || strings.Contains(err.Error(), "already exists") || strings.Contains(err.Error(), "multiple primary keys") || strings.Contains(err.Error(), "duplicate column name")) {
+					continue
+				}
+				return fmt.Errorf("%s migration %d failed: %w", label, i+1, err)
+			}
+		}
+		return nil
+	}
+
+	if err := runMigrationList(migrations, "core"); err != nil {
+		return err
+	}
+
+	// Postgres-only constraint migrations
+	if isPostgres {
+		if err := runMigrationList(postgresMigrations, "postgres"); err != nil {
+			return err
 		}
 	}
 

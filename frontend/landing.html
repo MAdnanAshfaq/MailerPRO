@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MailerPRO – Welcome to the World of Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --emerald:#00ff88;--cyan:#00e5ff;--purple:#7c3aed;
+  --dark:#020b14;--mid:#061a2e;
+}
+html{scroll-behavior:auto}
+body{background:var(--dark);font-family:'Outfit',sans-serif;color:#fff;overflow-x:hidden}
+
+/* ── CANVAS ── */
+#globe-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* ── HERO ── */
+#hero{position:relative;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+#hero-title{font-size:clamp(2rem,6vw,5rem);font-weight:900;text-align:center;letter-spacing:-.02em;line-height:1.1;background:linear-gradient(135deg,#fff 30%,var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:0}
+#hero-sub{margin-top:1.2rem;font-size:clamp(1rem,2vw,1.4rem);color:rgba(255,255,255,.55);font-weight:300;text-align:center;opacity:0}
+#scroll-hint{position:absolute;bottom:2.5rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;opacity:0}
+#scroll-hint span{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.scroll-arrow{width:24px;height:24px;border-right:2px solid var(--emerald);border-bottom:2px solid var(--emerald);transform:rotate(45deg);animation:bounce 1.4s ease infinite}
+@keyframes bounce{0%,100%{transform:rotate(45deg) translate(0,0);opacity:1}50%{transform:rotate(45deg) translate(4px,4px);opacity:.4}}
+
+/* ── CLOUDS ── */
+#cloud-section{position:relative;height:300vh;z-index:5}
+#cloud-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cloud-layer{position:absolute;width:200%;height:100%;background-size:cover;background-repeat:repeat-x;will-change:transform}
+#cl1{background:radial-gradient(ellipse 600px 200px at 20% 50%,rgba(255,255,255,.18) 0%,transparent 70%),radial-gradient(ellipse 400px 150px at 70% 60%,rgba(255,255,255,.12) 0%,transparent 70%),radial-gradient(ellipse 500px 180px at 50% 40%,rgba(255,255,255,.10) 0%,transparent 70%);top:0;left:-50%}
+#cl2{background:radial-gradient(ellipse 700px 250px at 30% 55%,rgba(0,255,136,.08) 0%,transparent 70%),radial-gradient(ellipse 450px 160px at 80% 45%,rgba(0,229,255,.07) 0%,transparent 70%);top:0;left:-30%}
+#cl3{background:radial-gradient(ellipse 800px 300px at 50% 50%,rgba(124,58,237,.06) 0%,transparent 70%);top:0;left:-20%}
+#cloud-text{position:relative;z-index:2;text-align:center;opacity:0}
+#cloud-text h2{font-size:clamp(1.8rem,5vw,4rem);font-weight:700;background:linear-gradient(135deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#cloud-text p{margin-top:.8rem;font-size:1.1rem;color:rgba(255,255,255,.5);font-weight:300}
+
+/* ── SECTIONS ── */
+.reveal-section{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:6rem 2rem;position:relative;z-index:10}
+.section-inner{max-width:1100px;width:100%;margin:0 auto}
+.section-badge{display:inline-block;padding:.35rem 1rem;border-radius:100px;border:1px solid rgba(0,255,136,.3);background:rgba(0,255,136,.06);color:var(--emerald);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1.5rem}
+.section-title{font-size:clamp(2rem,4.5vw,3.5rem);font-weight:800;line-height:1.15;margin-bottom:1.2rem}
+.section-title span{background:linear-gradient(90deg,var(--emerald),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-sub{font-size:1.1rem;color:rgba(255,255,255,.5);max-width:560px;line-height:1.7;margin-bottom:3rem}
+
+/* features grid */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.feat-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:2rem;transition:border-color .3s,transform .3s;cursor:default}
+.feat-card:hover{border-color:rgba(0,255,136,.3);transform:translateY(-6px)}
+.feat-icon{font-size:2rem;margin-bottom:1rem}
+.feat-card h3{font-size:1.1rem;font-weight:600;margin-bottom:.5rem}
+.feat-card p{font-size:.9rem;color:rgba(255,255,255,.45);line-height:1.6}
+
+/* comparison */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+@media(max-width:640px){.compare-grid{grid-template-columns:1fr}}
+.compare-card{border-radius:20px;padding:2rem}
+.compare-card.them{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06)}
+.compare-card.us{background:linear-gradient(135deg,rgba(0,255,136,.08),rgba(0,229,255,.05));border:1px solid rgba(0,255,136,.2)}
+.compare-card h3{font-size:1rem;font-weight:600;margin-bottom:1.2rem;color:rgba(255,255,255,.5)}
+.compare-card.us h3{color:var(--emerald)}
+.check-item{display:flex;align-items:center;gap:.75rem;margin-bottom:.8rem;font-size:.92rem;color:rgba(255,255,255,.7)}
+.check-item .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
+.compare-card.us .dot{background:var(--emerald)}
+
+/* cta */
+#cta-section{background:radial-gradient(ellipse 1200px 600px at 50% 50%,rgba(0,255,136,.06) 0%,transparent 70%)}
+.cta-box{text-align:center;max-width:700px;margin:0 auto}
+.cta-buttons{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2.5rem}
+.btn-primary{padding:.9rem 2.2rem;border-radius:100px;background:linear-gradient(135deg,var(--emerald),var(--cyan));color:#000;font-weight:700;font-size:1rem;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;font-family:'Outfit',sans-serif}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,255,136,.35)}
+.btn-outline{padding:.9rem 2.2rem;border-radius:100px;background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;font-size:1rem;cursor:pointer;transition:border-color .2s,transform .2s;font-family:'Outfit',sans-serif}
+.btn-outline:hover{border-color:rgba(255,255,255,.5);transform:translateY(-3px)}
+
+/* pricing */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+.price-card{border-radius:24px;padding:2.2rem;position:relative;transition:transform .3s}
+.price-card:hover{transform:translateY(-8px)}
+.price-card.basic{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+.price-card.pro{background:linear-gradient(145deg,rgba(0,255,136,.1),rgba(0,229,255,.06));border:1px solid rgba(0,255,136,.25)}
+.price-card.enterprise{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2)}
+.price-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,var(--emerald),var(--cyan));color:#000;font-size:.72rem;font-weight:700;padding:.25rem .9rem;border-radius:100px;white-space:nowrap}
+.price-card h3{font-size:1rem;color:rgba(255,255,255,.6);margin-bottom:.8rem}
+.price-amount{font-size:3rem;font-weight:900;line-height:1}
+.price-amount sup{font-size:1.2rem;vertical-align:top;margin-top:.6rem;display:inline-block}
+.price-period{font-size:.85rem;color:rgba(255,255,255,.35);margin-left:.2rem}
+.price-desc{font-size:.88rem;color:rgba(255,255,255,.4);margin:.8rem 0 1.5rem;line-height:1.5}
+.price-feature{font-size:.88rem;color:rgba(255,255,255,.65);margin-bottom:.6rem;display:flex;align-items:center;gap:.6rem}
+.price-feature::before{content:'✓';color:var(--emerald);font-weight:700;flex-shrink:0}
+.price-cta{display:block;width:100%;margin-top:1.8rem;padding:.8rem;border-radius:100px;text-align:center;font-weight:600;font-size:.95rem;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:transform .2s,box-shadow .2s}
+.price-card.basic .price-cta{background:rgba(255,255,255,.08);color:#fff}
+.price-card.pro .price-cta{background:linear-gradient(135deg,var(--emerald),var(--cyan));color:#000}
+.price-card.enterprise .price-cta{background:rgba(124,58,237,.4);color:#fff}
+.price-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,255,136,.2)}
+
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;background:transparent;transition:background .4s}
+nav.scrolled{background:rgba(2,11,20,.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.05)}
+.nav-logo{font-size:1.2rem;font-weight:800;background:linear-gradient(90deg,var(--emerald),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{color:rgba(255,255,255,.55);text-decoration:none;font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:#fff}
+.nav-cta{padding:.5rem 1.4rem;border-radius:100px;background:linear-gradient(135deg,var(--emerald),var(--cyan));color:#000;font-weight:700;font-size:.85rem;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:transform .2s,box-shadow .2s}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,255,136,.3)}
+
+/* footer */
+footer{text-align:center;padding:3rem 2rem;color:rgba(255,255,255,.2);font-size:.85rem;border-top:1px solid rgba(255,255,255,.05);position:relative;z-index:10}
+
+/* reveal util */
+.gsap-reveal{opacity:0;transform:translateY(40px)}
+</style>
+</head>
+<body>
+
+<canvas id="globe-canvas"></canvas>
+
+<nav id="navbar">
+  <div class="nav-logo">MailerPRO</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#compare">Why Us</a>
+    <a href="#pricing">Pricing</a>
+    <button class="nav-cta" onclick="location.href='/login'">Get Started</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <h1 id="hero-title">Welcome to the<br>World of Marketing</h1>
+  <p id="hero-sub">Send smarter. Grow faster. Own your audience.</p>
+  <div id="scroll-hint">
+    <span>Scroll to explore</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- CLOUDS / FLYTHROUGH -->
+<section id="cloud-section">
+  <div id="cloud-sticky">
+    <div class="cloud-layer" id="cl1"></div>
+    <div class="cloud-layer" id="cl2"></div>
+    <div class="cloud-layer" id="cl3"></div>
+    <div id="cloud-text">
+      <h2>Your message,<br>delivered everywhere.</h2>
+      <p>Fly past the noise. Reach your audience directly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="reveal-section" id="features">
+  <div class="section-inner">
+    <div class="section-badge">Features</div>
+    <h2 class="section-title gsap-reveal">Everything you need to<br><span>dominate email marketing</span></h2>
+    <p class="section-sub gsap-reveal">Built for growth-focused teams who want power without complexity.</p>
+    <div class="features-grid">
+      <div class="feat-card gsap-reveal">
+        <div class="feat-icon">📧</div>
+        <h3>Smart Campaigns</h3>
+        <p>Create personalized campaigns with dynamic content that speaks directly to each subscriber.</p>
+      </div>
+      <div class="feat-card gsap-reveal">
+        <div class="feat-icon">👥</div>
+        <h3>Contact Segments</h3>
+        <p>Tag, filter, and segment your audience with powerful tools. Target the right people every time.</p>
+      </div>
+      <div class="feat-card gsap-reveal">
+        <div class="feat-icon">📊</div>
+        <h3>Live Analytics</h3>
+        <p>Track open rates, CTR, and conversions in real time. Know what's working instantly.</p>
+      </div>
+      <div class="feat-card gsap-reveal">
+        <div class="feat-icon">🔥</div>
+        <h3>Email Warming</h3>
+        <p>Built-in IP warming engine to build your sender reputation and maximize deliverability.</p>
+      </div>
+      <div class="feat-card gsap-reveal">
+        <div class="feat-icon">🎨</div>
+        <h3>Template Studio</h3>
+        <p>Design stunning email templates visually. Start from scratch or use our curated library.</p>
+      </div>
+      <div class="feat-card gsap-reveal">
+        <div class="feat-icon">🚀</div>
+        <h3>Self-Hosted</h3>
+        <p>100% ownership of your data. No third-party lock-in. Deploy anywhere in minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="reveal-section" id="compare">
+  <div class="section-inner">
+    <div class="section-badge">Why MailerPRO</div>
+    <h2 class="section-title gsap-reveal">Better than the rest,<br><span>by every measure</span></h2>
+    <p class="section-sub gsap-reveal">No bloat. No surprise bills. No data handed to advertisers.</p>
+    <div class="compare-grid">
+      <div class="compare-card them gsap-reveal">
+        <h3>Other Platforms</h3>
+        <div class="check-item"><div class="dot"></div>Per-contact pricing that scales painfully</div>
+        <div class="check-item"><div class="dot"></div>Your data used for advertising</div>
+        <div class="check-item"><div class="dot"></div>Limited templates behind paywalls</div>
+        <div class="check-item"><div class="dot"></div>No email warming built in</div>
+        <div class="check-item"><div class="dot"></div>Complex UIs with steep learning curves</div>
+        <div class="check-item"><div class="dot"></div>Vendor lock-in, no data export</div>
+      </div>
+      <div class="compare-card us gsap-reveal">
+        <h3>MailerPRO</h3>
+        <div class="check-item"><div class="dot"></div>Flat pricing — unlimited contacts</div>
+        <div class="check-item"><div class="dot"></div>You own 100% of your data</div>
+        <div class="check-item"><div class="dot"></div>All templates included, always</div>
+        <div class="check-item"><div class="dot"></div>Built-in warming engine</div>
+        <div class="check-item"><div class="dot"></div>Intuitive, clean interface</div>
+        <div class="check-item"><div class="dot"></div>Self-hosted, export anytime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="reveal-section" id="cta-section">
+  <div class="cta-box">
+    <div class="section-badge">Get Started</div>
+    <h2 class="section-title gsap-reveal">Ready to reach<br><span>the whole world?</span></h2>
+    <p class="section-sub gsap-reveal" style="margin:0 auto">Join thousands of marketers who've made the switch. Set up in under 5 minutes.</p>
+    <div class="cta-buttons">
+      <button class="btn-primary gsap-reveal" onclick="location.href='/register'">Sign Up Free</button>
+      <button class="btn-outline gsap-reveal" onclick="location.href='/login'">Log In</button>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="reveal-section" id="pricing">
+  <div class="section-inner">
+    <div class="section-badge">Pricing</div>
+    <h2 class="section-title gsap-reveal" style="text-align:center">Simple, honest<br><span>pricing</span></h2>
+    <div class="pricing-grid">
+      <div class="price-card basic gsap-reveal">
+        <h3>Starter</h3>
+        <div class="price-amount"><sup>$</sup>0<span class="price-period">/mo</span></div>
+        <p class="price-desc">Perfect to get started and explore.</p>
+        <div class="price-feature">Up to 1,000 contacts</div>
+        <div class="price-feature">3 campaigns/month</div>
+        <div class="price-feature">Basic analytics</div>
+        <div class="price-feature">Email support</div>
+        <button class="price-cta" onclick="location.href='/register'">Start Free</button>
+      </div>
+      <div class="price-card pro gsap-reveal">
+        <div class="price-badge">Most Popular</div>
+        <h3>Pro</h3>
+        <div class="price-amount"><sup>$</sup>19<span class="price-period">/mo</span></div>
+        <p class="price-desc">For serious marketers scaling fast.</p>
+        <div class="price-feature">Unlimited contacts</div>
+        <div class="price-feature">Unlimited campaigns</div>
+        <div class="price-feature">Advanced analytics</div>
+        <div class="price-feature">Email warming included</div>
+        <div class="price-feature">Template studio</div>
+        <div class="price-feature">Priority support</div>
+        <button class="price-cta" onclick="location.href='/register'">Get Pro</button>
+      </div>
+      <div class="price-card enterprise gsap-reveal">
+        <h3>Enterprise</h3>
+        <div class="price-amount" style="font-size:2rem">Custom</div>
+        <p class="price-desc">Tailored for large teams and agencies.</p>
+        <div class="price-feature">Everything in Pro</div>
+        <div class="price-feature">Dedicated infrastructure</div>
+        <div class="price-feature">Custom integrations</div>
+        <div class="price-feature">SLA &amp; dedicated support</div>
+        <div class="price-feature">White-label option</div>
+        <button class="price-cta" onclick="location.href='mailto:hello@mailerpro.io'">Contact Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 MailerPRO. Built with 💚 for the open web. <a href="/login" style="color:var(--emerald);text-decoration:none">Login</a></p>
+</footer>
+
+<script>
+// ── GSAP ScrollTrigger ──
+gsap.registerPlugin(ScrollTrigger);
+
+// ── THREE.JS GLOBE ──
+(function(){
+  const canvas = document.getElementById('globe-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.z = 2.8;
+
+  // Particle globe
+  const geo = new THREE.BufferGeometry();
+  const COUNT = 8000;
+  const pos = new Float32Array(COUNT * 3);
+  const colors = new Float32Array(COUNT * 3);
+  for(let i=0;i<COUNT;i++){
+    const phi = Math.acos(1-2*Math.random());
+    const theta = Math.random()*Math.PI*2;
+    const r = 1 + (Math.random()-.5)*0.04;
+    pos[i*3]   = r*Math.sin(phi)*Math.cos(theta);
+    pos[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
+    pos[i*3+2] = r*Math.cos(phi);
+    const t = Math.random();
+    colors[i*3]   = t<.5 ? 0 : t;
+    colors[i*3+1] = t<.5 ? 1-t*.2 : 0.9;
+    colors[i*3+2] = t<.5 ? t*.5+.5 : t*.3;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  const mat = new THREE.PointsMaterial({size:.012, vertexColors:true, transparent:true, opacity:.85, sizeAttenuation:true});
+  const globe = new THREE.Points(geo, mat);
+  scene.add(globe);
+
+  // ambient particles (stars/bokeh)
+  const starGeo = new THREE.BufferGeometry();
+  const sPos = new Float32Array(3000*3);
+  for(let i=0;i<3000;i++){
+    sPos[i*3]   = (Math.random()-.5)*20;
+    sPos[i*3+1] = (Math.random()-.5)*20;
+    sPos[i*3+2] = (Math.random()-.5)*20;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(sPos,3));
+  const starMat = new THREE.PointsMaterial({size:.018,color:0x00ff88,transparent:true,opacity:.25});
+  scene.add(new THREE.Points(starGeo, starMat));
+
+  // scroll-driven globe transform
+  let scrollY = 0;
+  window.addEventListener('scroll',()=>{ scrollY = window.scrollY; });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    const t = Date.now()*.0003;
+    globe.rotation.y = t + scrollY*.0008;
+    globe.rotation.x = scrollY*.0003;
+    // fade out globe as user scrolls into cloud section
+    const fadeStart = window.innerHeight*.8;
+    const fadeEnd   = window.innerHeight*1.6;
+    const op = 1 - Math.min(Math.max((scrollY-fadeStart)/(fadeEnd-fadeStart),0),1);
+    globe.material.opacity = op*.85;
+    starMat.opacity = op*.25;
+    renderer.render(scene,camera);
+  }
+  animate();
+
+  window.addEventListener('resize',()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+  });
+})();
+
+// ── HERO ENTRANCE ──
+gsap.timeline()
+  .to('#hero-title',{opacity:1,y:0,duration:1.2,ease:'power3.out'},0.4)
+  .to('#hero-sub',  {opacity:1,y:0,duration:1,  ease:'power3.out'},0.9)
+  .to('#scroll-hint',{opacity:1,    duration:.8,  ease:'power2.out'},1.4);
+
+// init hero elements position
+gsap.set('#hero-title',{y:50});
+gsap.set('#hero-sub',  {y:30});
+
+// ── CLOUD PARALLAX ──
+gsap.to('#cl1',{
+  x:'30%', ease:'none',
+  scrollTrigger:{trigger:'#cloud-section',scrub:1,start:'top top',end:'bottom top'}
+});
+gsap.to('#cl2',{
+  x:'20%', ease:'none',
+  scrollTrigger:{trigger:'#cloud-section',scrub:1.5,start:'top top',end:'bottom top'}
+});
+gsap.to('#cl3',{
+  x:'10%', ease:'none',
+  scrollTrigger:{trigger:'#cloud-section',scrub:2,start:'top top',end:'bottom top'}
+});
+gsap.fromTo('#cloud-text',{opacity:0,y:40},{
+  opacity:1,y:0,ease:'power2.out',
+  scrollTrigger:{trigger:'#cloud-section',scrub:false,start:'30% center',end:'60% center',toggleActions:'play none none reverse'}
+});
+
+// ── SECTION REVEALS ──
+document.querySelectorAll('.gsap-reveal').forEach(el=>{
+  gsap.fromTo(el,{opacity:0,y:50},{
+    opacity:1,y:0,duration:.8,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}
+  });
+});
+
+// ── NAVBAR ──
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY>60);
+});
+</script>
+</body>
+</html>
