@@ -309,7 +309,6 @@ func (r *Repository) BulkMoveToFolder(ids []int64, folderName string) error {
 	if err != nil || len(tagList) == 0 {
 		return fmt.Errorf("failed to get tag ID for folder")
 	}
-	tagID := tagList[0].ID
 
 	// 2. Link tag to all contacts
 	for _, id := range ids {
