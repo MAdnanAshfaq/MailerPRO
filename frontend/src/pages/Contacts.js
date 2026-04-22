@@ -181,30 +181,61 @@ export function initContacts() {
 
         // Rename folder
         folderList.querySelectorAll('.rename-folder-btn').forEach(btn => {
-            btn.onclick = async (e) => {
+            btn.onclick = (e) => {
                 e.stopPropagation();
                 const oldName = btn.dataset.folder;
-                const newName = prompt(`Rename folder "${oldName}" to:`, oldName);
-                if (!newName || newName === oldName) return;
-                // Update all contacts that have this tag
-                const affected = allContacts.filter(c => c.tags && c.tags.some(t => t.text === oldName));
-                let done = 0;
-                for (const c of affected) {
-                    const newTags = c.tags.map(t => t.text === oldName ? { text: newName } : t);
-                    try {
-                        await contactsApi.update(c.id, { ...c, tags: newTags });
-                        c.tags = newTags;
-                        done++;
-                    } catch (err) {
-                        console.error('Rename failed for contact', c.id, err);
-                    }
-                }
-                if (activeFolder === oldName) activeFolder = newName;
-                renderFolderSidebar();
-                renderTable(activeFolder ? allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)) : allContacts);
-                showToast(`Renamed "${oldName}" → "${newName}" for ${done} contacts`, 'success');
+                renderRenameModal(oldName);
             };
         });
+    };
+
+    const renderRenameModal = (oldName) => {
+        modalContainer.innerHTML = `
+            <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000;" id="rename-modal-overlay">
+                <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; border: 1px solid var(--primary);">
+                    <h2 class="mb-4" style="font-size: 1.5rem;">Rename Folder</h2>
+                    <p class="text-muted mb-6">Changing "${oldName}" will update all associated contacts.</p>
+                    <div class="mb-6">
+                        <input type="text" id="rename-folder-input" class="input" value="${oldName}" style="width: 100%; padding: 0.75rem;" autofocus>
+                    </div>
+                    <div class="flex justify-between" style="gap: 1rem;">
+                        <button type="button" class="btn btn-outline" id="close-rename-modal" style="flex: 1;">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirm-rename-btn" style="flex: 1;">Rename</button>
+                    </div>
+                </div>
+            </div>`;
+
+        const overlay = document.getElementById('rename-modal-overlay');
+        const input = document.getElementById('rename-folder-input');
+        const confirmBtn = document.getElementById('confirm-rename-btn');
+
+        const close = () => modalContainer.innerHTML = '';
+        document.getElementById('close-rename-modal').onclick = close;
+        overlay.onclick = (e) => { if (e.target === overlay) close(); };
+
+        confirmBtn.onclick = async () => {
+            const newName = input.value.trim();
+            if (!newName || newName === oldName) return close();
+
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Updating...';
+
+            const affected = allContacts.filter(c => c.tags && c.tags.some(t => t.text === oldName));
+            let done = 0;
+            for (const c of affected) {
+                const newTags = c.tags.map(t => t.text === oldName ? { text: newName } : t);
+                try {
+                    await contactsApi.update(c.id, { ...c, tags: newTags });
+                    c.tags = newTags;
+                    done++;
+                } catch (err) { console.error('Rename failed', err); }
+            }
+            if (activeFolder === oldName) activeFolder = newName;
+            renderFolderSidebar();
+            renderTable(activeFolder ? allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)) : allContacts);
+            showToast(`Renamed "${oldName}" → "${newName}" for ${done} contacts`, 'success');
+            close();
+        };
     };
 
     renderTable = (contactsToRender) => {
@@ -286,30 +317,81 @@ export function initContacts() {
             }
         };
 
-        document.getElementById('bulk-move-btn').onclick = async () => {
+        document.getElementById('bulk-move-btn').onclick = () => {
             const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => parseInt(cb.dataset.id));
-            const folder = prompt('Enter folder name to move to:');
-            if (!folder) return;
+            renderMoveModal(selected);
+        };
+    };
+
+    const renderMoveModal = (selectedIds) => {
+        const folders = Object.keys(getFolders());
+        modalContainer.innerHTML = `
+            <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000;" id="move-modal-overlay">
+                <div class="card" style="width: 100%; max-width: 450px; padding: 2rem; border: 1px solid var(--primary);">
+                    <h2 class="mb-4">Move ${selectedIds.length} Contacts</h2>
+                    <p class="text-muted mb-6">Select an existing folder or create a new one.</p>
+                    
+                    <div class="mb-6">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary);">Select Folder</label>
+                        <select id="folder-select" class="input" style="width: 100%; padding: 0.75rem;">
+                            <option value="">-- Choose existing --</option>
+                            ${folders.map(f => `<option value="${f}">${f}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <div class="mb-8">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary);">Or New Folder</label>
+                        <input type="text" id="new-folder-input" class="input" placeholder="e.g. VIP Clients" style="width: 100%; padding: 0.75rem;">
+                    </div>
+
+                    <div class="flex justify-between" style="gap: 1rem;">
+                        <button type="button" class="btn btn-outline" id="close-move-modal" style="flex: 1;">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirm-move-btn" style="flex: 1;">Move Contacts</button>
+                    </div>
+                </div>
+            </div>`;
+
+        const overlay = document.getElementById('move-modal-overlay');
+        const select = document.getElementById('folder-select');
+        const input = document.getElementById('new-folder-input');
+        const confirmBtn = document.getElementById('confirm-move-btn');
+
+        const close = () => modalContainer.innerHTML = '';
+        document.getElementById('close-move-modal').onclick = close;
+        overlay.onclick = (e) => { if (e.target === overlay) close(); };
+
+        confirmBtn.onclick = async () => {
+            const folder = input.value.trim() || select.value;
+            if (!folder) return showToast('Please select or enter a folder.', 'error');
+
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Moving...';
+
             try {
-                await contactsApi.bulkMove(selected, folder);
-                // Update in-memory
-                selected.forEach(id => {
+                await contactsApi.bulkMove(selectedIds, folder);
+                selectedIds.forEach(id => {
                     const c = allContacts.find(x => x.id === id);
                     if (c) {
                         if (!c.tags) c.tags = [];
-                        if (!c.tags.some(t => t.text === folder)) {
-                            c.tags.push({ text: folder });
-                        }
+                        if (!c.tags.some(t => t.text === folder)) c.tags.push({ text: folder });
                     }
                 });
-                showToast(`Moved ${selected.length} contacts to "${folder}"`, 'success');
+                showToast(`Moved ${selectedIds.length} contacts to "${folder}"`, 'success');
                 renderFolderSidebar();
                 renderTable(activeFolder ? allContacts.filter(c => c.tags && c.tags.some(t => t.text === activeFolder)) : allContacts);
-                updateBulkBar();
+                
+                // Hide bulk bar
+                const bulkBar = document.getElementById('bulk-actions-bar');
+                if (bulkBar) bulkBar.style.transform = 'translateX(-50%) translateY(100px)';
+                
+                close();
             } catch (err) {
-                showToast('Bulk move failed: ' + err.message, 'error');
+                showToast('Move failed: ' + err.message, 'error');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Move Contacts';
             }
         };
+    };
 
         // Click folder badge → jump to that folder
         tbody.querySelectorAll('[data-folder-jump]').forEach(badge => {
@@ -354,37 +436,60 @@ export function initContacts() {
     renderTable(allContacts);
 
     // New folder button
-    document.getElementById('new-folder-btn')?.addEventListener('click', () => {
-        const name = prompt('New folder name:');
-        if (!name) return;
-        
-        // To make "empty" folders appear, we can use a local storage "extra folders" list
-        // or just let the user know they need to add contacts.
-        // Better: let's add a dummy tag to the sidebar if it doesn't exist.
-        const existing = getFolders();
-        if (existing[name]) {
-            showToast(`Folder "${name}" already exists.`, 'info');
-            return;
-        }
-        
-        // Mock creation by updating the UI title and showing instructions
-        activeFolder = name;
-        const title = document.getElementById('folder-title');
-        const subtitle = document.getElementById('folder-subtitle');
-        if (title) title.textContent = name;
-        if (subtitle) subtitle.textContent = `New folder "${name}" created. Add contacts to see them here.`;
-        
-        // Add to a local "session" folders list to show in sidebar
-        const sessionFolders = JSON.parse(sessionStorage.getItem('session_folders') || '[]');
-        if (!sessionFolders.includes(name)) {
-            sessionFolders.push(name);
-            sessionStorage.setItem('session_folders', JSON.stringify(sessionFolders));
-        }
-        
-        renderFolderSidebar();
-        renderTable([]);
-        showToast(`Folder "${name}" created!`, 'success');
-    });
+    document.getElementById('new-folder-btn')?.addEventListener('click', () => renderNewFolderModal());
+
+    const renderNewFolderModal = () => {
+        modalContainer.innerHTML = `
+            <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000;" id="new-folder-overlay">
+                <div class="card" style="width: 100%; max-width: 400px; padding: 2rem; border: 1px solid var(--primary);">
+                    <h2 class="mb-4">New Folder</h2>
+                    <p class="text-muted mb-6">Create a new segment for your contacts.</p>
+                    <div class="mb-6">
+                        <input type="text" id="new-folder-name-input" class="input" placeholder="e.g. Q4 Leads" style="width: 100%; padding: 0.75rem;" autofocus>
+                    </div>
+                    <div class="flex justify-between" style="gap: 1rem;">
+                        <button type="button" class="btn btn-outline" id="close-new-folder-modal" style="flex: 1;">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirm-new-folder-btn" style="flex: 1;">Create</button>
+                    </div>
+                </div>
+            </div>`;
+
+        const overlay = document.getElementById('new-folder-overlay');
+        const input = document.getElementById('new-folder-name-input');
+        const confirmBtn = document.getElementById('confirm-new-folder-btn');
+
+        const close = () => modalContainer.innerHTML = '';
+        document.getElementById('close-new-folder-modal').onclick = close;
+        overlay.onclick = (e) => { if (e.target === overlay) close(); };
+
+        confirmBtn.onclick = () => {
+            const name = input.value.trim();
+            if (!name) return close();
+
+            const existing = getFolders();
+            if (existing[name]) {
+                showToast(`Folder "${name}" already exists.`, 'info');
+                return close();
+            }
+            
+            activeFolder = name;
+            const title = document.getElementById('folder-title');
+            const subtitle = document.getElementById('folder-subtitle');
+            if (title) title.textContent = name;
+            if (subtitle) subtitle.textContent = `New folder "${name}" created. Add contacts to see them here.`;
+            
+            const sessionFolders = JSON.parse(sessionStorage.getItem('session_folders') || '[]');
+            if (!sessionFolders.includes(name)) {
+                sessionFolders.push(name);
+                sessionStorage.setItem('session_folders', JSON.stringify(sessionFolders));
+            }
+            
+            renderFolderSidebar();
+            renderTable([]);
+            showToast(`Folder "${name}" created!`, 'success');
+            close();
+        };
+    };
 
     // Add contact
     document.getElementById('add-contact-btn')?.addEventListener('click', () => renderModal(null));

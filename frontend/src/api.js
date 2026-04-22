@@ -14,7 +14,8 @@ export const api = {
             body: JSON.stringify(data)
         });
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-        return response.json();
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;
     },
 
     async patch(path, data) {
@@ -24,7 +25,8 @@ export const api = {
             body: JSON.stringify(data)
         });
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-        return response.json();
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;
     },
 
     async put(path, data) {
