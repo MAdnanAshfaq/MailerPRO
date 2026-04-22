@@ -127,6 +127,21 @@ func (s *Service) SendCampaign(accID int64, subject, content string, isPersonali
 	return nil
 }
 
+func (s *Service) SendWarming(accID int64, toEmail, subject, body string) error {
+	settings, err := s.accountRepo.GetSMTPSettings(accID)
+	if err != nil || settings == nil {
+		return fmt.Errorf("no SMTP settings found for warming")
+	}
+
+	msg := []byte(fmt.Sprintf("To: %s\r\n"+
+		"Subject: %s\r\n"+
+		"Content-Type: text/html; charset=UTF-8\r\n"+
+		"\r\n"+
+		"%s\r\n", toEmail, subject, body))
+
+	return s.sendMail(settings, []string{toEmail}, msg)
+}
+
 func (s *Service) sendMail(settings *account.SMTPSettings, to []string, msg []byte) error {
 	addr := fmt.Sprintf("%s:%d", settings.Host, settings.Port)
 	auth := smtp.PlainAuth("", settings.Username, settings.Password, settings.Host)
