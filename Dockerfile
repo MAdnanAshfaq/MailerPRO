@@ -44,6 +44,8 @@ COPY --from=backend-builder /app/camp .
 
 # Copy the built frontend static files from Stage 1 into the expected directory path
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+# Copy the immersive landing page file
+COPY frontend/landing.html ./frontend/landing.html
 
 # Ensure the app runs as a non-root user for security
 USER nobody:nobody
