@@ -48,6 +48,9 @@ COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 # Copy the immersive landing page
 COPY frontend/landing.html /app/frontend/landing.html
 
+# Copy all images and 3D textures
+COPY frontend/img /app/frontend/img
+
 # Create the data directory and set ALL permissions after all COPYs
 RUN mkdir -p /app/camp_data && chown -R campuser:campgroup /app/camp_data && chmod 750 /app/camp_data && chown campuser:campgroup /app/camp && chmod 755 /app/camp
 
