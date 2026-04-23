@@ -11,11 +11,13 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: Build the backend (Go)
-FROM golang:1.25-alpine AS backend-builder
+FROM golang:1.22-alpine AS backend-builder
 WORKDIR /app
 
-# Disable CGO to ensure a statically linked binary
+# Disable CGO for a statically linked binary and prevent toolchain auto-download
 ENV CGO_ENABLED=0
+ENV GOFLAGS=-mod=mod
+ENV GOTOOLCHAIN=local
 
 # Copy Go modules manifests and download dependencies
 COPY go.mod go.sum ./
@@ -31,29 +33,33 @@ RUN go build -o camp cmd/camp/main.go
 FROM alpine:3.18
 WORKDIR /app
 
-# Install ca-certificates and timezone data
+# Install runtime dependencies
 RUN apk add --no-cache ca-certificates tzdata
 
-# Create the data directory for the SQLite database
-RUN mkdir -p camp_data && chown -R nobody:nobody camp_data
+# Create a dedicated non-root user for running the app
+RUN addgroup -S campgroup && adduser -S campuser -G campgroup
 
 # Copy the compiled Go binary from Stage 2
-COPY --from=backend-builder /app/camp .
+COPY --from=backend-builder /app/camp /app/camp
 
-# Copy the built frontend static files from Stage 1 into the expected directory path
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-# Copy the immersive landing page file
-COPY frontend/landing.html ./frontend/landing.html
+# Copy the built frontend static files from Stage 1
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
-# Ensure the app runs as a non-root user for security
-USER nobody:nobody
+# Copy the immersive landing page
+COPY frontend/landing.html /app/frontend/landing.html
 
-# Set default environment variables
+# Create the data directory and set ALL permissions after all COPYs
+RUN mkdir -p /app/camp_data && chown -R campuser:campgroup /app/camp_data && chmod 750 /app/camp_data && chown campuser:campgroup /app/camp && chmod 755 /app/camp
+
+# Switch to non-root user
+USER campuser
+
+# Set environment variables
 ENV PORT=8080
 ENV DB_PATH=/app/camp_data/camp.db
 
 # Expose the configured HTTP port
 EXPOSE 8080
 
-# Command to run the application
-CMD ["./camp"]
+# Command to run the application using absolute path
+CMD ["/app/camp"]
