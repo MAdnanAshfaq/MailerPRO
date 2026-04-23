@@ -159,6 +159,11 @@ func main() {
 		http.ServeFile(w, r, "./frontend/landing.html")
 	})
 
+	// Static file handlers
+	http.Handle("/frontend/", http.StripPrefix("/frontend/", http.FileServer(http.Dir("./frontend"))))
+	http.Handle("/assets/", http.FileServer(http.Dir("./frontend/dist")))
+
+
 	// Catch-all route to serve index.html for SPA routing
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// If it's an API request that didn't match, return 404
