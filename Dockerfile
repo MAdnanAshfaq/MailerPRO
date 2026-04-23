@@ -14,10 +14,8 @@ RUN npm run build
 FROM golang:1.25-alpine AS backend-builder
 WORKDIR /app
 
-# Install build dependencies if needed (e.g. for CGO sqlite)
-# Enable CGO for the sqlite driver
-ENV CGO_ENABLED=1
-RUN apk add --no-cache gcc musl-dev
+# Disable CGO to ensure a statically linked binary
+ENV CGO_ENABLED=0
 
 # Copy Go modules manifests and download dependencies
 COPY go.mod go.sum ./
@@ -33,8 +31,8 @@ RUN go build -o camp cmd/camp/main.go
 FROM alpine:3.18
 WORKDIR /app
 
-# Install ca-certificates and timezone data (often needed for secure outbound requests and correct timestamps)
-RUN apk add --no-cache ca-certificates tzdata sqlite-libs
+# Install ca-certificates and timezone data
+RUN apk add --no-cache ca-certificates tzdata
 
 # Create the data directory for the SQLite database
 RUN mkdir -p camp_data && chown -R nobody:nobody camp_data
