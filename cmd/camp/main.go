@@ -9,10 +9,12 @@ import (
 
 	"github.com/codersgyan/camp/internal/account"
 	"github.com/codersgyan/camp/internal/ai"
+	"github.com/codersgyan/camp/internal/auth"
 	"github.com/codersgyan/camp/internal/campaign"
 	"github.com/codersgyan/camp/internal/contact"
 	"github.com/codersgyan/camp/internal/database"
 	"github.com/codersgyan/camp/internal/domain"
+	"github.com/codersgyan/camp/internal/google"
 	"github.com/codersgyan/camp/internal/mailer"
 	"github.com/codersgyan/camp/internal/stats"
 	"github.com/codersgyan/camp/internal/warming"
@@ -57,7 +59,10 @@ func main() {
 	accountHandler := account.NewHandler(accountRepo)
 
 	aiService := ai.NewService()
-	mailerService := mailer.NewService(db, accountRepo, contactRepository, aiService)
+	googleService := google.NewService(accountRepo)
+	authHandler := auth.NewHandler(accountRepo, googleService)
+
+	mailerService := mailer.NewService(db, accountRepo, contactRepository, aiService, googleService)
 	mailerHandler := mailer.NewHandler(db, mailerService)
 
 	campaignRepository := campaign.NewRepository(db)
@@ -143,6 +148,10 @@ func main() {
 	http.HandleFunc("GET /api/domain/health", domainHandler.GetHealth)
 
 	http.HandleFunc("/api/mailer/test-send", mailerHandler.SendTest)
+
+	// Google OAuth
+	http.HandleFunc("/api/auth/google/url", authHandler.GetGoogleAuthURL)
+	http.HandleFunc("/api/auth/google/callback", authHandler.GoogleCallback)
 
 	// Health Check Route
 	http.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {

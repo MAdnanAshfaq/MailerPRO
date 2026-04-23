@@ -1,6 +1,7 @@
 package mailer
 
 import (
+	"context"
 	"crypto/tls"
 	"database/sql"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"github.com/codersgyan/camp/internal/ai"
 	"github.com/codersgyan/camp/internal/contact"
 	"github.com/codersgyan/camp/internal/database"
+	"github.com/codersgyan/camp/internal/google"
 )
 
 type Service struct {
@@ -19,18 +21,32 @@ type Service struct {
 	accountRepo *account.Repository
 	contactRepo *contact.Repository
 	aiService   *ai.Service
+	googleSvc   *google.Service
 }
 
-func NewService(db *sql.DB, accRepo *account.Repository, contactRepo *contact.Repository, ai *ai.Service) *Service {
+func NewService(db *sql.DB, accRepo *account.Repository, contactRepo *contact.Repository, ai *ai.Service, googleSvc *google.Service) *Service {
 	return &Service{
 		db:          db,
 		accountRepo: accRepo,
 		contactRepo: contactRepo,
 		aiService:   ai,
+		googleSvc:   googleSvc,
 	}
 }
 
 func (s *Service) SendTestEmail(accID int64, toEmail string) error {
+	acc, _ := s.accountRepo.GetByID(accID)
+	if acc != nil && acc.GoogleRefreshToken != nil {
+		subject := "MailerPRO Deliverability Test (via Gmail API)"
+		body := `<h2>Test Successful!</h2><p>Sent via Gmail OAuth2.</p>`
+		err := s.googleSvc.SendGmail(context.Background(), acc, toEmail, subject, body)
+		if err == nil {
+			s.LogSentEmail(accID, toEmail, subject, "test")
+			return nil
+		}
+		log.Printf("OAuth send failed, falling back to SMTP: %v", err)
+	}
+
 	settings, err := s.accountRepo.GetSMTPSettings(accID)
 	if err != nil || settings == nil {
 		return fmt.Errorf("no SMTP settings found for account %d", accID)
@@ -62,11 +78,14 @@ func (s *Service) SendTestEmail(accID int64, toEmail string) error {
 }
 
 func (s *Service) SendCampaign(accID int64, subject, content string, isPersonalized bool, targetFolder string) error {
-	// 1. Get SMTP settings for the account
-	settings, err := s.accountRepo.GetSMTPSettings(accID)
-	if err != nil || settings == nil {
-		log.Printf("No SMTP settings found for account %d. Simulating send.", accID)
-		return nil // Graceful degradation for prototype
+	acc, _ := s.accountRepo.GetByID(accID)
+	var smtpSettings *account.SMTPSettings
+	if acc == nil || acc.GoogleRefreshToken == nil {
+		smtpSettings, _ = s.accountRepo.GetSMTPSettings(accID)
+		if smtpSettings == nil {
+			log.Printf("No SMTP or OAuth settings found for account %d. Simulating send.", accID)
+			return nil
+		}
 	}
 
 	// 2. Get contacts
@@ -114,12 +133,18 @@ func (s *Service) SendCampaign(accID int64, subject, content string, isPersonali
 			"\r\n"+
 			"%s\r\n", c.Email, subject, emailContent))
 
-		err := s.sendMail(settings, []string{c.Email}, msg)
+		var err error
+		if acc != nil && acc.GoogleRefreshToken != nil {
+			err = s.googleSvc.SendGmail(context.Background(), acc, c.Email, subject, emailContent)
+		} else {
+			err = s.sendMail(smtpSettings, []string{c.Email}, msg)
+		}
+
 		if err != nil {
-			log.Printf("Failed to send to %s via %s:%d: %v", c.Email, settings.Host, settings.Port, err)
+			log.Printf("Failed to send to %s: %v", c.Email, err)
 		} else {
 			successes++
-			log.Printf("Successfully sent out email to %s via %s", c.Email, settings.Host)
+			log.Printf("Successfully sent out email to %s", c.Email)
 			s.LogSentEmail(accID, c.Email, subject, "campaign")
 		}
 	}
@@ -128,6 +153,11 @@ func (s *Service) SendCampaign(accID int64, subject, content string, isPersonali
 }
 
 func (s *Service) SendWarming(accID int64, toEmail, subject, body string) error {
+	acc, _ := s.accountRepo.GetByID(accID)
+	if acc != nil && acc.GoogleRefreshToken != nil {
+		return s.googleSvc.SendGmail(context.Background(), acc, toEmail, subject, body)
+	}
+
 	settings, err := s.accountRepo.GetSMTPSettings(accID)
 	if err != nil || settings == nil {
 		return fmt.Errorf("no SMTP settings found for warming")

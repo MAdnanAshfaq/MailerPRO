@@ -8,9 +8,12 @@ type Account struct {
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"-"`
 	CompanyName  string    `json:"company_name"`
-	Domain       string    `json:"domain"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	Domain              string     `json:"domain"`
+	GoogleAccessToken   *string    `json:"google_access_token"`
+	GoogleRefreshToken  *string    `json:"google_refresh_token"`
+	GoogleTokenExpiry   *time.Time `json:"google_token_expiry"`
+	CreatedAt           time.Time  `json:"created_at"`
+	UpdatedAt           time.Time  `json:"updated_at"`
 }
 
 type SMTPSettings struct {

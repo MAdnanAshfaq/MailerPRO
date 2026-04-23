@@ -97,6 +97,7 @@ export const accountApi = {
     saveSMTP: (data) => api.post('/settings/smtp', data),
     testSend: (data) => api.post('/mailer/test-send', data),
     getWarming: (accountID) => api.get(`/stats/warming?account_id=${accountID}`),
+    getGoogleAuthUrl: (accountID) => api.get(`/auth/google/url?account_id=${accountID}`),
 };
 
 export const domainApi = {

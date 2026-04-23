@@ -43,9 +43,9 @@ func (r *Repository) CreateAccount(a *Account) (int64, error) {
 }
 
 func (r *Repository) GetByEmail(email string) (*Account, error) {
-	query := database.Translate(`SELECT id, name, email, password_hash, company_name, domain, created_at, updated_at FROM accounts WHERE email = ?`)
+	query := database.Translate(`SELECT id, name, email, password_hash, company_name, domain, google_access_token, google_refresh_token, google_token_expiry, created_at, updated_at FROM accounts WHERE email = ?`)
 	var a Account
-	err := r.db.QueryRow(query, email).Scan(&a.ID, &a.Name, &a.Email, &a.PasswordHash, &a.CompanyName, &a.Domain, &a.CreatedAt, &a.UpdatedAt)
+	err := r.db.QueryRow(query, email).Scan(&a.ID, &a.Name, &a.Email, &a.PasswordHash, &a.CompanyName, &a.Domain, &a.GoogleAccessToken, &a.GoogleRefreshToken, &a.GoogleTokenExpiry, &a.CreatedAt, &a.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -53,6 +53,27 @@ func (r *Repository) GetByEmail(email string) (*Account, error) {
 		return nil, fmt.Errorf("failed to get account: %w", err)
 	}
 	return &a, nil
+}
+func (r *Repository) GetByID(id int64) (*Account, error) {
+	query := database.Translate(`SELECT id, name, email, password_hash, company_name, domain, google_access_token, google_refresh_token, google_token_expiry, created_at, updated_at FROM accounts WHERE id = ?`)
+	var a Account
+	err := r.db.QueryRow(query, id).Scan(&a.ID, &a.Name, &a.Email, &a.PasswordHash, &a.CompanyName, &a.Domain, &a.GoogleAccessToken, &a.GoogleRefreshToken, &a.GoogleTokenExpiry, &a.CreatedAt, &a.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get account by id: %w", err)
+	}
+	return &a, nil
+}
+func (r *Repository) UpdateGoogleTokens(accountID int64, accessToken, refreshToken string, expiry *time.Time) error {
+	query := database.Translate(`
+		UPDATE accounts 
+		SET google_access_token = ?, google_refresh_token = ?, google_token_expiry = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`)
+	_, err := r.db.Exec(query, accessToken, refreshToken, expiry, accountID)
+	return err
 }
 
 func (r *Repository) SaveSMTPSettings(s *SMTPSettings) error {

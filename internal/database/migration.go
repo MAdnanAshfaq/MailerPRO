@@ -24,6 +24,9 @@ func RunMigration(db *sql.DB) error {
 				password_hash TEXT NOT NULL,
 				company_name TEXT,
 				domain TEXT,
+				google_access_token TEXT,
+				google_refresh_token TEXT,
+				google_token_expiry %TIMESTAMP%,
 				created_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP,
 				updated_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
 			)
@@ -124,6 +127,9 @@ func RunMigration(db *sql.DB) error {
 			)
 		`,
 		// ALTER TABLE migrations for existing DBs (errors are ignored if columns already exist)
+		`ALTER TABLE accounts ADD COLUMN google_access_token TEXT`,
+		`ALTER TABLE accounts ADD COLUMN google_refresh_token TEXT`,
+		`ALTER TABLE accounts ADD COLUMN google_token_expiry %TIMESTAMP%`,
 		`ALTER TABLE contacts ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
 		`ALTER TABLE campaigns ADD COLUMN account_id INTEGER REFERENCES accounts(id)`,
 		`ALTER TABLE campaigns ADD COLUMN scheduled_at %TIMESTAMP%`,

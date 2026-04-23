@@ -5,6 +5,10 @@ export async function Settings() {
     const user = JSON.parse(localStorage.getItem('camp_user') || '{}');
     let settings = {};
     
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const error = urlParams.get('error');
+
     try {
         if (user.id) {
             settings = await accountApi.getSMTP(user.id);
@@ -18,6 +22,8 @@ export async function Settings() {
             <header class="mb-8">
                 <h1 style="font-size: 2.25rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem;">Settings</h1>
                 <p class="text-muted">Configure your sender identity and delivery engine.</p>
+                ${success === 'google_connected' ? '<div style="margin-top: 1rem; padding: 1rem; background: rgba(0,255,136,0.1); border: 1px solid var(--emerald); border-radius: 8px; color: var(--emerald); font-weight: 600;">✅ Google Account connected successfully! Your emails will now be sent via Gmail API.</div>' : ''}
+                ${error ? `<div style="margin-top: 1rem; padding: 1rem; background: rgba(255,50,50,0.1); border: 1px solid #ff3232; border-radius: 8px; color: #ff3232; font-weight: 600;">❌ Connection failed: ${error.replace(/_/g, ' ')}</div>` : ''}
             </header>
 
             <div class="grid-2" style="grid-template-columns: 1fr 1.5fr; gap: 2rem; align-items: start;">
@@ -38,6 +44,26 @@ export async function Settings() {
                             <p style="font-weight: 600;">${user.company_name || 'Individual'}</p>
                         </div>
                     </div>
+                </div>
+
+                <!-- Google OAuth Section -->
+                <div class="card" style="padding: 2rem; border: 1px solid var(--emerald); background: rgba(0,255,136,0.02);">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="width: 48px; height: 48px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" style="width: 24px;" alt="Google">
+                        </div>
+                        <div>
+                            <h3 style="font-weight: 700; margin-bottom: 2px;">Google Connection</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Faster, safer, no passwords.</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem; color: rgba(255,255,255,0.7);">
+                        Connect your Gmail account directly via Google OAuth. This is the **recommended** way to send emails with 100% deliverability.
+                    </p>
+                    <button id="google-connect-btn" class="btn btn-primary" style="width: 100%; padding: 0.85rem; background: #fff; color: #000; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" style="width: 18px;">
+                        Connect with Google
+                    </button>
                 </div>
 
                 <!-- SMTP Section -->
@@ -150,6 +176,19 @@ export function initSettings() {
     });
 
     if (form) {
+        const usernameInput = form.querySelector('[name="username"]');
+        if (usernameInput) {
+            usernameInput.onblur = async () => {
+                if (usernameInput.value.toLowerCase().endsWith('@gmail.com')) {
+                    const confirmOAuth = confirm("We identified you want to use a Gmail account. For better security and deliverability, we recommend using Google OAuth instead of manual SMTP. \n\nContinue with the automatic Google connection process?");
+                    if (confirmOAuth) {
+                        const googleBtn = document.getElementById('google-connect-btn');
+                        if (googleBtn) googleBtn.click();
+                    }
+                }
+            };
+        }
+
         form.onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(form);
@@ -162,6 +201,18 @@ export function initSettings() {
                 showToast('SMTP settings updated successfully!', 'success');
             } catch (err) {
                 showToast('Failed to save settings: ' + err.message, 'error');
+            }
+        };
+    }
+
+    const googleBtn = document.getElementById('google-connect-btn');
+    if (googleBtn) {
+        googleBtn.onclick = async () => {
+            try {
+                const { url } = await accountApi.getGoogleAuthUrl(user.id);
+                window.location.href = url;
+            } catch (err) {
+                showToast('Failed to start Google connection: ' + err.message, 'error');
             }
         };
     }
