@@ -16,17 +16,13 @@ WORKDIR /app
 
 # Disable CGO for a statically linked binary and prevent toolchain auto-download
 ENV CGO_ENABLED=0
-ENV GOFLAGS=-mod=mod
+ENV GOFLAGS=-mod=vendor
 ENV GOTOOLCHAIN=local
 
-# Copy Go modules manifests and download dependencies
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy backend source code
+# Copy the entire backend source code (including vendor folder)
 COPY . .
 
-# Build the Go application
+# Build the Go application using the vendored dependencies
 RUN go build -o camp cmd/camp/main.go
 
 # Stage 3: Create the final lightweight production image
