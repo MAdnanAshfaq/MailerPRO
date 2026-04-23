@@ -16,7 +16,7 @@
   --dark:#020b14;--mid:#061a2e;
 }
 html{scroll-behavior:auto}
-body{background:var(--dark);font-family:'Outfit',sans-serif;color:#fff;overflow-x:hidden;height: 800vh;}
+body{background:var(--dark);font-family:'Outfit',sans-serif;color:#fff;overflow-x:hidden;height: 400vh;}
 
 /* ── CANVAS ── */
 #globe-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
@@ -197,10 +197,22 @@ footer{padding:6rem 2rem 3rem;background:#000;position:relative;z-index:10;borde
       </div>
     </div>
 
-    <!-- Product Screenshot Fix -->
-    <div class="gsap-reveal" style="position: relative; border-radius: 32px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 100px rgba(0,0,0,0.5);">
-      <img src="/frontend/img/dashboard-mockup.png" alt="MailerPRO Dashboard" style="width: 100%; display: block;">
-      <div style="position: absolute; inset: 0; background: linear-gradient(to top, var(--dark), transparent 30%);"></div>
+    <!-- Product Showreel Fix -->
+    <div class="gsap-reveal" style="margin-top: 4rem;">
+      <div class="showreel-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <div class="showreel-item" style="border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); transition: 0.3s;">
+          <img src="/frontend/img/dashboard.png" alt="Dashboard" style="width: 100%; display: block;">
+          <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); text-align: center; font-weight: 600;">Intelligent Dashboard</div>
+        </div>
+        <div class="showreel-item" style="border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); transition: 0.3s;">
+          <img src="/frontend/img/contacts.png" alt="Contacts" style="width: 100%; display: block;">
+          <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); text-align: center; font-weight: 600;">Global Contact Management</div>
+        </div>
+        <div class="showreel-item" style="border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); transition: 0.3s;">
+          <img src="/frontend/img/campaigns.png" alt="Campaigns" style="width: 100%; display: block;">
+          <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); text-align: center; font-weight: 600;">High-Impact Campaigns</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -397,13 +409,13 @@ const mainTl = gsap.timeline({
 });
 
 // 1. Center Earth + Hide Hero
-mainTl.to(earth.position, { x: 0, duration: 2 }, 0);
-mainTl.to(clouds.position, { x: 0, duration: 2 }, 0);
-mainTl.to("#hero", { opacity: 0, y: -50, duration: 1 }, 0.5);
+mainTl.to(earth.position, { x: 0, duration: 1 }, 0);
+mainTl.to(clouds.position, { x: 0, duration: 1 }, 0);
+mainTl.to("#hero", { opacity: 0, y: -50, duration: 0.5 }, 0.2);
 
 // 2. Zoom into Earth (Atmospheric Entry)
-mainTl.to(camera.position, { z: 1.1, duration: 3 }, 1);
-mainTl.to("#cloud-text", { opacity: 1, duration: 1 }, 2);
+mainTl.to(camera.position, { z: 1.1, duration: 1.5 }, 0.5);
+mainTl.to("#cloud-text", { opacity: 1, duration: 0.5 }, 1);
 
 // 3. Parallax Clouds from Version 1
 gsap.to('#cl1', { x: '40%', scrollTrigger: { trigger: '#cloud-section', scrub: 1, start: 'top top', end: 'bottom top' }});
@@ -411,9 +423,9 @@ gsap.to('#cl2', { x: '20%', scrollTrigger: { trigger: '#cloud-section', scrub: 1
 gsap.to('#cl3', { x: '10%', scrollTrigger: { trigger: '#cloud-section', scrub: 2, start: 'top top', end: 'bottom top' }});
 
 // 4. Fade Earth as we pass into marketing sections
-mainTl.to(earth.material, { opacity: 0, duration: 1 }, 4);
-mainTl.to(cloudMat, { opacity: 0, duration: 1 }, 4);
-mainTl.to(starMat, { opacity: 0, duration: 1 }, 4);
+mainTl.to(earth.material, { opacity: 0, duration: 0.5 }, 2);
+mainTl.to(cloudMat, { opacity: 0, duration: 0.5 }, 2);
+mainTl.to(starMat, { opacity: 0, duration: 0.5 }, 2);
 
 // Reveal Cards
 document.querySelectorAll('.gsap-reveal').forEach(el => {
