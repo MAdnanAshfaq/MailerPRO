@@ -1,10 +1,10 @@
 # Stage 1: Build the frontend (Vite/React)
-FROM node:20-alpine AS frontend-builder
+FROM node:20 AS frontend-builder
 WORKDIR /app/frontend
 
 # Copy frontend package files and install dependencies
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm ci --no-audit --no-fund
 
 # Copy frontend source code and build
 COPY frontend/ ./
