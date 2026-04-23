@@ -28,24 +28,39 @@ nav.scrolled{background:rgba(2,11,20,.85);backdrop-filter:blur(16px);border-bott
 .nav-links{display:flex;gap:2rem;align-items:center}
 .nav-links a{color:rgba(255,255,255,.55);text-decoration:none;font-size:.9rem;transition:color .2s}
 .nav-links a:hover{color:#fff}
-.nav-cta{padding:.6rem 1.6rem;border-radius:100px;background:linear-gradient(135deg,var(--emerald),var(--cyan));color:#000;font-weight:800;font-size:.85rem;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);box-shadow: 0 4px 15px rgba(0,255,136,0.3);}
+.nav-cta{padding:.6rem 1.6rem;border-radius:100px;background:linear-gradient(135deg,var(--emerald),var(--cyan));color:#000;font-weight:800;font-size:.85rem;border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);box-shadow: 0 4px 15px rgba(0,255,136,0.3);white-space: nowrap;}
 .nav-cta:hover{transform:scale(1.05) translateY(-2px);box-shadow: 0 8px 25px rgba(0,255,136,0.5);}
 
+#menu-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;z-index:110}
+#menu-toggle span{display:block;width:25px;height:2px;background:#fff;transition:0.3s}
+
+@media(max-width:768px){
+  nav{padding:1rem;}
+  #menu-toggle{display:flex}
+  .nav-links{position:fixed;top:0;right:-100%;width:80%;height:100vh;background:rgba(2,11,20,0.98);backdrop-filter:blur(20px);flex-direction:column;justify-content:center;transition:0.4s;z-index:105;border-left:1px solid rgba(255,255,255,0.05)}
+  .nav-links.active{right:0}
+  .nav-links a{font-size:1.5rem}
+  .nav-cta{display:none}
+  .nav-links .nav-cta-mobile{display:block;margin-top:2rem;width:80%}
+}
+.nav-cta-mobile{display:none}
+
 /* ── HERO ── */
-#hero{position:relative;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;text-align:center;padding: 0 2rem;}
-#hero-title{font-size:clamp(3rem,8vw,5.5rem);font-weight:900;letter-spacing:-.03em;line-height:0.9;background:linear-gradient(135deg,#fff 40%,var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;max-width: 1000px;}
-#hero-sub{margin-top:2rem;font-size:clamp(1.1rem,2.2vw,1.4rem);color:rgba(255,255,255,.6);font-weight:300;max-width:700px;line-height:1.6;}
-.hero-ctas{margin-top:3rem;display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center}
-.btn-primary{padding:1.2rem 2.5rem;border-radius:100px;background:linear-gradient(135deg,var(--emerald),var(--cyan));color:#000;font-weight:900;font-size:1.1rem;text-decoration:none;transition:0.3s;box-shadow: 0 10px 30px rgba(0,255,136,0.25)}
+#hero{position:relative;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;text-align:center;padding: 0 1.5rem;}
+#hero-title{font-size:clamp(2.2rem,8vw,5.5rem);font-weight:900;letter-spacing:-.03em;line-height:1;background:linear-gradient(135deg,#fff 40%,var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;max-width: 1000px;}
+#hero-sub{margin-top:1.5rem;font-size:clamp(1rem,2.2vw,1.2rem);color:rgba(255,255,255,.6);font-weight:300;max-width:600px;line-height:1.5;}
+.hero-ctas{margin-top:2.5rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+.btn-primary{padding:1rem 2rem;border-radius:100px;background:linear-gradient(135deg,var(--emerald),var(--cyan));color:#000;font-weight:900;font-size:1rem;text-decoration:none;transition:0.3s;box-shadow: 0 10px 30px rgba(0,255,136,0.25);white-space:nowrap}
 .btn-primary:hover{transform:translateY(-5px);box-shadow: 0 15px 40px rgba(0,255,136,0.4)}
-.btn-secondary{padding:1.2rem 2.5rem;border-radius:100px;background:rgba(255,255,255,0.05);color:#fff;font-weight:700;font-size:1.1rem;text-decoration:none;border:1px solid rgba(255,255,255,0.1);transition:0.3s}
+.btn-secondary{padding:1rem 2rem;border-radius:100px;background:rgba(255,255,255,0.05);color:#fff;font-weight:700;font-size:1rem;text-decoration:none;border:1px solid rgba(255,255,255,0.1);transition:0.3s;white-space:nowrap}
 .btn-secondary:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3)}
 
 /* ── STAT BAR ── */
-.stat-bar{display:flex;justify-content:center;gap:4rem;margin-top:5rem;flex-wrap:wrap}
+.stat-bar{display:flex;justify-content:center;gap:2rem;margin-top:4rem;flex-wrap:wrap}
+@media(max-width:480px){.stat-bar{gap:1.5rem}}
 .stat-item{text-align:center}
-.stat-num{display:block;font-size:1.8rem;font-weight:800;color:var(--emerald)}
-.stat-label{font-size:.8rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em}
+.stat-num{display:block;font-size:1.5rem;font-weight:800;color:var(--emerald)}
+.stat-label{font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em}
 
 #scroll-hint{position:absolute;bottom:2.5rem;display:flex;flex-direction:column;align-items:center;gap:.5rem}
 #scroll-hint span{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4)}
@@ -129,12 +144,14 @@ footer{padding:6rem 2rem 3rem;background:#000;position:relative;z-index:10;borde
 
 <nav id="navbar">
   <div class="nav-logo">MailerPRO</div>
-  <div class="nav-links">
+  <div id="menu-toggle"><span></span><span></span><span></span></div>
+  <div class="nav-links" id="nav-menu">
     <a href="#features">Features</a>
     <a href="#compare">Why Us</a>
     <a href="#pricing">Pricing</a>
-    <button class="nav-cta" onclick="location.href='/login'">Launch App</button>
+    <button class="nav-cta nav-cta-mobile" onclick="location.href='/login'">Launch App</button>
   </div>
+  <button class="nav-cta" onclick="location.href='/login'">Launch App</button>
 </nav>
 
 <section id="hero">
@@ -438,6 +455,22 @@ document.querySelectorAll('.gsap-reveal').forEach(el => {
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 100);
 });
+
+// Hamburger Menu Logic
+const menuToggle = document.getElementById('menu-toggle');
+const navMenu = document.getElementById('nav-menu');
+if(menuToggle && navMenu){
+  menuToggle.onclick = () => {
+    navMenu.classList.toggle('active');
+    const spans = menuToggle.querySelectorAll('span');
+    spans[0].style.transform = navMenu.classList.contains('active') ? 'rotate(45deg) translate(5px, 5px)' : 'none';
+    spans[1].style.opacity = navMenu.classList.contains('active') ? '0' : '1';
+    spans[2].style.transform = navMenu.classList.contains('active') ? 'rotate(-45deg) translate(5px, -5px)' : 'none';
+  };
+  navMenu.querySelectorAll('a').forEach(link => {
+    link.onclick = () => navMenu.classList.remove('active');
+  });
+}
 </script>
 </body>
 </html>
