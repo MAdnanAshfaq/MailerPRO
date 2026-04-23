@@ -50,7 +50,7 @@ USER nobody:nobody
 
 # Set default environment variables
 ENV PORT=8080
-ENV DB_PATH=./camp_data/camp.db
+ENV DB_PATH=/app/camp_data/camp.db
 
 # Expose the configured HTTP port
 EXPOSE 8080
