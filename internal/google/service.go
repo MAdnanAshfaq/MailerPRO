@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/codersgyan/camp/internal/account"
 	"golang.org/x/oauth2"
