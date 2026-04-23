@@ -2,7 +2,6 @@ package warming
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
