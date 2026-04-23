@@ -132,13 +132,13 @@ func (r *Repository) Update(c *Campaign) error {
 	}
 	return nil
 }
-func (r *Repository) GetAllScheduled() ([]Campaign, error) {
+func (r *Repository) GetAllScheduled(now time.Time) ([]Campaign, error) {
 	query := database.Translate(`
 		SELECT id, account_id, name, subject, content, status, COALESCE(open_rate, 0), COALESCE(ctr, 0), COALESCE(conversions, 0), sent_at, scheduled_at, is_personalized, target_folder, created_at, updated_at
 		FROM campaigns
-		WHERE status = 'scheduled' AND (scheduled_at <= CURRENT_TIMESTAMP OR scheduled_at IS NULL)
+		WHERE status = 'scheduled' AND (scheduled_at <= ? OR scheduled_at IS NULL)
 	`)
-	rows, err := r.db.Query(query)
+	rows, err := r.db.Query(query, now)
 	if err != nil {
 		return nil, err
 	}

@@ -32,7 +32,7 @@ func (w *Worker) Start() {
 }
 
 func (w *Worker) ProcessScheduled() {
-	campaigns, err := w.repo.GetAllScheduled()
+	campaigns, err := w.repo.GetAllScheduled(time.Now())
 	if err != nil {
 		log.Printf("Scheduler error: failed to fetch scheduled campaigns: %v", err)
 		return

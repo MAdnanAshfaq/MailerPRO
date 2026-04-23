@@ -38,7 +38,10 @@ func (h *Handler) SendTest(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"message": err.Error()})
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": err.Error(),
+			"error": "SMTP_FAILURE",
+		})
 		return
 	}
 
