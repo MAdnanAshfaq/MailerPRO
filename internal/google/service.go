@@ -51,6 +51,10 @@ func (s *Service) SendGmail(ctx context.Context, acc *account.Account, to, subje
 		return fmt.Errorf("no google refresh token for account %d", acc.ID)
 	}
 
+	if acc.GoogleAccessToken == nil || acc.GoogleRefreshToken == nil || acc.GoogleTokenExpiry == nil {
+		return fmt.Errorf("missing google tokens for account %d", acc.ID)
+	}
+
 	token := &oauth2.Token{
 		AccessToken:  *acc.GoogleAccessToken,
 		RefreshToken: *acc.GoogleRefreshToken,
