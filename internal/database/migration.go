@@ -119,7 +119,7 @@ func RunMigration(db *sql.DB) error {
 				account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
 				recipient TEXT NOT NULL,
 				subject TEXT NOT NULL,
-				type TEXT CHECK(type IN ('campaign', 'warming')) NOT NULL,
+				type TEXT CHECK(type IN ('campaign', 'warming', 'test')) NOT NULL,
 				sent_at %TIMESTAMP% DEFAULT CURRENT_TIMESTAMP
 			)
 		`,
@@ -133,8 +133,8 @@ func RunMigration(db *sql.DB) error {
 		`ALTER TABLE campaigns ADD COLUMN ctr REAL DEFAULT 0`,
 		`ALTER TABLE campaigns ADD COLUMN conversions REAL DEFAULT 0`,
 		`ALTER TABLE campaigns ADD COLUMN sent_at %TIMESTAMP%`,
-		`UPDATE campaigns SET account_id = 1 WHERE account_id IS NULL`,
-		`UPDATE contacts SET account_id = 1 WHERE account_id IS NULL`,
+		`UPDATE campaigns SET account_id = 1 WHERE account_id IS NULL AND EXISTS (SELECT 1 FROM accounts WHERE id = 1)`,
+		`UPDATE contacts SET account_id = 1 WHERE account_id IS NULL AND EXISTS (SELECT 1 FROM accounts WHERE id = 1)`,
 	}
 
 	// Postgres-only: DROP/ADD CONSTRAINT (SQLite doesn't support this syntax)
