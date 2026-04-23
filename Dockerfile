@@ -11,7 +11,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: Build the backend (Go)
-FROM golang:1.22-alpine AS backend-builder
+FROM golang:1.24-alpine AS backend-builder
 WORKDIR /app
 
 # Disable CGO for a statically linked binary and prevent toolchain auto-download
@@ -30,7 +30,7 @@ COPY . .
 RUN go build -o camp cmd/camp/main.go
 
 # Stage 3: Create the final lightweight production image
-FROM alpine:3.18
+FROM alpine:latest
 WORKDIR /app
 
 # Install runtime dependencies
