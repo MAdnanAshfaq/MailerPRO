@@ -161,7 +161,6 @@ func main() {
 
 	// Static file handlers
 	http.Handle("/frontend/", http.StripPrefix("/frontend/", http.FileServer(http.Dir("./frontend"))))
-	http.Handle("/assets/", http.FileServer(http.Dir("./frontend/dist")))
 
 
 	// Catch-all route to serve index.html for SPA routing
