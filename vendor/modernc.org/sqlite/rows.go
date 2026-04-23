@@ -27,13 +27,8 @@ type rows struct {
 	reuseStmt bool // If true, Close() resets instead of finalizing
 }
 
-func newRows(c *conn, pstmt uintptr, allocs *[]uintptr, empty bool) (r *rows, err error) {
-	var a []uintptr
-	if allocs != nil {
-		a = *allocs
-		*allocs = nil
-	}
-	r = &rows{c: c, pstmt: pstmt, allocs: a, empty: empty}
+func newRows(c *conn, pstmt uintptr, allocs []uintptr, empty bool) (r *rows, err error) {
+	r = &rows{c: c, pstmt: pstmt, allocs: allocs, empty: empty}
 
 	defer func() {
 		if err != nil {
@@ -59,7 +54,9 @@ func newRows(c *conn, pstmt uintptr, allocs *[]uintptr, empty bool) (r *rows, er
 
 // Close closes the rows iterator.
 func (r *rows) Close() (err error) {
-	r.c.freeAllocs(r.allocs)
+	for _, v := range r.allocs {
+		r.c.free(v)
+	}
 	r.allocs = nil
 
 	if r.reuseStmt {
@@ -131,10 +128,10 @@ func (r *rows) Next(dest []driver.Value) (err error) {
 						// without breaking the legacy heuristic for existing users.
 						switch r.c.integerTimeFormat {
 						case "unix_micro":
-							dest[i] = r.c.applyTimezone(time.UnixMicro(v).UTC())
+							dest[i] = time.UnixMicro(v).UTC()
 							continue
 						case "unix_nano":
-							dest[i] = r.c.applyTimezone(time.Unix(0, v).UTC())
+							dest[i] = time.Unix(0, v).UTC()
 							continue
 						}
 
@@ -146,10 +143,10 @@ func (r *rows) Next(dest []driver.Value) (err error) {
 						// timestamp?
 						if v > 1e12 || v < -1e12 {
 							// Milliseconds
-							dest[i] = r.c.applyTimezone(time.UnixMilli(v).UTC())
+							dest[i] = time.UnixMilli(v).UTC()
 						} else {
 							// Seconds
-							dest[i] = r.c.applyTimezone(time.Unix(v, 0).UTC())
+							dest[i] = time.Unix(v, 0).UTC()
 						}
 					default:
 						dest[i] = v

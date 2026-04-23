@@ -29,7 +29,6 @@ type conn struct {
 
 	writeTimeFormat   string
 	beginMode         string
-	loc               *time.Location
 	intToTime         bool
 	textToTime        bool
 	integerTimeFormat string
@@ -64,7 +63,6 @@ func newConn(dsn string) (*conn, error) {
 			sqlite3.SQLITE_OPEN_URI,
 	)
 	if err != nil {
-		c.tls.Close()
 		return nil, err
 	}
 
@@ -89,18 +87,12 @@ func (c *conn) parseTime(s string) (interface{}, bool) {
 		return v, true
 	}
 
-	ts, hadZ := strings.CutSuffix(s, "Z")
+	ts := strings.TrimSuffix(s, "Z")
 
 	for _, f := range parseTimeFormats {
-		var t time.Time
-		var err error
-		if c.loc != nil && !hadZ {
-			t, err = time.ParseInLocation(f, ts, c.loc)
-		} else {
-			t, err = time.Parse(f, ts)
-		}
+		t, err := time.Parse(f, ts)
 		if err == nil {
-			return c.applyTimezone(t), true
+			return t, true
 		}
 	}
 
@@ -110,8 +102,6 @@ func (c *conn) parseTime(s string) (interface{}, bool) {
 // Attempt to parse s as a time string produced by t.String().  If x > 0 it's
 // the index of substring "m=" within s.  Return (s, false) if s is
 // not recognized as a valid time encoding.
-// This intentionally uses time.Parse, not time.ParseInLocation,
-// because the format already contains timezone information (-0700 MST).
 func (c *conn) parseTimeString(s0 string, x int) (interface{}, bool) {
 	s := s0
 	if x > 0 {
@@ -119,28 +109,19 @@ func (c *conn) parseTimeString(s0 string, x int) (interface{}, bool) {
 	}
 	s = strings.TrimSpace(s)
 	if t, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", s); err == nil {
-		return c.applyTimezone(t), true
+		return t, true
 	}
 
 	return s0, false
 }
 
-func (c *conn) applyTimezone(t time.Time) time.Time {
-	if c.loc == nil {
-		return t
-	}
-	return t.In(c.loc)
-}
-
 // writeTimeFormats are the names and formats supported
 // by the `_time_format` DSN query param.
 var writeTimeFormats = map[string]string{
-	"sqlite":   parseTimeFormats[0],
-	"datetime": "2006-01-02 15:04:05",
+	"sqlite": parseTimeFormats[0],
 }
 
 func (c *conn) formatTime(t time.Time) string {
-	t = c.applyTimezone(t)
 	// Before configurable write time formats were supported,
 	// time.Time.String was used. Maintain that default to
 	// keep existing driver users formatting times the same.
@@ -311,7 +292,9 @@ func (c *conn) bind(pstmt uintptr, n int, args []driver.NamedValue) (allocs []ui
 			return
 		}
 
-		c.freeAllocs(allocs)
+		for _, v := range allocs {
+			c.free(v)
+		}
 		allocs = nil
 	}()
 
@@ -618,18 +601,7 @@ func (c *conn) openV2(name, vfsName string, flags int32) (uintptr, error) {
 	}
 
 	if rc := sqlite3.Xsqlite3_open_v2(c.tls, s, p, flags, vfs); rc != sqlite3.SQLITE_OK {
-		dbh := *(*uintptr)(unsafe.Pointer(p))
-		// Per SQLite docs, sqlite3_open_v2 may allocate a handle even on
-		// failure. The error message is stored on that handle, and it must
-		// be closed to avoid leaking resources.
-		var err error
-		if dbh != 0 {
-			err = errstrForDB(c.tls, rc, dbh)
-			sqlite3.Xsqlite3_close_v2(c.tls, dbh)
-		} else {
-			err = c.errstr(rc)
-		}
-		return 0, err
+		return 0, c.errstr(rc)
 	}
 
 	return *(*uintptr)(unsafe.Pointer(p)), nil
@@ -649,31 +621,18 @@ func (c *conn) free(p uintptr) {
 	}
 }
 
-func (c *conn) freeAllocs(allocs []uintptr) {
-	for _, v := range allocs {
-		c.free(v)
-	}
-}
-
 // C documentation
 //
 //	const char *sqlite3_errstr(int);
 func (c *conn) errstr(rc int32) error {
-	return errstrForDB(c.tls, rc, c.db)
-}
-
-func errstrForDB(tls *libc.TLS, rc int32, db uintptr) error {
-	pStr := sqlite3.Xsqlite3_errstr(tls, rc)
-	str := libc.GoString(pStr)
+	p := sqlite3.Xsqlite3_errstr(c.tls, rc)
+	str := libc.GoString(p)
+	p = sqlite3.Xsqlite3_errmsg(c.tls, c.db)
 	var s string
 	if rc == sqlite3.SQLITE_BUSY {
 		s = " (SQLITE_BUSY)"
 	}
-	if db == 0 {
-		return &Error{msg: fmt.Sprintf("%s (%v)%s", str, rc, s), code: int(rc)}
-	}
-	pMsg := sqlite3.Xsqlite3_errmsg(tls, db)
-	switch msg := libc.GoString(pMsg); {
+	switch msg := libc.GoString(p); {
 	case msg == str:
 		return &Error{msg: fmt.Sprintf("%s (%v)%s", str, rc, s), code: int(rc)}
 	default:
@@ -955,22 +914,15 @@ func (c *conn) Serialize() (v []byte, err error) {
 	return v, nil
 }
 
-// Deserialize restores a database from the content returned by Serialize.
+// Deserialize restore a database from the content returned by Serialize.
 func (c *conn) Deserialize(buf []byte) (err error) {
 	bufLen := len(buf)
-	if bufLen == 0 {
-		return fmt.Errorf("sqlite: empty buffer passed to Deserialize")
-	}
-	pBuf := sqlite3.Xsqlite3_malloc64(c.tls, uint64(bufLen))
-	if pBuf == 0 {
-		return fmt.Errorf("sqlite: cannot allocate %d bytes for deserialize", bufLen)
-	}
+	pBuf := c.tls.Alloc(bufLen) // free will be done if it fails or on close, must not be freed here
 
 	copy((*libc.RawMem)(unsafe.Pointer(pBuf))[:bufLen:bufLen], buf)
 
 	zSchema := sqlite3.Xsqlite3_db_name(c.tls, c.db, 0)
 	if zSchema == 0 {
-		sqlite3.Xsqlite3_free(c.tls, pBuf)
 		return fmt.Errorf("failed to get main db name")
 	}
 
@@ -1027,12 +979,8 @@ func (c *conn) backup(remoteConn *conn, restore bool) (_ *Backup, finalErr error
 		pBackup = sqlite3.Xsqlite3_backup_init(c.tls, remoteConn.db, dstSchema, c.db, srcSchema)
 	}
 	if pBackup <= 0 {
-		destDb := remoteConn.db
-		if restore {
-			destDb = c.db
-		}
-		rc := sqlite3.Xsqlite3_errcode(c.tls, destDb)
-		return nil, errstrForDB(c.tls, rc, destDb)
+		rc := sqlite3.Xsqlite3_errcode(c.tls, remoteConn.db)
+		return nil, c.errstr(rc)
 	}
 
 	return &Backup{srcConn: c, dstConn: remoteConn, pBackup: pBackup}, nil

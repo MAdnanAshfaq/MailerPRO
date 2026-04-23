@@ -1,18 +1,26 @@
 package pgio
 
+import "encoding/binary"
+
 func AppendUint16(buf []byte, n uint16) []byte {
-	return append(buf, byte(n>>8), byte(n))
+	wp := len(buf)
+	buf = append(buf, 0, 0)
+	binary.BigEndian.PutUint16(buf[wp:], n)
+	return buf
 }
 
 func AppendUint32(buf []byte, n uint32) []byte {
-	return append(buf, byte(n>>24), byte(n>>16), byte(n>>8), byte(n))
+	wp := len(buf)
+	buf = append(buf, 0, 0, 0, 0)
+	binary.BigEndian.PutUint32(buf[wp:], n)
+	return buf
 }
 
 func AppendUint64(buf []byte, n uint64) []byte {
-	return append(buf,
-		byte(n>>56), byte(n>>48), byte(n>>40), byte(n>>32),
-		byte(n>>24), byte(n>>16), byte(n>>8), byte(n),
-	)
+	wp := len(buf)
+	buf = append(buf, 0, 0, 0, 0, 0, 0, 0, 0)
+	binary.BigEndian.PutUint64(buf[wp:], n)
+	return buf
 }
 
 func AppendInt16(buf []byte, n int16) []byte {
@@ -28,5 +36,5 @@ func AppendInt64(buf []byte, n int64) []byte {
 }
 
 func SetInt32(buf []byte, n int32) {
-	*(*[4]byte)(buf) = [4]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)}
+	binary.BigEndian.PutUint32(buf, uint32(n))
 }

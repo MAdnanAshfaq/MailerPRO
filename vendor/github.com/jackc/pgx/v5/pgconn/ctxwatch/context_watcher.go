@@ -8,13 +8,12 @@ import (
 // ContextWatcher watches a context and performs an action when the context is canceled. It can watch one context at a
 // time.
 type ContextWatcher struct {
-	handler Handler
+	handler     Handler
+	unwatchChan chan struct{}
 
-	// Lock protects the members below.
-	lock sync.Mutex
-	// Stop is the handle for an "after func". See [context.AfterFunc].
-	stop func() bool
-	done chan struct{}
+	lock              sync.Mutex
+	watchInProgress   bool
+	onCancelWasCalled bool
 }
 
 // NewContextWatcher returns a ContextWatcher. onCancel will be called when a watched context is canceled.
@@ -22,7 +21,8 @@ type ContextWatcher struct {
 // onCancel called.
 func NewContextWatcher(handler Handler) *ContextWatcher {
 	cw := &ContextWatcher{
-		handler: handler,
+		handler:     handler,
+		unwatchChan: make(chan struct{}),
 	}
 
 	return cw
@@ -33,16 +33,25 @@ func (cw *ContextWatcher) Watch(ctx context.Context) {
 	cw.lock.Lock()
 	defer cw.lock.Unlock()
 
-	if cw.stop != nil {
-		panic("watch already in progress")
+	if cw.watchInProgress {
+		panic("Watch already in progress")
 	}
 
+	cw.onCancelWasCalled = false
+
 	if ctx.Done() != nil {
-		cw.done = make(chan struct{})
-		cw.stop = context.AfterFunc(ctx, func() {
-			cw.handler.HandleCancel(ctx)
-			close(cw.done)
-		})
+		cw.watchInProgress = true
+		go func() {
+			select {
+			case <-ctx.Done():
+				cw.handler.HandleCancel(ctx)
+				cw.onCancelWasCalled = true
+				<-cw.unwatchChan
+			case <-cw.unwatchChan:
+			}
+		}()
+	} else {
+		cw.watchInProgress = false
 	}
 }
 
@@ -52,13 +61,12 @@ func (cw *ContextWatcher) Unwatch() {
 	cw.lock.Lock()
 	defer cw.lock.Unlock()
 
-	if cw.stop != nil {
-		if !cw.stop() {
-			<-cw.done
+	if cw.watchInProgress {
+		cw.unwatchChan <- struct{}{}
+		if cw.onCancelWasCalled {
 			cw.handler.HandleUnwatchAfterCancel()
 		}
-		cw.stop = nil
-		cw.done = nil
+		cw.watchInProgress = false
 	}
 }
 

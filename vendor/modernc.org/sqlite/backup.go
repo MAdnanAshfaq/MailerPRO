@@ -60,7 +60,6 @@ func (b *Backup) Commit() (driver.Conn, error) {
 	if rc == sqlite3.SQLITE_OK {
 		return b.dstConn, nil
 	} else {
-		b.dstConn.Close()
 		return nil, b.srcConn.errstr(rc)
 	}
 }

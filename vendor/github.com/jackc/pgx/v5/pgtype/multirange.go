@@ -98,7 +98,7 @@ func (p *encodePlanMultirangeCodecText) Encode(value any, buf []byte) (newBuf []
 	var encodePlan EncodePlan
 	var lastElemType reflect.Type
 	inElemBuf := make([]byte, 0, 32)
-	for i := range elementCount {
+	for i := 0; i < elementCount; i++ {
 		if i > 0 {
 			buf = append(buf, ',')
 		}
@@ -151,7 +151,7 @@ func (p *encodePlanMultirangeCodecBinary) Encode(value any, buf []byte) (newBuf 
 
 	var encodePlan EncodePlan
 	var lastElemType reflect.Type
-	for i := range elementCount {
+	for i := 0; i < elementCount; i++ {
 		sp := len(buf)
 		buf = pgio.AppendInt32(buf, -1)
 
@@ -210,11 +210,6 @@ func (c *MultirangeCodec) decodeBinary(m *Map, multirangeOID uint32, src []byte,
 	elementCount := int(binary.BigEndian.Uint32(src[rp:]))
 	rp += 4
 
-	// Each element requires at least 4 bytes for its length prefix.
-	if elementCount > len(src)/4 {
-		return fmt.Errorf("multirange element count %d exceeds available data", elementCount)
-	}
-
 	err := multirange.SetLen(elementCount)
 	if err != nil {
 		return err
@@ -229,7 +224,7 @@ func (c *MultirangeCodec) decodeBinary(m *Map, multirangeOID uint32, src []byte,
 		elementScanPlan = m.PlanScan(c.ElementType.OID, BinaryFormatCode, multirange.ScanIndex(0))
 	}
 
-	for i := range elementCount {
+	for i := 0; i < elementCount; i++ {
 		elem := multirange.ScanIndex(i)
 		elemLen := int(int32(binary.BigEndian.Uint32(src[rp:])))
 		rp += 4
@@ -379,6 +374,7 @@ parseValueLoop:
 	}
 
 	return elements, nil
+
 }
 
 func parseRange(buf *bytes.Buffer) (string, error) {
@@ -407,8 +403,8 @@ func parseRange(buf *bytes.Buffer) (string, error) {
 
 // Multirange is a generic multirange type.
 //
-// T should implement [RangeValuer] and *T should implement [RangeScanner]. However, there does not appear to be a way to
-// enforce the [RangeScanner] constraint.
+// T should implement RangeValuer and *T should implement RangeScanner. However, there does not appear to be a way to
+// enforce the RangeScanner constraint.
 type Multirange[T RangeValuer] []T
 
 func (r Multirange[T]) IsNull() bool {
