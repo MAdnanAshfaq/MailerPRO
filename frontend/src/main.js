@@ -13,6 +13,7 @@ import { Integration } from './pages/Integration';
 import { Landing } from './pages/Landing';
 import { Settings, initSettings } from './pages/Settings';
 import { Auth, initAuth } from './pages/Auth';
+import { accountApi } from './api';
 
 const app = document.getElementById('app');
 
@@ -32,6 +33,25 @@ const routes = {
 };
 
 async function render(path) {
+    // ── Handle Post-Google Login Sync ──
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login_success') === 'true') {
+        try {
+            // The backend just logged us in and set a cookie/session
+            const user = await accountApi.getMe();
+            if (user) {
+                localStorage.setItem('camp_user', JSON.stringify(user));
+                window.sessionStorage.setItem('isLoggedIn', 'true');
+                // Clean URL and refresh to starting dashboard state
+                window.history.replaceState({}, '', '/');
+                window.location.reload();
+                return;
+            }
+        } catch (err) {
+            console.error('Google login sync failed:', err);
+        }
+    }
+
     const isLoggedIn = window.sessionStorage.getItem('isLoggedIn') === 'true';
 
     if (path === '/logout') {
