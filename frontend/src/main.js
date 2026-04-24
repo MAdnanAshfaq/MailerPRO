@@ -41,7 +41,7 @@ async function init() {
             <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #020b14; color: #fff; font-family: 'Outfit', sans-serif;">
                 <div class="spinner" style="width: 40px; height: 40px; border: 3px solid rgba(0,255,136,0.1); border-top-color: #00ff88; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1.5rem;"></div>
                 <h2 style="font-weight: 800; letter-spacing: -0.02em;">Syncing Session...</h2>
-                <p style="color: rgba(255,255,255,0.4); font-size: 0.875rem; margin-top: 0.5rem;">Securely retrieving your Google profile</p>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.875rem; margin-top: 0.5rem;">Connecting your Google account to MailerPRO</p>
             </div>
             <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
         `;
@@ -51,17 +51,29 @@ async function init() {
             if (user) {
                 localStorage.setItem('camp_user', JSON.stringify(user));
                 window.sessionStorage.setItem('isLoggedIn', 'true');
-                // Success! Now clear URL and go to dashboard
-                window.location.href = '/'; 
-                return; // Stop here, location.href will trigger reload
+                
+                // Clean URL without full reload
+                window.history.replaceState({}, '', '/');
+                
+                // Proceed to start the app normally
+                app.innerHTML = '';
+                new Router(routes, (path) => render(path));
+                return;
             }
         } catch (err) {
             console.error('Handshake failed:', err);
-            // If it fails, we should still try to show the app (maybe they are already logged in)
+            app.innerHTML = `
+                <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #020b14; color: #fff; font-family: 'Outfit', sans-serif; padding: 2rem; text-align: center;">
+                    <h2 style="color: #ff4d4d; margin-bottom: 1rem;">Authentication Error</h2>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 2rem;">We couldn't verify your Google session. ${err.message}</p>
+                    <a href="/login" class="btn btn-primary" style="text-decoration: none;">Return to Login</a>
+                </div>
+            `;
+            return;
         }
     }
 
-    // 2. Start Router (only after handshake check is done)
+    // 2. Start Router (Standard path)
     new Router(routes, (path) => {
         render(path);
     });
