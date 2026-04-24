@@ -15,6 +15,25 @@ import { Settings, initSettings } from './pages/Settings';
 import { Auth, initAuth } from './pages/Auth';
 import { accountApi } from './api';
 
+// ── CRITICAL: Handle Post-Google Login Handshake BEFORE anything else ──
+(async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login_success') === 'true') {
+        const userId = urlParams.get('user_id');
+        try {
+            const user = await accountApi.getMe(userId);
+            if (user) {
+                localStorage.setItem('camp_user', JSON.stringify(user));
+                window.sessionStorage.setItem('isLoggedIn', 'true');
+                // Clean URL and jump to dashboard
+                window.location.href = '/'; 
+            }
+        } catch (err) {
+            console.error('Handshake failed:', err);
+        }
+    }
+})();
+
 const app = document.getElementById('app');
 
 const routes = {
@@ -33,26 +52,6 @@ const routes = {
 };
 
 async function render(path) {
-    // ── Handle Post-Google Login Sync ──
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('login_success') === 'true') {
-        const userId = urlParams.get('user_id');
-        try {
-            // Fetch user info using the ID provided in the URL redirect
-            const user = await accountApi.getMe(userId);
-            if (user) {
-                localStorage.setItem('camp_user', JSON.stringify(user));
-                window.sessionStorage.setItem('isLoggedIn', 'true');
-                // Clean URL and refresh to starting dashboard state
-                window.history.replaceState({}, '', '/');
-                window.location.reload();
-                return;
-            }
-        } catch (err) {
-            console.error('Google login sync failed:', err);
-        }
-    }
-
     const isLoggedIn = window.sessionStorage.getItem('isLoggedIn') === 'true';
 
     if (path === '/logout') {
