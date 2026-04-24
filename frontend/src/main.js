@@ -36,9 +36,10 @@ async function render(path) {
     // ── Handle Post-Google Login Sync ──
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('login_success') === 'true') {
+        const userId = urlParams.get('user_id');
         try {
-            // The backend just logged us in and set a cookie/session
-            const user = await accountApi.getMe();
+            // Fetch user info using the ID provided in the URL redirect
+            const user = await accountApi.getMe(userId);
             if (user) {
                 localStorage.setItem('camp_user', JSON.stringify(user));
                 window.sessionStorage.setItem('isLoggedIn', 'true');

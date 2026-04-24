@@ -151,27 +151,26 @@ func (h *Handler) GetWarming(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
-	// In a real app, this would use JWT from a cookie/header.
-	// For this prototype, we'll try to find an account by email if it's in a header or param,
-	// or just return the first account for demo purposes if not specified.
-	
+	// Support lookup by id (preferred for OAuth sync) or email
+	idStr := r.URL.Query().Get("id")
 	email := r.URL.Query().Get("email")
-	if email == "" {
-		// Mock: just return a default if skipping auth logic for the prototype
-		acc, _ := h.repo.GetByEmail("test@example.com")
-		if acc != nil {
+
+	if idStr != "" {
+		id, _ := strconv.ParseInt(idStr, 10, 64)
+		acc, err := h.repo.GetByID(id)
+		if err == nil && acc != nil {
 			json.NewEncoder(w).Encode(acc)
 			return
 		}
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
 	}
 
-	acc, err := h.repo.GetByEmail(email)
-	if err != nil || acc == nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
+	if email != "" {
+		acc, err := h.repo.GetByEmail(email)
+		if err == nil && acc != nil {
+			json.NewEncoder(w).Encode(acc)
+			return
+		}
 	}
 
-	json.NewEncoder(w).Encode(acc)
+	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 }
