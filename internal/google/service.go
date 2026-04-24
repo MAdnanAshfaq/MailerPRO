@@ -10,6 +10,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
+	googleoauth2 "google.golang.org/api/oauth2/v2"
 	"google.golang.org/api/option"
 )
 
@@ -27,6 +28,7 @@ func NewService(repo *account.Repository) *Service {
 		Scopes: []string{
 			gmail.GmailSendScope,
 			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
 		},
 	}
 
@@ -89,4 +91,19 @@ func (s *Service) SendGmail(ctx context.Context, acc *account.Account, to, subje
 	}
 
 	return nil
+}
+
+func (s *Service) GetUserInfo(ctx context.Context, token *oauth2.Token) (string, string, error) {
+	client := s.config.Client(ctx, token)
+	oauth2Service, err := googleoauth2.NewService(ctx, option.WithHTTPClient(client))
+	if err != nil {
+		return "", "", err
+	}
+
+	userInfo, err := oauth2Service.Userinfo.Get().Do()
+	if err != nil {
+		return "", "", err
+	}
+
+	return userInfo.Email, userInfo.Name, nil
 }

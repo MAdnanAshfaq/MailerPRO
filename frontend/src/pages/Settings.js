@@ -176,18 +176,7 @@ export function initSettings() {
     });
 
     if (form) {
-        const usernameInput = form.querySelector('[name="username"]');
-        if (usernameInput) {
-            usernameInput.onblur = async () => {
-                if (usernameInput.value.toLowerCase().endsWith('@gmail.com')) {
-                    const confirmOAuth = confirm("We identified you want to use a Gmail account. For better security and deliverability, we recommend using Google OAuth instead of manual SMTP. \n\nContinue with the automatic Google connection process?");
-                    if (confirmOAuth) {
-                        const googleBtn = document.getElementById('google-connect-btn');
-                        if (googleBtn) googleBtn.click();
-                    }
-                }
-            };
-        }
+
 
         form.onsubmit = async (e) => {
             e.preventDefault();

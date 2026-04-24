@@ -25,6 +25,16 @@ function renderLogin() {
                     </p>
                 </div>
                 <form id="auth-form" data-type="login">
+                    <button type="button" class="google-auth-btn" style="width: 100%; margin-bottom: 1.5rem; padding: 0.8rem; border-radius: 12px; background: #fff; color: #000; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" style="width: 18px;">
+                        Continue with Google
+                    </button>
+
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; color: rgba(255,255,255,0.2);">
+                        <div style="flex: 1; height: 1px; background: currentColor;"></div>
+                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">Or with Email</span>
+                        <div style="flex: 1; height: 1px; background: currentColor;"></div>
+                    </div>
                     <div style="margin-bottom: 1.5rem;">
                         <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255, 255, 255, 0.4); margin-bottom: 0.5rem; margin-left: 0.5rem;">Work Email</label>
                         <input type="email" name="email" required placeholder="name@company.com" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1.2rem; border-radius: 12px; color: #fff; outline: none; font-family: inherit; transition: 0.3s;" onfocus="this.style.borderColor='#00ff88'; this.style.background='rgba(255,255,255,0.08)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.05)'">
@@ -64,6 +74,17 @@ function renderSignupWizard() {
                 <form id="auth-form" data-type="signup">
                     <!-- Step 1: Personal Info -->
                     <div id="step-1" class="wizard-step">
+                        <button type="button" class="google-auth-btn" style="width: 100%; margin-bottom: 1.5rem; padding: 0.8rem; border-radius: 12px; background: #fff; color: #000; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" style="width: 18px;">
+                            Sign up with Google
+                        </button>
+
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; color: rgba(255,255,255,0.2);">
+                            <div style="flex: 1; height: 1px; background: currentColor;"></div>
+                            <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">Or manually</span>
+                            <div style="flex: 1; height: 1px; background: currentColor;"></div>
+                        </div>
+
                         <div style="margin-bottom: 1.5rem;">
                             <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255, 255, 255, 0.4); margin-bottom: 0.5rem; margin-left: 0.5rem;">Full Name</label>
                             <input type="text" name="name" required placeholder="John Doe" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1.2rem; border-radius: 12px; color: #fff; outline: none; font-family: inherit;">
@@ -136,7 +157,19 @@ function renderSignupWizard() {
 export function initAuth() {
     const form = document.getElementById('auth-form');
     const canvas = document.getElementById('auth-canvas');
+    const googleBtns = document.querySelectorAll('.google-auth-btn');
     if (!form || !canvas) return;
+
+    googleBtns.forEach(btn => {
+        btn.onclick = async () => {
+            try {
+                const { url } = await accountApi.getGoogleAuthUrl('login');
+                window.location.href = url;
+            } catch (err) {
+                showToast('Google authentication failed: ' + err.message, 'error');
+            }
+        };
+    });
 
     // --- THREE.JS BACKGROUND ---
     let renderer, scene, camera, earth, clouds;
