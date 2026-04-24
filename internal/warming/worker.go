@@ -100,17 +100,32 @@ func (w *Worker) sendWarmingEmail(accountID int64) {
 
 	// 5. Update the current_count and optionally ramp up the daily_limit
 	// In a good warming strategy, we increase the limit by ~20% every 24h
-	query := database.Translate(`
-		UPDATE warming_status 
-		SET current_count = current_count + 1, 
-		    daily_limit = CASE 
-				WHEN updated_at < date('now', '-1 day') AND daily_limit < target_limit 
-				THEN CAST(daily_limit * 1.2 AS INTEGER) 
-				ELSE daily_limit 
-			END,
-		    updated_at = CURRENT_TIMESTAMP 
-		WHERE account_id = ?
-	`)
+	var query string
+	if database.IsPostgres() {
+		query = `
+			UPDATE warming_status 
+			SET current_count = current_count + 1, 
+			    daily_limit = CASE 
+					WHEN updated_at < CURRENT_TIMESTAMP - INTERVAL '1 day' AND daily_limit < target_limit 
+					THEN CAST(daily_limit * 1.2 AS INTEGER) 
+					ELSE daily_limit 
+				END,
+			    updated_at = CURRENT_TIMESTAMP 
+			WHERE account_id = $1
+		`
+	} else {
+		query = `
+			UPDATE warming_status 
+			SET current_count = current_count + 1, 
+			    daily_limit = CASE 
+					WHEN updated_at < datetime('now', '-1 day') AND daily_limit < target_limit 
+					THEN CAST(daily_limit * 1.2 AS INTEGER) 
+					ELSE daily_limit 
+				END,
+			    updated_at = CURRENT_TIMESTAMP 
+			WHERE account_id = ?
+		`
+	}
 	_, err := w.db.Exec(query, accountID)
 	if err != nil {
 		log.Printf("[Warming] Failed to update warming status for account %d: %v", accountID, err)
