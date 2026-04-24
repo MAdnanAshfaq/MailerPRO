@@ -15,25 +15,6 @@ import { Settings, initSettings } from './pages/Settings';
 import { Auth, initAuth } from './pages/Auth';
 import { accountApi } from './api';
 
-// ── CRITICAL: Handle Post-Google Login Handshake BEFORE anything else ──
-(async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('login_success') === 'true') {
-        const userId = urlParams.get('user_id');
-        try {
-            const user = await accountApi.getMe(userId);
-            if (user) {
-                localStorage.setItem('camp_user', JSON.stringify(user));
-                window.sessionStorage.setItem('isLoggedIn', 'true');
-                // Clean URL and jump to dashboard
-                window.location.href = '/'; 
-            }
-        } catch (err) {
-            console.error('Handshake failed:', err);
-        }
-    }
-})();
-
 const app = document.getElementById('app');
 
 const routes = {
@@ -51,9 +32,45 @@ const routes = {
     '/landing': Landing
 };
 
+async function init() {
+    // 1. Handle Post-Google Login Handshake (BLOCKING)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login_success') === 'true') {
+        const userId = urlParams.get('user_id');
+        app.innerHTML = `
+            <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #020b14; color: #fff; font-family: 'Outfit', sans-serif;">
+                <div class="spinner" style="width: 40px; height: 40px; border: 3px solid rgba(0,255,136,0.1); border-top-color: #00ff88; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1.5rem;"></div>
+                <h2 style="font-weight: 800; letter-spacing: -0.02em;">Syncing Session...</h2>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.875rem; margin-top: 0.5rem;">Securely retrieving your Google profile</p>
+            </div>
+            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+        `;
+
+        try {
+            const user = await accountApi.getMe(userId);
+            if (user) {
+                localStorage.setItem('camp_user', JSON.stringify(user));
+                window.sessionStorage.setItem('isLoggedIn', 'true');
+                // Success! Now clear URL and go to dashboard
+                window.location.href = '/'; 
+                return; // Stop here, location.href will trigger reload
+            }
+        } catch (err) {
+            console.error('Handshake failed:', err);
+            // If it fails, we should still try to show the app (maybe they are already logged in)
+        }
+    }
+
+    // 2. Start Router (only after handshake check is done)
+    new Router(routes, (path) => {
+        render(path);
+    });
+}
+
 async function render(path) {
     const isLoggedIn = window.sessionStorage.getItem('isLoggedIn') === 'true';
-
+    
+    // Auth Guards
     if (path === '/logout') {
         window.sessionStorage.removeItem('isLoggedIn');
         window.location.href = '/landing';
@@ -71,7 +88,6 @@ async function render(path) {
     }
 
     const pageFn = routes[path] || (isLoggedIn ? Dashboard : Landing);
-    
     const noSidebarPages = ['/landing', '/login', '/signup'];
     const showSidebar = isLoggedIn && !noSidebarPages.includes(path);
 
@@ -170,6 +186,5 @@ if (localStorage.getItem('camp_dark_mode') === 'true') {
     document.body.classList.add('dark-theme');
 }
 
-new Router(routes, (path) => {
-    render(path);
-});
+// Start the app
+init();
