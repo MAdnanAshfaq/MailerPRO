@@ -158,6 +158,9 @@ func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
 	if idStr != "" {
 		id, _ := strconv.ParseInt(idStr, 10, 64)
 		acc, err := h.repo.GetByID(id)
+		if err != nil {
+			fmt.Printf("[Auth] GetMe error for ID %s: %v\n", idStr, err)
+		}
 		if err == nil && acc != nil {
 			json.NewEncoder(w).Encode(acc)
 			return

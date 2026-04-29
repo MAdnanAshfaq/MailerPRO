@@ -77,9 +77,9 @@ func (w *Worker) sendWarmingEmail(accountID int64) {
 
 	// 3. Pick a simulated "seed" from a more realistic pool
 	seedAddresses := []string{
-		"seed-inbox-a1@warmup.mailerpro.com",
-		"seed-inbox-b2@warmup.mailerpro.com",
-		"seed-inbox-c3@warmup.mailerpro.com",
+		"inbox-validator@gmail.com",
+		"warmup-target-a@outlook.com",
+		"team-sync-test@yahoo.com",
 		"validator@warmup.mailerpro.com",
 	}
 	seedAddress := seedAddresses[time.Now().Unix()%int64(len(seedAddresses))]

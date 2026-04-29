@@ -102,9 +102,12 @@ export function initCampaigns() {
             <tr>
                 <td style="font-weight: 700;">${campaign.name}</td>
                 <td>
-                    <span class="status-badge ${campaign.status === 'sent' ? 'status-sent' : (campaign.status === 'paused' ? 'status-paused' : 'status-draft')}">
-                        ${campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-                    </span>
+                    <div class="flex flex-col">
+                        <span class="status-badge ${campaign.status === 'sent' ? 'status-sent' : (campaign.status === 'paused' ? 'status-paused' : (campaign.status === 'scheduled' ? 'status-scheduled' : 'status-draft'))}">
+                            ${campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+                        </span>
+                        ${campaign.status === 'scheduled' && campaign.scheduled_at ? `<span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; font-weight: 600;">📅 ${new Date(campaign.scheduled_at).toLocaleString([], {month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'})}</span>` : ''}
+                    </div>
                 </td>
                 <td style="font-weight: 700;">${campaign.open_rate}%</td>
                 <td style="font-weight: 700;">${campaign.ctr}%</td>
@@ -286,7 +289,7 @@ export function initCampaigns() {
                         </div>
                         <div class="mb-8" id="schedule-field" style="display: ${initialStatus === 'scheduled' ? 'block' : 'none'};">
                             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700;">Send At (Date & Time)</label>
-                            <input type="datetime-local" name="scheduled_at" id="scheduled_at_input" class="input" value="${campaign?.scheduled_at ? new Date(campaign.scheduled_at).toISOString().slice(0, 16) : ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius);">
+                            <input type="datetime-local" name="scheduled_at" id="scheduled_at_input" class="input" value="${campaign?.scheduled_at ? new Date(campaign.scheduled_at).toISOString().slice(0, 16) : ''}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: #ffffff; color: #000000;">
                         </div>
                         <div class="mb-8 flex items-center gap-2">
                             <input type="checkbox" name="is_personalized" id="is_personalized" ${campaign?.is_personalized ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">

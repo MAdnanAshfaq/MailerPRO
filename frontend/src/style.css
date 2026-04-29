@@ -480,6 +480,10 @@ textarea.input {
   background: #f4f4f5;
   color: #71717a;
 }
+.status-scheduled {
+  background: #e0f2fe;
+  color: #0369a1;
+}
 
 body.dark-theme .status-sent {
   background: rgba(16, 185, 129, 0.12);
@@ -494,6 +498,20 @@ body.dark-theme .status-paused {
 body.dark-theme .status-draft {
   background: rgba(113, 113, 122, 0.15);
   color: #a1a1aa;
+}
+
+body.dark-theme .status-scheduled {
+  background: rgba(3, 105, 161, 0.15);
+  color: #7dd3fc;
+}
+
+/* Ensure datetime-local inputs are usable in dark mode */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+input[type="datetime-local"] {
+    color-scheme: dark;
 }
 
 /* =============================================

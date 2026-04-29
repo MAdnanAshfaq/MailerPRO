@@ -47,11 +47,16 @@ async function init() {
         `;
 
         try {
+            console.log('Handshake starting for user:', userId);
             const user = await accountApi.getMe(userId);
             if (user) {
+                console.log('User verified:', user.email);
                 localStorage.setItem('camp_user', JSON.stringify(user));
                 window.sessionStorage.setItem('isLoggedIn', 'true');
                 
+                // Add a small delay so the user can see the sync happening
+                await new Promise(r => setTimeout(r, 1500));
+
                 // Clean URL without full reload
                 window.history.replaceState({}, '', '/');
                 
@@ -81,6 +86,8 @@ async function init() {
 
 async function render(path) {
     const isLoggedIn = window.sessionStorage.getItem('isLoggedIn') === 'true';
+    const urlParams = new URLSearchParams(window.location.search);
+    const isGoogleHandshake = urlParams.get('login_success') === 'true';
     
     // Auth Guards
     if (path === '/logout') {
@@ -89,7 +96,8 @@ async function render(path) {
         return;
     }
 
-    if (!isLoggedIn && !['/login', '/signup', '/landing'].includes(path)) {
+    // CRITICAL: Do not redirect to landing if we are currently in a Google Handshake
+    if (!isLoggedIn && !['/login', '/signup', '/landing'].includes(path) && !isGoogleHandshake) {
         window.history.replaceState({}, '', '/landing');
         path = '/landing';
     }
