@@ -139,6 +139,8 @@ func RunMigration(db *sql.DB) error {
 		`ALTER TABLE campaigns ADD COLUMN ctr REAL DEFAULT 0`,
 		`ALTER TABLE campaigns ADD COLUMN conversions REAL DEFAULT 0`,
 		`ALTER TABLE campaigns ADD COLUMN sent_at %TIMESTAMP%`,
+		// Open tracking — additive, safe to run on existing DB (error ignored if column exists)
+		`ALTER TABLE sent_emails ADD COLUMN open_count INTEGER DEFAULT 0`,
 		`UPDATE campaigns SET account_id = 1 WHERE account_id IS NULL AND EXISTS (SELECT 1 FROM accounts WHERE id = 1)`,
 		`UPDATE contacts SET account_id = 1 WHERE account_id IS NULL AND EXISTS (SELECT 1 FROM accounts WHERE id = 1)`,
 	}

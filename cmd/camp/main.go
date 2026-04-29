@@ -64,6 +64,7 @@ func main() {
 
 	mailerService := mailer.NewService(db, accountRepo, contactRepository, aiService, googleService)
 	mailerHandler := mailer.NewHandler(db, mailerService)
+	trackingHandler := mailer.NewTrackingHandler(db)
 
 	campaignRepository := campaign.NewRepository(db)
 	campaignHandler := campaign.NewHandler(campaignRepository, mailerService, aiService)
@@ -148,6 +149,10 @@ func main() {
 	http.HandleFunc("GET /api/domain/health", domainHandler.GetHealth)
 
 	http.HandleFunc("/api/mailer/test-send", mailerHandler.SendTest)
+
+	// Open tracking pixel — serves 1×1 GIF and logs email opens
+	// Safe: designed to never crash even if DB is unavailable
+	http.HandleFunc("/api/track/open", trackingHandler.TrackOpen)
 
 	// Google OAuth
 	http.HandleFunc("/api/auth/google/url", authHandler.GetGoogleAuthURL)

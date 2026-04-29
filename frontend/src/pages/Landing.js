@@ -1,17 +1,75 @@
 export function Landing() {
     return `
         <div class="landing-page" style="width: 100%; display: flex; flex-direction: column; align-items: center; background: white; color: var(--text-main);">
-            <header style="width: 100%; padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: white; z-index: 100;">
+            <style>
+                @media (max-width: 640px) {
+                    .landing-nav-links { display: none !important; }
+                    .landing-hamburger { display: flex !important; }
+                }
+                .landing-mobile-drawer {
+                    display: none; position: fixed; inset: 0; z-index: 999;
+                }
+                .landing-mobile-drawer.open { display: block; }
+                .landing-drawer-overlay {
+                    position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+                }
+                .landing-drawer-panel {
+                    position: absolute; top: 0; right: 0; width: 220px; height: 100%;
+                    background: #fff; box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+                    padding: 1.5rem 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;
+                    transform: translateX(100%); transition: transform 0.25s ease;
+                }
+                .landing-mobile-drawer.open .landing-drawer-panel {
+                    transform: translateX(0);
+                }
+                .landing-drawer-link {
+                    display: block; padding: 0.65rem 0.5rem; font-weight: 600;
+                    color: #111; text-decoration: none; border-radius: 8px;
+                    font-size: 0.9rem; transition: background 0.15s;
+                }
+                .landing-drawer-link:hover { background: #f4f4f5; }
+                .landing-drawer-close {
+                    align-self: flex-end; background: none; border: none;
+                    font-size: 1.4rem; cursor: pointer; color: #666; margin-bottom: 0.5rem;
+                    padding: 0.25rem;
+                }
+            </style>
+
+            <header style="width: 100%; padding: 1.25rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: white; z-index: 100;">
                 <div class="logo" style="margin-bottom: 0;">
-                    <span style="font-size: 2rem;">🏕️</span>
-                    <span style="font-size: 1.5rem; font-weight: 800; font-family: var(--font-heading);">Camp</span>
+                    <span style="font-size: 1.75rem;">🏕️</span>
+                    <span style="font-size: 1.4rem; font-weight: 800; font-family: var(--font-heading);">MailerPRO</span>
                 </div>
-                <nav style="display: flex; gap: 2rem; align-items: center;">
-                    <a href="#plans" style="text-decoration: none; color: var(--text-main); font-weight: 600;">Pricing</a>
-                    <a href="/login" class="btn btn-secondary" data-link>Log In</a>
-                    <a href="/signup" class="btn btn-primary" data-link>Sign Up Free</a>
+
+                <!-- Desktop Nav -->
+                <nav class="landing-nav-links" style="display: flex; gap: 1.5rem; align-items: center;">
+                    <a href="#plans" style="text-decoration: none; color: #333; font-weight: 600; font-size: 0.9rem;">Pricing</a>
+                    <a href="/docs" data-link style="text-decoration: none; color: #333; font-weight: 600; font-size: 0.9rem;">Docs</a>
+                    <a href="/login" class="btn btn-outline" data-link style="padding: 0.5rem 1rem; font-size: 0.875rem;">Log In</a>
+                    <a href="/signup" class="btn btn-primary" data-link style="padding: 0.5rem 1rem; font-size: 0.875rem;">Sign Up Free</a>
                 </nav>
+
+                <!-- Mobile Hamburger -->
+                <button class="landing-hamburger" id="landing-menu-btn"
+                    style="display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px;"
+                    aria-label="Open menu">
+                    <span style="display:block;width:22px;height:2px;background:#333;border-radius:2px;"></span>
+                    <span style="display:block;width:22px;height:2px;background:#333;border-radius:2px;"></span>
+                    <span style="display:block;width:22px;height:2px;background:#333;border-radius:2px;"></span>
+                </button>
             </header>
+
+            <!-- Mobile Drawer -->
+            <div class="landing-mobile-drawer" id="landing-drawer">
+                <div class="landing-drawer-overlay" id="landing-drawer-overlay"></div>
+                <div class="landing-drawer-panel">
+                    <button class="landing-drawer-close" id="landing-drawer-close">✕</button>
+                    <a href="#plans" class="landing-drawer-link" id="landing-drawer-pricing">Pricing</a>
+                    <a href="/docs" class="landing-drawer-link" data-link id="landing-drawer-docs">📖 Docs</a>
+                    <a href="/login" class="landing-drawer-link" data-link>Log In</a>
+                    <a href="/signup" class="btn btn-primary" data-link style="text-align:center;margin-top:0.5rem;text-decoration:none;padding:0.65rem;">Sign Up Free</a>
+                </div>
+            </div>
 
             <main style="width: 100%; max-width: 1200px; padding: 4rem 2rem; text-align: center;">
                 <section class="hero mb-8">

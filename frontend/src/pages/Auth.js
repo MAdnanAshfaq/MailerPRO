@@ -263,6 +263,59 @@ export function initAuth() {
 
     let currentStep = 1;
 
+    // ── Gmail detection nudge ──────────────────────────────────────────────
+    // Non-blocking: if user types a Gmail address, gently suggest Google OAuth.
+    const emailInput = form.querySelector('[name="email"]');
+    if (emailInput) {
+        const nudgeBannerId = 'gmail-nudge-banner';
+        const showNudge = () => {
+            if (document.getElementById(nudgeBannerId)) return; // already shown
+            const googleBtn = form.querySelector('.google-auth-btn');
+            const banner = document.createElement('div');
+            banner.id = nudgeBannerId;
+            banner.style.cssText = `
+                background: rgba(66,133,244,0.12); border: 1px solid rgba(66,133,244,0.35);
+                border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1rem;
+                display: flex; align-items: flex-start; gap: 0.75rem; animation: fadeIn 0.3s ease;
+            `;
+            banner.innerHTML = `
+                <span style="font-size:1.1rem;flex-shrink:0;">💡</span>
+                <div style="flex:1;font-size:0.8rem;color:rgba(255,255,255,0.85);line-height:1.5;">
+                    <strong style="color:#fff;">Gmail detected!</strong>
+                    Sign up with Google instead — it automatically connects your Gmail
+                    for sending emails. No SMTP setup needed.
+                    <br>
+                    <button type="button" id="nudge-google-btn" style="margin-top:0.5rem;padding:0.4rem 0.9rem;
+                        background:rgba(66,133,244,0.9);color:#fff;border:none;border-radius:8px;
+                        font-size:0.78rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" style="width:14px;"> Sign up with Google
+                    </button>
+                </div>
+                <button type="button" id="nudge-dismiss" style="background:none;border:none;color:rgba(255,255,255,0.4);
+                    cursor:pointer;font-size:1.1rem;line-height:1;flex-shrink:0;" title="Dismiss">✕</button>
+            `;
+            // Insert before the Google button (or at top of step-1)
+            const step1 = document.getElementById('step-1');
+            if (step1) step1.insertBefore(banner, step1.firstChild);
+
+            document.getElementById('nudge-dismiss')?.addEventListener('click', () => banner.remove());
+            document.getElementById('nudge-google-btn')?.addEventListener('click', () => {
+                if (googleBtn) googleBtn.click();
+            });
+        };
+        const hideNudge = () => document.getElementById(nudgeBannerId)?.remove();
+
+        emailInput.addEventListener('input', () => {
+            const val = emailInput.value.trim().toLowerCase();
+            if (val.endsWith('@gmail.com') || val.endsWith('@googlemail.com')) {
+                showNudge();
+            } else {
+                hideNudge();
+            }
+        });
+    }
+    // ── end Gmail nudge ────────────────────────────────────────────────────
+
     // Navigation logic
     const showStep = (step) => {
         document.querySelectorAll('.wizard-step').forEach(s => s.style.display = 'none');

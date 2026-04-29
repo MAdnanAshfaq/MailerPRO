@@ -133,10 +133,15 @@ export async function Dashboard() {
                                 <div class="donut-container">
                                     <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
                                         <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#e4e4e7" stroke-width="3"></circle>
-                                        <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#8a9a5b" stroke-width="3" stroke-dasharray="100 0" stroke-dashoffset="0"></circle>
+                                        <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#8a9a5b" stroke-width="3"
+                                            stroke-dasharray="${Math.min(100, Math.round((stats.total_contacts / 500) * 100))} 100"
+                                            stroke-dashoffset="0"
+                                            style="transition: stroke-dasharray 0.8s ease;">
+                                        </circle>
                                     </svg>
                                     <div class="donut-label">
                                         <span class="donut-value" style="font-size: 0.9rem;">${stats.total_contacts}</span>
+                                        <span style="font-size:0.55rem;color:var(--text-muted);display:block;margin-top:1px;">${Math.min(100,Math.round((stats.total_contacts/500)*100))}% of 500</span>
                                     </div>
                                 </div>
                                 <div class="flex flex-col gap-2 ml-8" style="font-size: 0.75rem; font-weight: 600;">
@@ -146,7 +151,7 @@ export async function Dashboard() {
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <div style="width: 12px; height: 12px; background: #d9e3c1; border-radius: 2px;"></div>
-                                        <span>Active Growth</span>
+                                        <span>Goal: 500</span>
                                     </div>
                                 </div>
                             </div>

@@ -13,6 +13,7 @@ import { Integration } from './pages/Integration';
 import { Landing } from './pages/Landing';
 import { Settings, initSettings } from './pages/Settings';
 import { Auth, initAuth } from './pages/Auth';
+import { Docs } from './pages/Docs';
 import { accountApi } from './api';
 
 const app = document.getElementById('app');
@@ -29,7 +30,8 @@ const routes = {
     '/settings': Settings,
     '/login': () => Auth('login'),
     '/signup': () => Auth('signup'),
-    '/landing': Landing
+    '/landing': Landing,
+    '/docs': Docs
 };
 
 async function init() {
@@ -144,6 +146,22 @@ async function render(path) {
     if (path === '/settings') initSettings();
     if (path === '/') initDashboard();
     if (['/login', '/signup'].includes(path)) initAuth();
+
+    // ── Landing page mobile drawer ──
+    const landingMenuBtn = document.getElementById('landing-menu-btn');
+    const landingDrawer = document.getElementById('landing-drawer');
+    const landingDrawerClose = document.getElementById('landing-drawer-close');
+    const landingDrawerOverlay = document.getElementById('landing-drawer-overlay');
+    const landingDrawerPricing = document.getElementById('landing-drawer-pricing');
+    if (landingMenuBtn && landingDrawer) {
+        const openDrawer = () => landingDrawer.classList.add('open');
+        const closeDrawer = () => landingDrawer.classList.remove('open');
+        landingMenuBtn.onclick = openDrawer;
+        landingDrawerClose?.addEventListener('click', closeDrawer);
+        landingDrawerOverlay?.addEventListener('click', closeDrawer);
+        landingDrawerPricing?.addEventListener('click', closeDrawer);
+        landingDrawer.querySelectorAll('[data-link]').forEach(l => l.addEventListener('click', closeDrawer));
+    }
 
     // ── Logout ──
     const logoutBtn = document.getElementById('logout-btn');

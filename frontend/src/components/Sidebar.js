@@ -11,6 +11,7 @@ export function Sidebar(currentPath) {
     ];
 
     const bottomItems = [
+        { path: '/docs', title: 'Documentation', icon: '📖' },
         { path: '/help', title: 'Help Center', icon: '?' },
         { path: '/settings', title: 'Setting', icon: '⚙' },
     ];

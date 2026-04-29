@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/smtp"
+	"os"
 	"strings"
 
 	"github.com/codersgyan/camp/internal/account"
@@ -127,16 +128,20 @@ func (s *Service) SendCampaign(accID int64, subject, content string, isPersonali
 			}
 		}
 
-		msg := []byte(fmt.Sprintf("To: %s\r\n"+
-			"Subject: %s\r\n"+
-			"Content-Type: text/html; charset=UTF-8\r\n"+
-			"\r\n"+
-			"%s\r\n", c.Email, subject, emailContent))
-
 		var err error
 		if acc != nil && acc.GoogleRefreshToken != nil {
-			err = s.googleSvc.SendGmail(context.Background(), acc, c.Email, subject, emailContent)
+			// Log first to get ID → inject pixel → send
+			emailID := s.LogSentEmailGetID(accID, c.Email, subject, "campaign")
+			trackedContent := injectTrackingPixel(emailContent, emailID)
+			err = s.googleSvc.SendGmail(context.Background(), acc, c.Email, subject, trackedContent)
 		} else {
+			emailID := s.LogSentEmailGetID(accID, c.Email, subject, "campaign")
+			trackedContent := injectTrackingPixel(emailContent, emailID)
+			msg := []byte(fmt.Sprintf("To: %s\r\n"+
+				"Subject: %s\r\n"+
+				"Content-Type: text/html; charset=UTF-8\r\n"+
+				"\r\n"+
+				"%s\r\n", c.Email, subject, trackedContent))
 			err = s.sendMail(smtpSettings, []string{c.Email}, msg)
 		}
 
@@ -145,7 +150,7 @@ func (s *Service) SendCampaign(accID int64, subject, content string, isPersonali
 		} else {
 			successes++
 			log.Printf("Successfully sent out email to %s", c.Email)
-			s.LogSentEmail(accID, c.Email, subject, "campaign")
+			// Note: LogSentEmail already called above via LogSentEmailGetID; skip duplicate log
 		}
 	}
 	log.Printf("Campaign sent to %d contacts", successes)
@@ -232,14 +237,48 @@ func (s *Service) sendMail(settings *account.SMTPSettings, to []string, msg []by
 }
 
 func (s *Service) LogSentEmail(accID int64, recipient, subject, emailType string) {
+	s.LogSentEmailGetID(accID, recipient, subject, emailType)
+}
+
+// LogSentEmailGetID logs the sent email and returns the new row ID for pixel tracking.
+func (s *Service) LogSentEmailGetID(accID int64, recipient, subject, emailType string) int64 {
 	if s.db == nil {
-		return
+		return 0
 	}
 	query := database.Translate("INSERT INTO sent_emails (account_id, recipient, subject, type) VALUES (?, ?, ?, ?)")
-	_, err := s.db.Exec(query, accID, recipient, subject, emailType)
+	res, err := s.db.Exec(query, accID, recipient, subject, emailType)
 	if err != nil {
 		log.Printf("Failed to log sent email to %s (type %s): %v", recipient, emailType, err)
+		return 0
 	}
+	id, _ := res.LastInsertId()
+	return id
+}
+
+// injectTrackingPixel appends an invisible 1x1 tracking pixel to the HTML email body.
+// It is safe to call on any string — if anything goes wrong it returns the original body unchanged.
+func injectTrackingPixel(body string, emailID int64) string {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[Tracking] Pixel injection panic (recovered): %v", r)
+		}
+	}()
+	if emailID == 0 {
+		return body
+	}
+	baseURL := os.Getenv("RENDER_EXTERNAL_URL")
+	if baseURL == "" {
+		baseURL = "https://mailerpro-rjoy.onrender.com"
+	}
+	pixel := fmt.Sprintf(
+		`<img src="%s/api/track/open?eid=%d" width="1" height="1" style="display:none;" alt="">`,
+		baseURL, emailID,
+	)
+	// Inject before </body> if present, otherwise append
+	if idx := strings.LastIndex(strings.ToLower(body), "</body>"); idx != -1 {
+		return body[:idx] + pixel + body[idx:]
+	}
+	return body + pixel
 }
 func extractDomain(email string) string {
 	parts := strings.Split(email, "@")
