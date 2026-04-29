@@ -426,10 +426,13 @@ Response: { "status": "ok", "version": "1.0.0" }</div>
 }
 
 function tocSection(title, links) {
-    return \`
-        <div style="margin-bottom: 1.25rem;">
-            <p style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.4rem; padding: 0 0.5rem;">\${title}</p>
-            \${links.map(([href, label]) => \`<a href="\${href}" class="docs-toc-link">\${label}</a>\`).join('')}
-        </div>
-    \`;
+    const linkHtml = links.map(function(item) {
+        return '<a href="' + item[0] + '" class="docs-toc-link">' + item[1] + '</a>';
+    }).join('');
+    return (
+        '<div style="margin-bottom: 1.25rem;">' +
+            '<p style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.4rem; padding: 0 0.5rem;">' + title + '</p>' +
+            linkHtml +
+        '</div>'
+    );
 }
