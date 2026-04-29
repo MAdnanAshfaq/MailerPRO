@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	"github.com/codersgyan/camp/internal/account"
 	"github.com/codersgyan/camp/internal/google"
 )
@@ -71,7 +72,7 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 				Name:  name,
 				Email: email,
 				// Google users don't need a local password, but we set a random one
-				PasswordHash: "google_authenticated", 
+				PasswordHash: "google_authenticated",
 				CompanyName:  name + "'s Company",
 			}
 			accountID, err = h.repo.CreateAccount(newAcc)
@@ -89,7 +90,7 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		_ = h.repo.UpdateGoogleTokens(accountID, token.AccessToken, token.RefreshToken, &token.Expiry)
 
 		// Redirect to dashboard with user details in query for initial login sync
-		http.Redirect(w, r, fmt.Sprintf("/?login_success=true&user_id=%d", accountID), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, fmt.Sprintf("/dashboard?login_success=true&user_id=%d", accountID), http.StatusTemporaryRedirect)
 		return
 	}
 

@@ -307,6 +307,14 @@ export function initAuth() {
 
     form.onsubmit = async (e) => {
         e.preventDefault();
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span style="display:inline-block;animation:spin 0.8s linear infinite;">⟳</span> Please wait…';
+        }
+
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         const isSignup = form.dataset.type === 'signup';
@@ -346,11 +354,22 @@ export function initAuth() {
                 userData = loginRes;
             }
 
+            // Persist user data and mark session as active
             localStorage.setItem('camp_user', JSON.stringify(userData));
             window.sessionStorage.setItem('isLoggedIn', 'true');
+
             showToast(isSignup ? 'Setup complete! Welcome to the premium inbox experience.' : 'Welcome back!', 'success');
-            window.location.href = '/';
+
+            // Use the SPA router to navigate — this keeps sessionStorage alive (no full page reload)
+            // and directly renders the Dashboard without going through the Go server's landing-page check.
+            window.history.pushState({}, '', '/');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+
         } catch (err) {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
             showToast((isSignup ? 'Setup failed: ' : 'Login failed: ') + err.message, 'error');
         }
     };

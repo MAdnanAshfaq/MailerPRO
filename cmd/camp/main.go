@@ -16,9 +16,9 @@ import (
 	"github.com/codersgyan/camp/internal/domain"
 	"github.com/codersgyan/camp/internal/google"
 	"github.com/codersgyan/camp/internal/mailer"
+	"github.com/codersgyan/camp/internal/scheduler"
 	"github.com/codersgyan/camp/internal/stats"
 	"github.com/codersgyan/camp/internal/warming"
-	"github.com/codersgyan/camp/internal/scheduler"
 	"github.com/joho/godotenv"
 )
 
@@ -171,7 +171,6 @@ func main() {
 	// Static file handlers
 	http.Handle("/frontend/", http.StripPrefix("/frontend/", http.FileServer(http.Dir("./frontend"))))
 
-
 	// Catch-all route to serve index.html for SPA routing
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// If it's an API request that didn't match, return 404
@@ -179,8 +178,8 @@ func main() {
 			http.NotFound(w, r)
 			return
 		}
-		// Serve landing page at root
-		if r.URL.Path == "/" {
+		// Serve landing page at root, UNLESS we are coming back from Google login
+		if r.URL.Path == "/" && r.URL.Query().Get("login_success") != "true" {
 			http.ServeFile(w, r, "./frontend/landing.html")
 			return
 		}
