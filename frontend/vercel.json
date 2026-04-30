@@ -1,12 +1,13 @@
 {
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/(login|signup|contacts|campaigns|schedule|settings|docs|dashboard)",
-      "destination": "/index.html"
-    }
+    { "source": "/login",      "destination": "/index.html" },
+    { "source": "/signup",     "destination": "/index.html" },
+    { "source": "/contacts",   "destination": "/index.html" },
+    { "source": "/campaigns",  "destination": "/index.html" },
+    { "source": "/schedule",   "destination": "/index.html" },
+    { "source": "/settings",   "destination": "/index.html" },
+    { "source": "/docs",       "destination": "/index.html" },
+    { "source": "/dashboard",  "destination": "/index.html" },
+    { "source": "/",           "destination": "/landing.html" }
   ]
 }
