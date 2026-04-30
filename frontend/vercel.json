@@ -1,13 +1,12 @@
 {
   "rewrites": [
-    { "source": "/login",      "destination": "/index.html" },
-    { "source": "/signup",     "destination": "/index.html" },
-    { "source": "/contacts",   "destination": "/index.html" },
-    { "source": "/campaigns",  "destination": "/index.html" },
-    { "source": "/schedule",   "destination": "/index.html" },
-    { "source": "/settings",   "destination": "/index.html" },
-    { "source": "/docs",       "destination": "/index.html" },
-    { "source": "/dashboard",  "destination": "/index.html" },
-    { "source": "/",           "destination": "/landing.html" }
+    { "source": "/login",     "destination": "/app.html" },
+    { "source": "/signup",    "destination": "/app.html" },
+    { "source": "/contacts",  "destination": "/app.html" },
+    { "source": "/campaigns", "destination": "/app.html" },
+    { "source": "/schedule",  "destination": "/app.html" },
+    { "source": "/settings",  "destination": "/app.html" },
+    { "source": "/docs",      "destination": "/app.html" },
+    { "source": "/dashboard", "destination": "/app.html" }
   ]
 }
