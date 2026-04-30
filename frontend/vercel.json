@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/(login|signup|contacts|campaigns|schedule|settings|docs|dashboard)",
+      "destination": "/index.html"
+    }
+  ]
+}

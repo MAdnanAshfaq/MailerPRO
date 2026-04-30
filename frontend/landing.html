@@ -218,15 +218,15 @@ footer{padding:6rem 2rem 3rem;background:#000;position:relative;z-index:10;borde
     <div class="gsap-reveal" style="margin-top: 4rem;">
       <div class="showreel-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
         <div class="showreel-item" style="border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); transition: 0.3s;">
-          <img src="/frontend/img/dashboard.png" alt="Dashboard" style="width: 100%; display: block;">
+          <img src="/img/dashboard.png" alt="Dashboard" style="width: 100%; display: block;">
           <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); text-align: center; font-weight: 600;">Intelligent Dashboard</div>
         </div>
         <div class="showreel-item" style="border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); transition: 0.3s;">
-          <img src="/frontend/img/contacts.png" alt="Contacts" style="width: 100%; display: block;">
+          <img src="/img/contacts.png" alt="Contacts" style="width: 100%; display: block;">
           <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); text-align: center; font-weight: 600;">Global Contact Management</div>
         </div>
         <div class="showreel-item" style="border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.3); transition: 0.3s;">
-          <img src="/frontend/img/campaigns.png" alt="Campaigns" style="width: 100%; display: block;">
+          <img src="/img/campaigns.png" alt="Campaigns" style="width: 100%; display: block;">
           <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); text-align: center; font-weight: 600;">High-Impact Campaigns</div>
         </div>
       </div>
@@ -370,10 +370,10 @@ scene.add(sun);
 const loader = new THREE.TextureLoader();
 const earthGeo = new THREE.SphereGeometry(1, 64, 64);
 const earthMat = new THREE.MeshPhongMaterial({
-  map: loader.load('/frontend/img/earth-blue-marble.jpg'),
-  bumpMap: loader.load('/frontend/img/earth-topology.png'),
+  map: loader.load('/img/earth-blue-marble.jpg'),
+  bumpMap: loader.load('/img/earth-topology.png'),
   bumpScale: 0.05,
-  specularMap: loader.load('/frontend/img/earth-waterbodies.png'),
+  specularMap: loader.load('/img/earth-waterbodies.png'),
   specular: new THREE.Color('grey'),
   shininess: 10
 });
@@ -384,7 +384,7 @@ scene.add(earth);
 // Clouds
 const cloudGeo = new THREE.SphereGeometry(1.02, 64, 64);
 const cloudMat = new THREE.MeshPhongMaterial({
-  map: loader.load('/frontend/img/earth_clouds.png'),
+  map: loader.load('/img/earth_clouds.png'),
   transparent: true, opacity: 0.4
 });
 const clouds = new THREE.Mesh(cloudGeo, cloudMat);
@@ -394,7 +394,7 @@ scene.add(clouds);
 // Stars
 const starGeo = new THREE.SphereGeometry(10, 64, 64);
 const starMat = new THREE.MeshBasicMaterial({
-  map: loader.load('/frontend/img/galaxy.png'),
+  map: loader.load('/img/galaxy.png'),
   side: THREE.BackSide, transparent: true, opacity: 0.4
 });
 scene.add(new THREE.Mesh(starGeo, starMat));
