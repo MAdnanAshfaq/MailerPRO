@@ -10,7 +10,7 @@ import { Analytics } from './pages/Analytics';
 import { Schedule, initSchedule } from './pages/Schedule';
 import { Templates } from './pages/Templates';
 import { Integration } from './pages/Integration';
-import { Landing } from './pages/Landing';
+import { Landing, initLanding } from './pages/Landing';
 import { Settings, initSettings } from './pages/Settings';
 import { Auth, initAuth } from './pages/Auth';
 import { Docs } from './pages/Docs';
@@ -140,11 +140,19 @@ async function render(path) {
     });
 
     // ── Page-specific initializers ──
+    if (path === '/landing' || path === '/') {
+        const user = localStorage.getItem('camp_user');
+        if (user && path === '/') {
+            initDashboard();
+        } else {
+            initLanding();
+        }
+    }
+    if (path === '/docs') initLanding();
     if (path === '/contacts') initContacts();
     if (path === '/campaigns') initCampaigns();
     if (path === '/schedule') initSchedule();
     if (path === '/settings') initSettings();
-    if (path === '/') initDashboard();
     if (['/login', '/signup'].includes(path)) initAuth();
 
     // ── Landing page mobile drawer ──
