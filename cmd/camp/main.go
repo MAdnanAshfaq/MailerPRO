@@ -193,22 +193,62 @@ func main() {
 	})
 
 	log.Printf("Server started at :%s\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, withSecurityHeaders(http.DefaultServeMux)))
+	
+	// Wrap with both CORS and Security Headers
+	handler := withCORS(withSecurityHeaders(http.DefaultServeMux))
+	log.Fatal(http.ListenAndServe(":"+port, handler))
+}
+
+func withCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		
+		// Allow any Vercel preview, the production Vercel URL, and localhost
+		allowedOrigins := []string{
+			"http://localhost:5173",
+			"http://localhost:8080",
+			os.Getenv("FRONTEND_URL"),
+		}
+		
+		isAllowed := false
+		for _, o := range allowedOrigins {
+			if o != "" && (origin == o || strings.HasSuffix(origin, ".vercel.app")) {
+				isAllowed = true
+				break
+			}
+		}
+
+		if isAllowed {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+		}
+
+		// Handle preflight OPTIONS requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func withSecurityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Content Security Policy
-		// default-src 'self': only allow resources from own domain
-		// script-src 'self' ... 'unsafe-eval': XLSX library needs eval, cdnjs for XLSX
-		// style-src 'self' 'unsafe-inline' ...: Google Fonts and inline styles
-		// img-src 'self' data: https://*: allow all images for AI personalization research
+		// Updated CSP to allow connections from the frontend URL and localhost
+		frontendURL := os.Getenv("FRONTEND_URL")
+		if frontendURL == "" {
+			frontendURL = "https://mailer-pro-sigma.vercel.app"
+		}
+		
 		csp := "default-src 'self'; " +
-			"script-src 'self' https://cdnjs.cloudflare.com 'unsafe-eval' 'unsafe-inline'; " +
+			"script-src 'self' https://cdnjs.cloudflare.com https://unpkg.com 'unsafe-eval' 'unsafe-inline'; " +
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
 			"font-src 'self' https://fonts.gstatic.com; " +
 			"img-src 'self' data: https://*; " +
-			"connect-src 'self' https://api.openai.com;"
+			"connect-src 'self' https://api.openai.com " + frontendURL + " " + strings.Replace(frontendURL, "https://", "wss://", 1) + " http://localhost:* ws://localhost:*;"
 
 		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("X-Content-Type-Options", "nosniff")
