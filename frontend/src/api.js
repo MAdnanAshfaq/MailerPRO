@@ -1,4 +1,7 @@
-const API_URL = '/api';
+// Use the Render URL in production, or /api (proxied) in development
+const API_URL = import.meta.env.PROD 
+    ? 'https://mailerpro-rjoy.onrender.com/api' 
+    : '/api';
 
 export const api = {
     async get(path) {
